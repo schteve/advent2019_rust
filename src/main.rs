@@ -1,6 +1,6 @@
 
-mod day_21_part2;
+mod day_22_part2;
 
 fn main() {
-    day_21_part2::solve();
+    day_22_part2::solve();
 }
