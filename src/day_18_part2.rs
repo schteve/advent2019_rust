@@ -680,7 +680,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_() {
+    fn test_get_shortest_path() {
         let input = "
 #######
 #a.#Cd#
@@ -717,7 +717,7 @@ mod test {
         map.split_entrance(&entrance);
         let mut graph = map.build_graph();
         graph.dijkstra(0);
-        let (distance, path) = graph.get_shortest_path();
+        let (distance, _path) = graph.get_shortest_path();
         assert_eq!(distance, 24);
         // There are multiple possible paths, don't verify
 
@@ -768,7 +768,7 @@ mod test {
         map.split_entrance(&entrance);
         let mut graph = map.build_graph();
         graph.dijkstra(0);
-        let (distance, path) = graph.get_shortest_path();
+        let (distance, _path) = graph.get_shortest_path();
         assert_eq!(distance, 72);
         // There are multiple possible paths, don't verify
     }

@@ -650,17 +650,16 @@ impl<'a> Camera<'a> {
         while self.program.halted == false {
             self.program.run_with_pause();
 
-            for i in 0..self.program.output.len() {
-                let output_value = self.program.output.remove(0);
-                if output_value < 128 { // If it's ASCII, print it as a character
-                    print!("{}", (output_value as u8) as char);
+            for i in self.program.output.drain(..) {
+                if i < 128 { // If it's ASCII, print it as a character
+                    print!("{}", (i as u8) as char);
                 } else {
-                    return output_value;
+                    return i;
                 }
             }
 
             if self.program.input_needed == true {
-                println!("Input needed!"); // Shouldn't happen
+                panic!("Input needed!");
             }
         }
 

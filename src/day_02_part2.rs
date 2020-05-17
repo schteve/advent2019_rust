@@ -79,8 +79,8 @@ pub fn solve(input: &str) -> u32 {
     program[1] = 12;
     program[2] = 2;
 
-    'outer: for noun in 0..100 {
-        'inner: for verb in 0..100 {
+    for noun in 0..100 {
+        for verb in 0..100 {
             let mut p = program.clone();
             p[1] = noun;
             p[2] = verb;

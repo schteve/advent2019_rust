@@ -431,7 +431,7 @@ impl<'a> TractorBeam<'a> {
 
     fn count_points_in_beam(&self) -> u32 {
         let count = self.area.iter()
-                            .filter(|&(k, v)| *v == Space::Pulled)
+                            .filter(|&(_k, v)| *v == Space::Pulled)
                             .count();
         count as u32
     }

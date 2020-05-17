@@ -552,7 +552,7 @@ impl<'a> Drone<'a> {
     }
 
     fn fill_with_oxygen(&mut self) -> i32 {
-        if let Some(oxygen) = self.area.iter().find(|(k, v)| **v == Space::Oxygen) {
+        if let Some(oxygen) = self.area.iter().find(|(_k, v)| **v == Space::Oxygen) {
             let mut counter = 0;
             let mut frontier: Vec<(i32, i32)> = Vec::new();
             frontier.push(*oxygen.0);

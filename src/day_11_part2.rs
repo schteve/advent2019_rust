@@ -448,7 +448,6 @@ impl Robot {
                         AbsDirection::South => print!("{}", 'v'),
                         AbsDirection::East  => print!("{}", '>'),
                         AbsDirection::West  => print!("{}", '<'),
-                        _ => panic!(),
                     }
                 } else {
                     print!("{}", self.get_color((x, y)).char());
@@ -460,8 +459,6 @@ impl Robot {
 }
 
 fn run_program_with_robot(program: &mut Program, robot: &mut Robot) {
-    let mut count = 0u32;
-
     while program.halted == false {
         program.run_with_pause();
 

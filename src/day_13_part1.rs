@@ -357,7 +357,7 @@ impl Game {
 
     fn blocks_left(&self) -> usize {
         let count = self.tiles.iter()
-                                .filter(|(&k, &v)| match v {
+                                .filter(|(&_k, &v)| match v {
                                         Tile::Block => true,
                                         _ => false,
                                     })

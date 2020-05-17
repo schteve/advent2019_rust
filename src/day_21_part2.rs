@@ -341,7 +341,7 @@ impl<'a> Droid<'a> {
     }
 
     fn print_output(&mut self) -> Option<i64> {
-        for i in self.program.output.drain(..).collect::<Vec<i64>>() {
+        for i in self.program.output.drain(..) {
             if i < 128 { // If it's ASCII, print it as a character
                 print!("{}", (i as u8) as char);
             } else { // If it's not ASCII, this is the final program result and can be returned immediately
@@ -407,6 +407,7 @@ pub fn solve(input: &str) -> i64 {
 
 #[cfg(test)]
 mod test {
+    #[allow(unused_imports)] // No tests for this module
     use super::*;
 
     #[test]

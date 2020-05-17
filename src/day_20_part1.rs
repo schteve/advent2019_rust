@@ -378,7 +378,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_() {
+    fn test_a_to_z() {
         let input = "
          A
          A

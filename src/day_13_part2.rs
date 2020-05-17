@@ -13,9 +13,9 @@
 */
 
 use std::collections::HashMap;
-use std::io;
-use std::time;
-use std::thread;
+//use std::io;
+//use std::time;
+//use std::thread;
 
 struct Program {
     code: Vec<i64>,
@@ -358,7 +358,7 @@ impl Game {
 
     fn blocks_left(&self) -> usize {
         let count = self.tiles.iter()
-                                .filter(|(&k, &v)| match v {
+                                .filter(|(&_k, &v)| match v {
                                         Tile::Block => true,
                                         _ => false,
                                     })

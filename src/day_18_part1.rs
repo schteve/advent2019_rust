@@ -570,7 +570,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_() {
+    fn test_get_shortest_path() {
         let input = "
 #########
 #b.A.@.a#
@@ -640,7 +640,7 @@ mod test {
         let map = Map::from_string(&input);
         let mut graph = map.build_graph();
         graph.dijkstra(0);
-        let (distance, path) = graph.get_shortest_path();
+        let (distance, _path) = graph.get_shortest_path();
         assert_eq!(distance, 136);
         // There are multiple possible paths, don't verify
 
@@ -655,7 +655,7 @@ let input = "
         let map = Map::from_string(&input);
         let mut graph = map.build_graph();
         graph.dijkstra(0);
-        let (distance, path) = graph.get_shortest_path();
+        let (distance, _path) = graph.get_shortest_path();
         assert_eq!(distance, 81);
         // There are multiple possible paths, don't verify
     }

@@ -167,7 +167,7 @@ impl Technique {
                         let n = modulo_mult(x_val, y_val, modulus);
                         vec![Self::DealWithIncrement(n)]
                     },
-                    Self::Cut(y_val) => {
+                    Self::Cut(_y_val) => {
                         unimplemented!() // Didn't figure out a good solution for this, but it's not needed since we always pull DealWithIncrement in front of Cut
                     },
                 }
