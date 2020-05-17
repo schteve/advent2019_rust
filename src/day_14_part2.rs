@@ -11,7 +11,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 #[derive(Debug)]
 struct Chemical {
@@ -188,13 +187,12 @@ fn calculate_max_fuel(reactions: &Vec<Reaction>, ore_to_use: i64) -> i64 {
     lower_bound*/
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_14_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day14, part2)]
+pub fn solve(input: &str) -> i64 {
     let reactions = parse_reactions(&input);
     let max_fuel = calculate_max_fuel(&reactions, 1_000_000_000_000);
     println!("Max fuel: {}", max_fuel);
+    max_fuel
 }
 
 #[cfg(test)]
@@ -286,6 +284,7 @@ mod test {
     }
 
     #[test]
+    #[ignore]
     fn test_calculate_max_fuel() {
         let input = "
 157 ORE => 5 NZVS

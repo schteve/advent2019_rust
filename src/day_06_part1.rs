@@ -51,8 +51,6 @@
     What is the total number of direct and indirect orbits in your map data?
 */
 
-use std::fs;
-
 struct SpaceObject {
     name: String,
     parent_name: String,
@@ -119,13 +117,12 @@ fn count_orbits(graph: &Vec<SpaceObject>) -> u32 {
     total_orbits
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_06_input.txt")
-        .expect("Something went wrong reading the file");
-
+#[aoc(day6, part1)]
+pub fn solve(input: &str) -> u32 {
     let graph = build_graph(&input);
     let orbits = count_orbits(&graph);
     println!("Orbits: {}", orbits);
+    orbits
 }
 
 #[cfg(test)]

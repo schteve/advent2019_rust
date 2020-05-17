@@ -59,7 +59,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -533,9 +532,8 @@ fn run_program_with_robot(program: &mut Program, robot: &mut Robot) {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_11_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day11, part1)]
+pub fn solve(input: &str) -> usize {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -552,6 +550,7 @@ pub fn solve() {
     run_program_with_robot(&mut program, &mut robot);
     robot.display();
     println!("Painted panels: {}", robot.panels.len());
+    robot.panels.len()
 }
 
 #[cfg(test)]

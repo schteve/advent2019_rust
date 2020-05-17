@@ -178,6 +178,8 @@
     What is the total energy in the system after simulating the moons given in your scan for 1000 steps?
 */
 
+use regex::Regex;
+
 struct SpaceObject {
     position: (i32, i32, i32),
     velocity: (i32, i32, i32),
@@ -280,15 +282,19 @@ impl Sim {
     }
 }
 
-pub fn solve() {
-    let positions = vec![(14, 4, 5),
-                         (12, 10, 8),
-                         (1, 7, -10),
-                         (16, -5, 3)];
+#[aoc(day12, part1)]
+pub fn solve(input: &str) -> i32 {
+    let re = Regex::new(r"<x=([-\d]+), y=([-\d]+), z=([-\d]+)>").unwrap();
+    let positions: Vec<(i32, i32, i32)> = re.captures_iter(input)
+                                            .map(|cap| (cap[1].parse::<i32>().unwrap(),
+                                                        cap[2].parse::<i32>().unwrap(),
+                                                        cap[3].parse::<i32>().unwrap()))
+                                            .collect();
     let mut sim = Sim::from_positions(positions);
 
     sim.step(1000);
     sim.display();
+    sim.total_energy()
 }
 
 #[cfg(test)]

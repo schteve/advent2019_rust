@@ -160,7 +160,6 @@
     Starting with your scan, how many bugs are present after 200 minutes?
 */
 
-use std::fs;
 use std::collections::HashMap;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -380,15 +379,14 @@ impl BugSim {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_24_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day24, part2)]
+pub fn solve(input: &str) -> i32 {
     let mut sim = BugSim::from_string(&input);
     sim.step(200);
-    sim.display();
+    //sim.display();
     let total_bugs = sim.count_bugs();
     println!("Total bugs: {}", total_bugs);
+    total_bugs
 }
 
 #[cfg(test)]

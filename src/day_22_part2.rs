@@ -13,8 +13,6 @@
     After shuffling your new, giant, factory order deck that many times, what number is on the card that ends up in position 2020?
 */
 
-use std::fs;
-
 fn modulo(n: i64, modulus: i64) -> i64 {
     let mut m = n;
 
@@ -330,10 +328,8 @@ fn get_card_at_position(techniques: &Vec<Technique>, modulus: i64, position: usi
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_22_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day22, part2)]
+pub fn solve(input: &str) -> i64 {
     let techniques = input.lines()
                           .map(|line| Technique::from_string(line.trim()))
                           .collect::<Vec<Technique>>();
@@ -344,11 +340,13 @@ pub fn solve() {
     let expand_result = expand(&reduce_result, deck_size, shuffle_count);
     let card_num = get_card_at_position(&expand_result, deck_size, 2020);
     println!("Card {} ended up in position 2020", card_num);
+    card_num
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_modulo_mult() {
@@ -560,7 +558,7 @@ mod test {
         assert_eq!(deck1, deck2);
 
         // Check that puzzle input reduces correctly
-        let input = fs::read_to_string("src/day_22_input.txt")
+        let input = fs::read_to_string("input/2019/day22.txt")
                     .expect("Something went wrong reading the file");
 
         let techniques = input.lines()

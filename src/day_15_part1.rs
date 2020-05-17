@@ -69,7 +69,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -585,9 +584,8 @@ impl<'a> Drone<'a> {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_15_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day15, part1)]
+pub fn solve(input: &str) -> i32 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -601,6 +599,7 @@ pub fn solve() {
     drone.display_area();
 
     println!("Moves to oxygen: {}", oxygen_moves);
+    oxygen_moves
 }
 
 #[cfg(test)]

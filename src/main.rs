@@ -1,6 +1,6 @@
 
-mod day_25_part1;
+extern crate aoc_runner_derive;
 
-fn main() {
-    day_25_part1::solve();
-}
+use aoc_runner_derive::aoc_main;
+
+aoc_main! { lib = advent2019_rust }

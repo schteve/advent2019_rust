@@ -42,7 +42,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -509,9 +508,8 @@ fn calculate_alignment_parameter_sum(intersections: &[(i32, i32)]) -> i32 {
     sum
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_17_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day17, part1)]
+pub fn solve(input: &str) -> i32 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -525,6 +523,7 @@ pub fn solve() {
     println!("Intersections: {:?}", intersections);
     let aps = calculate_alignment_parameter_sum(&intersections);
     println!("Alignment parameter sum: {}", aps);
+    aps
 }
 
 #[cfg(test)]

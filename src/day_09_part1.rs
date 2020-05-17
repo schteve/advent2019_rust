@@ -36,7 +36,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -328,9 +327,8 @@ impl Program {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_09_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day9, part1)]
+pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -339,6 +337,7 @@ pub fn solve() {
     let mut program = Program::new(&code, &[1]);
     program.run();
     println!("BOOST keycode: {}", program.output[0]);
+    program.output[0]
 }
 
 #[cfg(test)]

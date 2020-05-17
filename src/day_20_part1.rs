@@ -77,7 +77,6 @@
 
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::fs;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Cardinal {
@@ -364,15 +363,14 @@ impl Map {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_20_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day20, part1)]
+pub fn solve(input: &str) -> u32 {
     let map = Map::from_string(&input);
     map.display();
 
     let steps = map.a_to_z();
     println!("Steps: {}", steps);
+    steps
 }
 
 #[cfg(test)]

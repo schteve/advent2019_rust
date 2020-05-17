@@ -41,7 +41,6 @@
 */
 
 use std::cmp;
-use std::fs;
 
 struct Program {
     code: Vec<i32>,
@@ -311,9 +310,8 @@ fn max_thruster_signal(code: &[i32], phases: &[i32]) -> u32 {
     max_signal as u32
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_07_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day7, part1)]
+pub fn solve(input: &str) -> u32 {
     let code: Vec<i32> = input
                             .trim()
                             .split(",")
@@ -322,6 +320,7 @@ pub fn solve() {
 
     let max_signal = max_thruster_signal(&code, &[0,1,2,3,4]);
     println!("Max signal: {}", max_signal);
+    max_signal
 }
 
 #[cfg(test)]

@@ -60,8 +60,12 @@ fn count_passwords(start: u32, end: u32) -> u32 {
     count as u32
 }
 
-pub fn solve() {
-    println!("Passwords: {}", count_passwords(264793, 803935));
+#[aoc(day4, part2)]
+pub fn solve(input: &str) -> u32 {
+    let range = input.split("-").map(|s| s.parse::<u32>().unwrap()).collect::<Vec<u32>>();
+    let count = count_passwords(range[0], range[1]);
+    println!("Passwords: {}", count);
+    count
 }
 
 #[cfg(test)]

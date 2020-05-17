@@ -22,8 +22,6 @@
     To make sure the image wasn't corrupted during transmission, the Elves would like you to find the layer that contains the fewest 0 digits. On that layer, what is the number of 1 digits multiplied by the number of 2 digits?
 */
 
-use std::fs;
-
 struct Layer {
     data: Vec<u32>,
     width: usize,
@@ -124,9 +122,8 @@ fn checksum_fewest_zeros(image: &Image, digit1: u32, digit2: u32) -> u32 {
     layer.checksum(digit1, digit2)
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_08_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day8, part1)]
+pub fn solve(input: &str) -> u32 {
     let input_vec: Vec<u32> = input
                             .trim()
                             .chars()
@@ -137,6 +134,7 @@ pub fn solve() {
 
     let chk = checksum_fewest_zeros(&image, 1, 2);
     println!("Checksum(1, 2): {}", chk);
+    chk
 }
 
 #[cfg(test)]

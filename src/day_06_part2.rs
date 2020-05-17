@@ -46,8 +46,6 @@
     What is the minimum number of orbital transfers required to move from the object YOU are orbiting to the object SAN is orbiting? (Between the objects they are orbiting - not between YOU and SAN.)
 */
 
-use std::fs;
-
 #[derive(Clone)]
 struct SpaceObject {
     name: String,
@@ -150,13 +148,12 @@ fn count_orbital_transfers(graph: &Vec<SpaceObject>, src_name: &str, dst_name: &
     total_transfers as u32
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_06_input.txt")
-        .expect("Something went wrong reading the file");
-
+#[aoc(day6, part2)]
+pub fn solve(input: &str) -> u32 {
     let graph = build_graph(&input);
     let transfers = count_orbital_transfers(&graph, "YOU", "SAN");
     println!("Transfers: {}", transfers);
+    transfers
 }
 
 #[cfg(test)]

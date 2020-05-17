@@ -133,7 +133,6 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::fs;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Cardinal {
@@ -629,10 +628,8 @@ impl Graph {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_18_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day18, part2)]
+pub fn solve(input: &str) -> u32 {
     let mut map = Map::from_string(&input);
     // Replace the entrance with a specific pattern. This is a requirement for part 2.
     let entrance = map.get_entrance();
@@ -675,6 +672,7 @@ pub fn solve() {
             }
         }
     }
+    distance
 }
 
 #[cfg(test)]

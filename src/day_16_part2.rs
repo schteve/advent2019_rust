@@ -14,8 +14,6 @@
     After repeating your input signal 10000 times and running 100 phases of FFT, what is the eight-digit message embedded in the final output list?
 */
 
-use std::fs;
-
 fn ones_digit(input: i32) -> i32 {
     let output = input % 10;
     output.abs()
@@ -71,10 +69,8 @@ fn get_offset(list: &[i32]) -> i32 {
     offset
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_16_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day16, part2)]
+pub fn solve(input: &str) -> String {
     let list = parse_string_x1000(&input);
     let offset = get_offset(&list);
     println!("Size: {}", list[(offset as usize)..].len());
@@ -84,6 +80,7 @@ pub fn solve() {
                                 .map(|i| i.to_string())
                                 .collect::<String>();
     println!("FFT x10000: {}", fft_result_str);
+    fft_result_str
 }
 
 #[cfg(test)]

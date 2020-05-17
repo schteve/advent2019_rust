@@ -94,7 +94,6 @@
 
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::fs;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Cardinal {
@@ -534,10 +533,8 @@ impl Graph {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_18_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day18, part1)]
+pub fn solve(input: &str) -> u32 {
     let map = Map::from_string(&input);
     map.display();
 
@@ -565,6 +562,7 @@ pub fn solve() {
     let (distance, path) = graph.get_shortest_path();
     println!("Distance: {}", distance);
     println!("Path: {:?}", path);
+    distance
 }
 
 #[cfg(test)]

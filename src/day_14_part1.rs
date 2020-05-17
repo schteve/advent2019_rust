@@ -86,7 +86,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 #[derive(Debug)]
 struct Chemical {
@@ -220,13 +219,12 @@ fn calculate_ore_for_fuel(reactions: &Vec<Reaction>, num_fuel: i64) -> i64 {
     ore_required
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_14_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day14, part1)]
+pub fn solve(input: &str) -> i64 {
     let reactions = parse_reactions(&input);
     let ore = calculate_ore_for_fuel(&reactions, 1);
     println!("Ore required: {}", ore);
+    ore
 }
 
 #[cfg(test)]

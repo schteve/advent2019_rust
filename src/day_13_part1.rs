@@ -17,7 +17,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -416,9 +415,8 @@ fn run_program_with_game(program: &mut Program, game: &mut Game) {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_13_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day13, part1)]
+pub fn solve(input: &str) -> usize {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -433,7 +431,9 @@ pub fn solve() {
 
     run_program_with_game(&mut program, &mut game);
     game.display();
-    println!("Blocks on screen: {}", game.blocks_left());
+    let blocks = game.blocks_left();
+    println!("Blocks on screen: {}", blocks);
+    blocks
 }
 
 #[cfg(test)]

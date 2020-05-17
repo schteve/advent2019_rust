@@ -64,7 +64,6 @@ extern crate num;
 use num::integer::gcd;
 use std::collections::HashSet;
 use std::f32;
-use std::fs;
 
 struct AsteroidMap {
     data: HashSet<(i32, i32)>,
@@ -185,9 +184,8 @@ fn angle_between_points(point_a: (i32, i32), point_b: (i32, i32)) -> f32 {
     adjusted_angle
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_10_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day10, part2)]
+pub fn solve(input: &str) -> i32 {
     let mut asteroids = AsteroidMap::from_string(&input);
     // println!("{:?}", asteroids.data);
 
@@ -195,6 +193,7 @@ pub fn solve() {
     let last = asteroids.vaporize(best_station, 199);
     let key = last.0 * 100 + last.1;
     println!("Last asteroid: {:?}, key: {}", last, key);
+    key
 }
 
 #[cfg(test)]

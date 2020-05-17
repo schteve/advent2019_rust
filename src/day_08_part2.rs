@@ -30,9 +30,9 @@
     What message is produced after decoding your image?
 */
 
-use std::fs;
+use std::fmt;
 
-struct Layer {
+pub struct Layer {
     data: Vec<u32>,
     width: usize,
     height: usize,
@@ -51,16 +51,6 @@ impl Layer {
         self.data[row * self.width + col]
     }
 
-    fn display(&self) {
-        for row in self.data.chunks(self.width as usize) {
-            println!("{}", row
-                            .into_iter()
-                            .map(|i| i.to_string())
-                            .collect::<String>());
-        }
-        println!("");
-    }
-
     fn count_digits(&self, value: u32) -> u32 {
         let count = self.data
                         .iter()
@@ -75,6 +65,19 @@ impl Layer {
         let count1 = self.count_digits(digit1);
         let count2 = self.count_digits(digit2);
         count1 * count2
+    }
+}
+
+impl fmt::Display for Layer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "")?;
+        for row in self.data.chunks(self.width as usize) {
+            writeln!(f, "{}", row
+                            .into_iter()
+                            .map(|i| i.to_string())
+                            .collect::<String>())?;
+        }
+        Ok(())
     }
 }
 
@@ -101,13 +104,13 @@ impl Image {
     }
 
     fn display(&self, layer_num: u32) {
-        self.layers[layer_num as usize].display();
+        println!("{}", self.layers[layer_num as usize]);
     }
 
     fn display_all(&self) {
          self.layers
             .iter()
-            .for_each(|layer| layer.display());
+            .for_each(|layer| println!("{}", layer));
     }
 
     fn stack_layers(&self) -> Layer {
@@ -131,9 +134,8 @@ impl Image {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_08_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day8, part2)]
+pub fn solve(input: &str) -> Layer {
     let input_vec: Vec<u32> = input
                             .trim()
                             .chars()
@@ -142,7 +144,7 @@ pub fn solve() {
     let image = Image::from_slice(&input_vec, 25, 6);
     // image.display_all();
 
-    image.stack_layers().display();
+    image.stack_layers()
 }
 
 #[cfg(test)]

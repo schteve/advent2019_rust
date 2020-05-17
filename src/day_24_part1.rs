@@ -58,7 +58,6 @@
     What is the biodiversity rating for the first layout that appears twice?
 */
 
-use std::fs;
 use std::collections::HashSet;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -178,14 +177,14 @@ impl BugSim {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_24_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day24, part1)]
+pub fn solve(input: &str) -> i32 {
     let mut sim = BugSim::from_string(&input);
     sim.run_until_repeat();
-    sim.display();
-    println!("Biodiversity: {}", sim.biodiversity());
+    //sim.display();
+    let biodiversity = sim.biodiversity();
+    println!("Biodiversity: {}", biodiversity);
+    biodiversity
 }
 
 #[cfg(test)]

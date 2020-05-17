@@ -83,7 +83,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -409,17 +408,18 @@ impl<'a> Droid<'a> {
         }
     }
 
-    fn print_output(&mut self) {
+    fn print_output(&mut self) -> Option<i64> {
         for i in self.program.output.drain(..).collect::<Vec<i64>>() {
             if i < 128 { // If it's ASCII, print it as a character
                 print!("{}", (i as u8) as char);
-            } else {
-                println!("Hull damage: {}", i);
+            } else { // If it's not ASCII, this is the final program result and can be returned immediately
+                return Some(i);
             }
         }
+        None
     }
 
-    fn run(&mut self) {
+    fn run(&mut self) -> i64 {
         // Get intial prompt
         self.program.run_with_pause();
         self.print_output();
@@ -430,19 +430,21 @@ impl<'a> Droid<'a> {
         // Run the script
         while self.program.halted == false {
             self.program.run_with_pause();
-            self.print_output();
+            if let Some(result) = self.print_output() {
+                return result;
+            }
 
             if self.program.input_needed == true {
                 println!("Input needed!"); // Shouldn't happen
             }
         }
+
+        panic!("Program halted without completing");
     }
 }
 
-
-pub fn solve() {
-    let input = fs::read_to_string("src/day_21_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day21, part1)]
+pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -460,7 +462,10 @@ pub fn solve() {
     // Check if I can jump
     droid.script.add_line("AND D J"); // J: (~A | ~B | ~C) & D
     droid.script.add_line("WALK");
-    droid.run();
+
+    let damage = droid.run();
+    println!("Hull damage: {}", damage);
+    damage
 }
 
 #[cfg(test)]

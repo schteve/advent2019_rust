@@ -136,8 +136,6 @@
     After shuffling your factory order deck of 10007 cards, what is the position of card 2019?
 */
 
-use std::fs;
-
 fn modulo(n: i64, modulus: i64) -> i64 {
     let mut m = n;
 
@@ -257,11 +255,8 @@ impl Deck {
     }
 }
 
-
-pub fn solve() {
-    let input = fs::read_to_string("src/day_22_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day22, part1)]
+pub fn solve(input: &str) -> usize {
     let techniques = input.lines()
                           .map(|line| Technique::from_string(line.trim()))
                           .collect::<Vec<Technique>>();
@@ -271,11 +266,9 @@ pub fn solve() {
         deck.shuffle(t);
     }
 
-    let position = deck.find_card(2019);
-    match position {
-        Some(idx) => println!("Card 2019 position: {}", idx),
-        None => println!("Could not find card 2019! This shouldn't be possible."),
-    }
+    let position = deck.find_card(2019).expect("Could not find card 2019!");
+    println!("Card 2019 position: {}", position);
+    position
 }
 
 #[cfg(test)]

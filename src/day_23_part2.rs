@@ -12,7 +12,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 #[derive(Clone)]
 struct Program {
@@ -443,9 +442,8 @@ impl Router {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_23_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day23, part2)]
+pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -455,6 +453,7 @@ pub fn solve() {
     let mut router = Router::new(program);
     let result = router.run();
     println!("First packet sent repeatedly by NAT has Y value: {}", result);
+    result
 }
 
 #[cfg(test)]

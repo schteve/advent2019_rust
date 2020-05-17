@@ -13,7 +13,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 use std::io;
 use std::time;
 use std::thread;
@@ -440,8 +439,11 @@ fn run_program_with_game(program: &mut Program, game: &mut Game) {
         program.run_with_pause();
 
         if program.input_needed == true {
+            // Show game being played
+            /*
             game.display();
             thread::sleep(time::Duration::from_millis(50));
+            */
 
             // Get input from bot
             let joystick = if paddle_coord.0 < ball_coord.0 {
@@ -488,9 +490,8 @@ fn run_program_with_game(program: &mut Program, game: &mut Game) {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_13_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day13, part2)]
+pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -502,6 +503,7 @@ pub fn solve() {
     let mut game = Game::new();
     run_program_with_game(&mut program, &mut game);
     println!("Final score: {}", game.score);
+    game.score
 }
 
 #[cfg(test)]

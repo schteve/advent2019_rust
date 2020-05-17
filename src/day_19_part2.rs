@@ -47,7 +47,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 #[derive(Clone)]
 struct Program {
@@ -509,9 +508,8 @@ impl<'a> TractorBeam<'a> {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_19_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day19, part2)]
+pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -523,15 +521,17 @@ pub fn solve() {
     let box_coord = tractor_beam.scan_for_box(100);
     println!("Box coordinate: {}", box_coord);
     //tractor_beam.display();
+    box_coord
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_scan_0_0() {
-        let input = fs::read_to_string("src/day_19_input.txt")
+        let input = fs::read_to_string("input/2019/day19.txt")
                     .expect("Something went wrong reading the file");
         let code: Vec<i64> = input
                                 .trim()

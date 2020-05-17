@@ -24,7 +24,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 use std::io::{self, BufRead};
 
 #[derive(Clone)]
@@ -410,9 +409,8 @@ impl Droid {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_25_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day25, part1)]
+pub fn solve(input: &str) -> String {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -441,6 +439,7 @@ pub fn solve() {
     droid.commands.extend(commands);
 
     droid.run();
+    String::from("See output above")
 }
 
 #[cfg(test)]

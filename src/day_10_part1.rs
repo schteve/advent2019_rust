@@ -101,7 +101,6 @@ extern crate num;
 
 use num::integer::gcd;
 use std::collections::HashSet;
-use std::fs;
 
 struct AsteroidMap {
     data: HashSet<(i32, i32)>,
@@ -185,16 +184,15 @@ impl AsteroidMap {
     }
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_10_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day10, part1)]
+pub fn solve(input: &str) -> usize {
     let asteroids = AsteroidMap::from_string(&input);
     // println!("{:?}", asteroids.data);
 
     let best_station = asteroids.best_station();
     let best_visible = asteroids.count_visible(best_station);
     println!("Best station: {:?} with {} visible", best_station, best_visible);
+    best_visible
 }
 
 #[cfg(test)]

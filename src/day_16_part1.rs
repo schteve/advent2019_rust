@@ -69,8 +69,6 @@
     After 100 phases of FFT, what are the first eight digits in the final output list?
 */
 
-use std::fs;
-
 fn gen_base_pattern(element: i32) -> Vec<i32> {
     let mut pattern = Vec::new();
     for &i in &[0, 1, 0, -1] {
@@ -133,16 +131,15 @@ fn parse_string(s: &str) -> Vec<i32> {
     list
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_16_input.txt")
-                    .expect("Something went wrong reading the file");
-
+#[aoc(day16, part1)]
+pub fn solve(input: &str) -> String {
     let list = parse_string(&input);
     let fft_result = fft(&list, 100);
     let fft_result_str: String = fft_result[..8].into_iter()
                                 .map(|i| i.to_string())
                                 .collect::<String>();
     println!("First 8 digits of FFT: {}", fft_result_str);
+    fft_result_str
 }
 
 #[cfg(test)]

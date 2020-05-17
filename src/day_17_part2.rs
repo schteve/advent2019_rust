@@ -42,7 +42,6 @@
 */
 
 use std::collections::HashMap;
-use std::fs;
 
 struct Program {
     code: Vec<i64>,
@@ -647,7 +646,7 @@ impl<'a> Camera<'a> {
         self.give_string(&yes_str);
     }
 
-    fn feed(&mut self) {
+    fn feed(&mut self) -> i64 {
         while self.program.halted == false {
             self.program.run_with_pause();
 
@@ -656,7 +655,7 @@ impl<'a> Camera<'a> {
                 if output_value < 128 { // If it's ASCII, print it as a character
                     print!("{}", (output_value as u8) as char);
                 } else {
-                    println!("Space dust: {}", output_value);
+                    return output_value;
                 }
             }
 
@@ -664,6 +663,8 @@ impl<'a> Camera<'a> {
                 println!("Input needed!"); // Shouldn't happen
             }
         }
+
+        panic!("Program halted without completing");
     }
 }
 
@@ -765,9 +766,8 @@ fn find_3_sub_routines(path: &[Segment]) -> (Vec<usize>, Vec<String>) {
     (main_routine, sub_routines)
 }
 
-pub fn solve() {
-    let input = fs::read_to_string("src/day_17_input.txt")
-                    .expect("Something went wrong reading the file");
+#[aoc(day17, part2)]
+pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
                             .split(",")
@@ -786,7 +786,10 @@ pub fn solve() {
     camera.give_main_routine(&main_routine);
     camera.give_sub_routines(&sub_routines);
     camera.enable_video(false);
-    camera.feed();
+    let dust = camera.feed();
+    println!("Space dust: {}", dust);
+    dust
+
 }
 
 #[cfg(test)]
