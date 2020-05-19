@@ -79,6 +79,13 @@ fn gen_base_pattern(element: i32) -> Vec<i32> {
     pattern
 }
 
+fn gen_pattern_table(elements: i32) -> Vec<Vec<i32>> {
+    let pattern_table = (0..elements)
+                                .map(|i| gen_base_pattern(i))
+                                .collect();
+    pattern_table
+}
+
 fn ones_digit(input: i32) -> i32 {
     let output = input % 10;
     output.abs()
@@ -93,17 +100,18 @@ fn mult_pattern(input: &Vec<i32>, pattern: &Vec<i32>) -> i32 {
     ones_digit(sum)
 }
 
-fn phase(input: &Vec<i32>) -> Vec<i32> {
+fn phase(input: &Vec<i32>, pattern_table: &Vec<Vec<i32>>) -> Vec<i32> {
     let output: Vec<i32> = (0..input.len())
-                                .map(|i| gen_base_pattern(i as i32))
-                                .map(|pattern| mult_pattern(input, &pattern))
+                                .map(|i| mult_pattern(input, &pattern_table[i]))
                                 .collect();
     output
 }
 
 fn fft(input: Vec<i32>, phases: i32) -> Vec<i32> {
+    // Generate all patterns first. This dramatically improves performance.
+    let pattern_table = gen_pattern_table(input.len() as i32);
     let mut working_vec = input;
-    (0..phases).for_each(|_| working_vec = phase(&working_vec));
+    (0..phases).for_each(|_| working_vec = phase(&working_vec, &pattern_table));
     working_vec
 }
 
@@ -185,19 +193,23 @@ mod test {
     #[test]
     fn test_phase() {
         let input = parse_string("12345678");
-        let phase_result = phase(&input);
+        let pattern_table = gen_pattern_table(input.len() as i32);
+        let phase_result = phase(&input, &pattern_table);
         assert_eq!(&phase_result, &parse_string("48226158"));
 
         let input = parse_string("48226158");
-        let phase_result = phase(&input);
+        let pattern_table = gen_pattern_table(input.len() as i32);
+        let phase_result = phase(&input, &pattern_table);
         assert_eq!(&phase_result, &parse_string("34040438"));
 
         let input = parse_string("34040438");
-        let phase_result = phase(&input);
+        let pattern_table = gen_pattern_table(input.len() as i32);
+        let phase_result = phase(&input, &pattern_table);
         assert_eq!(&phase_result, &parse_string("03415518"));
 
         let input = parse_string("03415518");
-        let phase_result = phase(&input);
+        let pattern_table = gen_pattern_table(input.len() as i32);
+        let phase_result = phase(&input, &pattern_table);
         assert_eq!(&phase_result, &parse_string("01029498"));
     }
 
