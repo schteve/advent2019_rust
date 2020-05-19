@@ -74,11 +74,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -388,14 +384,8 @@ struct Router {
 
 impl Router {
     fn new(program: Program) -> Self {
-        let mut computers = Vec::new();
-        for i in 0..50 {
-            let c = Computer::new(program.clone(), i);
-            computers.push(c);
-        }
-
         Self {
-            computers: computers,
+            computers: (0..50).map(|i| Computer::new(program.clone(), i)).collect(),
         }
     }
 
@@ -420,23 +410,20 @@ impl Router {
 
             let is_idle = self.computers.iter().all(|c| c.idle_count > 5); // Arbitrary idle count limit
             if is_idle == true {
-                if let Some(packet) = nat {
-                    let modified_packet = Packet {
-                        address: 0,
-                        ..packet
-                    };
-                    self.computers[0].rx(modified_packet);
+                let packet = nat.expect("Router is idle but NAT has no value");
+                let modified_packet = Packet {
+                    address: 0,
+                    ..packet
+                };
+                self.computers[0].rx(modified_packet);
 
-                    // Check stop condition: if two NAT packets in a row match Y values
-                    if let Some(prev) = previous_nat_delivered {
-                        if prev.y == packet.y {
-                            return packet.y;
-                        }
+                // Check stop condition: if two NAT packets in a row match Y values
+                if let Some(prev) = previous_nat_delivered {
+                    if prev.y == packet.y {
+                        return packet.y;
                     }
-                    previous_nat_delivered = nat;
-                } else {
-                    panic!("Router is idle but NAT has no value");
                 }
+                previous_nat_delivered = nat;
             }
         }
     }

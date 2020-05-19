@@ -144,11 +144,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -386,13 +382,13 @@ impl Script {
     }
 }
 
-struct Droid<'a> {
-    program: &'a mut Program,
+struct Droid {
+    program: Program,
     script: Script,
 }
 
-impl<'a> Droid<'a> {
-    fn new(program: &'a mut Program) -> Self {
+impl Droid {
+    fn new(program: Program) -> Self {
         Self {
             program: program,
             script: Script::new(),
@@ -409,7 +405,7 @@ impl<'a> Droid<'a> {
     }
 
     fn print_output(&mut self) -> Option<i64> {
-        for i in self.program.output.drain(..).collect::<Vec<i64>>() {
+        for i in self.program.output.drain(..) {
             if i < 128 { // If it's ASCII, print it as a character
                 print!("{}", (i as u8) as char);
             } else { // If it's not ASCII, this is the final program result and can be returned immediately
@@ -435,7 +431,7 @@ impl<'a> Droid<'a> {
             }
 
             if self.program.input_needed == true {
-                println!("Input needed!"); // Shouldn't happen
+                panic!("Input needed!");
             }
         }
 
@@ -450,8 +446,8 @@ pub fn solve(input: &str) -> i64 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-    let mut droid = Droid::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut droid = Droid::new(program);
 
     // Check if I need to jump
     droid.script.add_line("NOT A J"); // J: ~A

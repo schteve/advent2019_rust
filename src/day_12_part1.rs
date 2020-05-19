@@ -244,10 +244,10 @@ impl Sim {
             }
         }
 
-        for i in 0..self.objects.len() {
-            self.objects[i].position.0 += self.objects[i].velocity.0;
-            self.objects[i].position.1 += self.objects[i].velocity.1;
-            self.objects[i].position.2 += self.objects[i].velocity.2;
+        for obj in self.objects.iter_mut() {
+            obj.position.0 += obj.velocity.0;
+            obj.position.1 += obj.velocity.1;
+            obj.position.2 += obj.velocity.2;
         }
     }
 

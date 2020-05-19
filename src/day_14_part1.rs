@@ -93,136 +93,126 @@ struct Chemical {
     num: i64,
 }
 
+impl Chemical {
+    fn from_string(input: &str) -> Self {
+        // Parses string in format: "7 A"
+        let mut parts = input.trim().split(" ");
+        let num = parts.next().unwrap().parse::<i64>().unwrap();
+        let name = parts.next().unwrap().to_string();
+
+        Self {
+            name: name,
+            num: num,
+        }
+    }
+}
+
 #[derive(Debug)]
 struct Reaction {
     from: Vec<Chemical>,
     to: Chemical,
 }
 
-fn react(supply: &mut HashMap<String, i64>, reaction: &Reaction) {
-    for consumed_chemical in &reaction.from {
-        let chemical_name = consumed_chemical.name.clone();
-        let entry = supply.entry(chemical_name).or_insert(0);
-        *entry -= consumed_chemical.num;
-    }
+impl Reaction {
+    fn from_string(input: &str) -> Self {
+        let pieces: Vec<&str> = input.split("=>").collect();
+        let from_chemicals: Vec<Chemical> = pieces[0].split(",")
+                                                    .map(|s| Chemical::from_string(s))
+                                                    .collect();
+        let to_chemical = Chemical::from_string(pieces[1]);
 
-    let produced_chemical = &reaction.to;
-    let chemical_name = produced_chemical.name.clone();
-    let entry = supply.entry(chemical_name).or_insert(0);
-    *entry += produced_chemical.num;
-}
-
-fn produce_chemical(supply: &mut HashMap<String, i64>, reactions: &Vec<Reaction>, chemical: Chemical) {
-    // Find reaction which produces chemical
-    let reaction = reactions.iter()
-                            .find(|&r| r.to.name == chemical.name);
-    let reaction = match reaction {
-        Some(r) => r,
-        None => {
-            println!("No reaction for: {:?}", chemical);
-            return;
-        }
-    };
-
-    // Calculate how many times the reaction needs to occur to produce the desired number of chemical
-    let mut react_count = chemical.num / reaction.to.num;
-    if chemical.num % reaction.to.num != 0 {
-        react_count += 1;
-    }
-
-    // println!();
-    // println!("Supply: {:?}", supply);
-    // println!("React {} times: {:?}", react_count, reaction);
-
-    // Perform reaction X times
-    for _ in 0..react_count {
-        react(supply, &reaction);
-    }
-}
-
-fn resolve_debt(supply: &mut HashMap<String, i64>, reactions: &Vec<Reaction>) {
-    loop {
-        // Get all elements in the supply with a negative number (chemical debt)
-        let chemical_debts = supply.iter()
-                                    .filter(|&(k, v)| (*v < 0) && (k != "ORE"))
-                                    .map(|(k, v)| Chemical {
-                                            name: k.clone(),
-                                            num: -v, // Invert to get the amount needed to produce
-                                        })
-                                    .collect::<Vec<Chemical>>();
-
-        if chemical_debts.len() == 0 {
-            break;
-        }
-
-        for chemical in chemical_debts {
-            produce_chemical(supply, reactions, chemical);
-        }
-    }
-}
-
-fn chemical_from_string(input: &str) -> Chemical {
-    // Parses string in format: "7 A"
-    // println!("Parse: {}", input);
-
-    let mut parts = input.trim().split(" ");
-    let num = parts.next().unwrap().parse::<i64>().unwrap();
-    let name = parts.next().unwrap().to_string();
-
-    Chemical {
-        name: name,
-        num: num,
-    }
-}
-
-fn parse_reactions(input: &str) -> Vec<Reaction> {
-    let mut reactions = Vec::new();
-
-    for line in input.trim().lines() {
-        let mut halves = line.split("=>");
-        let first_half = halves.next().unwrap();
-        let second_half = halves.next().unwrap();
-
-        // Parse first half of the line: 7 A, 1 B
-        let from_chemicals = first_half.trim()
-                                .split(",")
-                                .map(|s| chemical_from_string(s))
-                                .collect();
-
-        // Parse second half
-        let to_chemical = chemical_from_string(second_half.trim());
-
-        let new_reaction = Reaction {
+        Self {
             from: from_chemicals,
             to: to_chemical,
-        };
-        reactions.push(new_reaction);
+        }
     }
 
-    reactions
+    fn react(&self, supply: &mut HashMap<String, i64>) {
+        for consumed_chemical in &self.from {
+            let chemical_name = consumed_chemical.name.clone();
+            let entry = supply.entry(chemical_name).or_insert(0);
+            *entry -= consumed_chemical.num;
+        }
+
+        let produced_chemical = &self.to;
+        let chemical_name = produced_chemical.name.clone();
+        let entry = supply.entry(chemical_name).or_insert(0);
+        *entry += produced_chemical.num;
+    }
 }
 
-fn calculate_ore_for_fuel(reactions: &Vec<Reaction>, num_fuel: i64) -> i64 {
-    let mut supply: HashMap::<String, i64> = HashMap::new();
+struct RecipeBook {
+    reactions: Vec<Reaction>,
+}
 
-    let fuel = Chemical {
-        name: "FUEL".to_string(),
-        num: num_fuel
-    };
-    produce_chemical(&mut supply, reactions, fuel);
-    resolve_debt(&mut supply, reactions);
+impl RecipeBook {
+    fn from_string(input: &str) -> Self {
+        let reactions: Vec<Reaction> = input.trim().lines()
+                                                .map(|line| Reaction::from_string(line))
+                                                .collect();
+        Self {
+            reactions,
+        }
+    }
 
-    // println!();
-    // println!("Final supply: {:?}", supply);
+    fn produce_chemical(&self, supply: &mut HashMap<String, i64>, chemical: &Chemical) {
+        // Find reaction which produces chemical
+        let reaction = self.reactions.iter()
+                                    .find(|&r| r.to.name == chemical.name)
+                                    .expect("Reaction not found");
 
-    let ore_required = supply.get("ORE").unwrap_or(&0i64) * -1;
-    ore_required
+        // Calculate how many times the reaction needs to occur to produce the desired number of chemical
+        let mut react_count = chemical.num / reaction.to.num;
+        if chemical.num % reaction.to.num != 0 {
+            react_count += 1;
+        }
+
+        // Perform reaction X times
+        (0..react_count).for_each(|_| reaction.react(supply));
+    }
+
+    fn resolve_debt(&self, supply: &mut HashMap<String, i64>) {
+        loop {
+            // Get all elements in the supply with a negative number (chemical debt)
+            let chemical_debts: Vec<Chemical> = supply.iter()
+                                                    .filter(|&(k, v)| (*v < 0) && (k != "ORE"))
+                                                    .map(|(k, v)| Chemical {
+                                                            name: k.clone(),
+                                                            num: -v, // Negate to get the amount needed to produce
+                                                        })
+                                                    .collect();
+
+            if chemical_debts.len() == 0 {
+                // No more chemical debt, return
+                break;
+            }
+
+            chemical_debts.iter().for_each(|chemical| self.produce_chemical(supply, chemical));
+        }
+    }
+
+    fn calculate_ore_for_fuel(&self, num_fuel: i64) -> i64 {
+        let mut supply: HashMap::<String, i64> = HashMap::new();
+
+        let fuel = Chemical {
+            name: "FUEL".to_string(),
+            num: num_fuel
+        };
+        self.produce_chemical(&mut supply, &fuel);
+        self.resolve_debt(&mut supply);
+
+        // println!();
+        // println!("Final supply: {:?}", supply);
+
+        let ore_required = supply.get("ORE").unwrap_or(&0i64) * -1;
+        ore_required
+    }
 }
 
 #[aoc(day14, part1)]
 pub fn solve(input: &str) -> i64 {
-    let reactions = parse_reactions(&input);
-    let ore = calculate_ore_for_fuel(&reactions, 1);
+    let recipe_book = RecipeBook::from_string(input);
+    let ore = recipe_book.calculate_ore_for_fuel(1);
     println!("Ore required: {}", ore);
     ore
 }
@@ -241,8 +231,8 @@ mod test {
 7 A, 1 D => 1 E
 7 A, 1 E => 1 FUEL
 ";
-        let reactions = parse_reactions(input);
-        let ore = calculate_ore_for_fuel(&reactions, 1);
+        let recipe_book = RecipeBook::from_string(input);
+        let ore = recipe_book.calculate_ore_for_fuel(1);
         assert_eq!(ore, 31);
 
         let input = "
@@ -254,8 +244,8 @@ mod test {
 4 C, 1 A => 1 CA
 2 AB, 3 BC, 4 CA => 1 FUEL
 ";
-        let reactions = parse_reactions(input);
-        let ore = calculate_ore_for_fuel(&reactions, 1);
+        let recipe_book = RecipeBook::from_string(input);
+        let ore = recipe_book.calculate_ore_for_fuel(1);
         assert_eq!(ore, 165);
 
         let input = "
@@ -269,8 +259,8 @@ mod test {
 165 ORE => 2 GPVTF
 3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT
 ";
-        let reactions = parse_reactions(input);
-        let ore = calculate_ore_for_fuel(&reactions, 1);
+        let recipe_book = RecipeBook::from_string(input);
+        let ore = recipe_book.calculate_ore_for_fuel(1);
         assert_eq!(ore, 13312);
 
         let input = "
@@ -287,8 +277,8 @@ mod test {
 1 VJHF, 6 MNCFX => 4 RFSQX
 176 ORE => 6 VJHF
 ";
-        let reactions = parse_reactions(input);
-        let ore = calculate_ore_for_fuel(&reactions, 1);
+        let recipe_book = RecipeBook::from_string(input);
+        let ore = recipe_book.calculate_ore_for_fuel(1);
         assert_eq!(ore, 180697);
 
         let input = "
@@ -310,8 +300,8 @@ mod test {
 7 XCVML => 6 RJRHP
 5 BHXH, 4 VRPVC => 5 LTCX
 ";
-        let reactions = parse_reactions(input);
-        let ore = calculate_ore_for_fuel(&reactions, 1);
+        let recipe_book = RecipeBook::from_string(input);
+        let ore = recipe_book.calculate_ore_for_fuel(1);
         assert_eq!(ore, 2210736);
     }
 }

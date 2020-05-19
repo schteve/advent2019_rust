@@ -119,11 +119,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -447,11 +443,11 @@ impl Robot {
     }
 
     fn move_forward(&mut self, spaces: i64) {
-        match self.abs_direction {
-            AbsDirection::North => self.location = (self.location.0,          self.location.1 - spaces),
-            AbsDirection::South => self.location = (self.location.0,          self.location.1 + spaces),
-            AbsDirection::East  => self.location = (self.location.0 + spaces, self.location.1),
-            AbsDirection::West  => self.location = (self.location.0 - spaces, self.location.1),
+        self.location = match self.abs_direction {
+            AbsDirection::North => (self.location.0,          self.location.1 - spaces),
+            AbsDirection::South => (self.location.0,          self.location.1 + spaces),
+            AbsDirection::East  => (self.location.0 + spaces, self.location.1),
+            AbsDirection::West  => (self.location.0 - spaces, self.location.1),
         }
     }
 
@@ -491,8 +487,8 @@ impl Robot {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in (y_range.0)..(y_range.1 + 1) {
-            for x in (x_range.0)..(x_range.1 + 1) {
+        for y in y_range.0 ..= y_range.1 {
+            for x in x_range.0 ..= x_range.1 {
                 if self.location == (x, y) {
                     match self.abs_direction {
                         AbsDirection::North => print!("{}", '^'),
@@ -539,10 +535,6 @@ pub fn solve(input: &str) -> usize {
     let mut program = Program::new(&code, &[]);
 
     let mut robot = Robot::new();
-    /*robot.panels.insert((-10, -5), Color::White);
-    robot.panels.insert((0, 5), Color::White);
-    robot.panels.insert((7, 3), Color::White);
-    robot.display();*/
 
     run_program_with_robot(&mut program, &mut robot);
     robot.display();

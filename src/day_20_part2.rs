@@ -228,21 +228,20 @@ impl Map {
             x: 0,
             y: 0,
         };
-        for c in input.chars() {
-            let space = Space::from_value(c);
-            if space != Space::Unknown {
-                area.insert(p, space);
-                p.x += 1;
-            } else {
-                if c == ' ' {
+        for line in input.lines() {
+            for c in line.chars() {
+                let space = Space::from_value(c);
+                if space != Space::Unknown {
+                    area.insert(p, space);
                     p.x += 1;
-                } else if c == '\n' {
-                    p.x = 0;
-                    p.y += 1;
+                } else if c == ' ' {
+                    p.x += 1;
                 } else {
-                    println!("Unknown input: 0x{:02x}", c as u8);
+                    panic!("Unknown input: 0x{:02x}", c as u8);
                 }
             }
+            p.x = 0;
+            p.y += 1;
         }
 
         let mut map = Map {
@@ -427,7 +426,7 @@ impl Map {
                     };
                     if walked.get(&step_node) == None {
                         // Step into any adjacent empty space
-                        if let Some(Space::Empty) = self.area.get(&step_in_direction) {
+                        if self.area.get(&step_in_direction) == Some(&Space::Empty) {
                             // If this is the goal space, return now
                             if let Some(&portal) = self.portals.get(&step_in_direction) {
                                 if portal.value == ['Z', 'Z'] && location.depth == 0 {
@@ -468,14 +467,14 @@ impl Map {
             }
         }
 
-        0
+        panic!("Could not find portal ZZ");
     }
 }
 
 #[aoc(day20, part2)]
 pub fn solve(input: &str) -> u32 {
     let map = Map::from_string(&input);
-    map.display();
+    //map.display();
 
     let steps = map.a_to_z();
     println!("Steps: {}", steps);

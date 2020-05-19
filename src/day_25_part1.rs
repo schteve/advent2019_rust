@@ -87,11 +87,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -366,15 +362,14 @@ impl Droid {
     }
 
     fn give_command(&mut self, command: Command) {
-        let command_str = command.to_string();
-        for c in command_str.bytes() {
+        for c in command.to_string().bytes() {
             self.program.input.push(c as i64);
         }
         self.program.input.push(0x0A as i64); // Always end with newline
     }
 
     fn print_output(&mut self) {
-        for i in self.program.output.drain(..).collect::<Vec<i64>>() {
+        for i in self.program.output.drain(..) {
             if i < 128 { // If it's ASCII, print it as a character
                 print!("{}", (i as u8) as char);
             } else {

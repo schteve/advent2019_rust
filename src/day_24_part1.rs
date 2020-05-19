@@ -77,7 +77,7 @@ impl BugSim {
                 // Bug. Set to 1.
                 state |= 1 << idx;
                 idx += 1;
-            } else if c == '\n' {
+            } else if c == '\r' || c == '\n' {
                 // Line break, just consume
             } else {
                 panic!("Unknown input: 0x{:02x}", c as u8);
@@ -162,13 +162,8 @@ impl BugSim {
 
     fn run_until_repeat(&mut self) {
         let mut state_set: HashSet<i32> = HashSet::new();
-        state_set.insert(self.state);
-        loop {
+        while state_set.insert(self.state) == true { // If the set already had the value, we have found a repeat, the end condition.
             self.step();
-            if state_set.insert(self.state) == false {
-                // The set already had the value. We have found a repeat, the end condition.
-                return;
-            }
         }
     }
 

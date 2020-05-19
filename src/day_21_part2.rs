@@ -76,11 +76,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -318,13 +314,13 @@ impl Script {
     }
 }
 
-struct Droid<'a> {
-    program: &'a mut Program,
+struct Droid {
+    program: Program,
     script: Script,
 }
 
-impl<'a> Droid<'a> {
-    fn new(program: &'a mut Program) -> Self {
+impl Droid {
+    fn new(program: Program) -> Self {
         Self {
             program: program,
             script: Script::new(),
@@ -367,7 +363,7 @@ impl<'a> Droid<'a> {
             }
 
             if self.program.input_needed == true {
-                println!("Input needed!"); // Shouldn't happen
+                panic!("Input needed!");
             }
         }
 
@@ -382,8 +378,8 @@ pub fn solve(input: &str) -> i64 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-    let mut droid = Droid::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut droid = Droid::new(program);
 
     // Check if I need to jump
     droid.script.add_line("NOT A J"); // J: ~A

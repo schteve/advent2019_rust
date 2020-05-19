@@ -75,9 +75,8 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
 
     // Traverse the vector and update parent index
     for i in 0..graph.len() { // Can't directly iterate over objects because the borrow checker complains
-        let parent_name = graph[i].parent_name.clone();
-        if parent_name != "COM" {
-            let parent_idx = graph.iter().position(|obj| obj.name == parent_name);
+        if graph[i].parent_name != "COM" {
+            let parent_idx = graph.iter().position(|obj| obj.name == graph[i].parent_name);
             graph[i].parent_idx = parent_idx;
         }
     }
@@ -90,16 +89,21 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
         loop {
             if graph[curr_idx].orbit_count != 0 {
                 // Found a node that knows its orbit count -- use it to short circuit the calculation.
-                count += graph[curr_idx as usize].orbit_count;
-                break;
-            } else if graph[curr_idx].parent_idx == None {
-                // Node points to COM -- its orbit count is effectively 1
-                count += 1;
+                count += graph[curr_idx].orbit_count;
                 break;
             } else {
-                // Node doesn't know its orbit count, follow its parent
-                curr_idx = graph[curr_idx as usize].parent_idx.unwrap();
-                count += 1;
+                match graph[curr_idx].parent_idx {
+                    Some(p_idx) => {
+                        // Node doesn't know its orbit count, follow its parent
+                        curr_idx = p_idx;
+                        count += 1;
+                    },
+                    None => {
+                        // Node points to COM -- its orbit count is effectively 1
+                        count += 1;
+                        break;
+                    },
+                }
             }
         }
 
@@ -107,13 +111,14 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
     }
 
     // graph.iter().for_each(|o| println!("{}", o.orbit_count));
-
     graph
 }
 
 fn count_orbits(graph: &Vec<SpaceObject>) -> u32 {
     // Get the total number of orbits
-    let total_orbits = graph.iter().fold(0, |sum, obj| sum + obj.orbit_count);
+    let total_orbits = graph.iter()
+                            .map(|obj| obj.orbit_count)
+                            .sum();
     total_orbits
 }
 

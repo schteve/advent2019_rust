@@ -190,19 +190,18 @@ impl Map {
             x: 0,
             y: 0,
         };
-        for c in input.chars() {
-            let space = Space::from_value(c);
-            if space != Space::Unknown {
-                area.insert(p, space);
-                p.x += 1;
-            } else {
-                if c == '\n' {
-                    p.x = 0;
-                    p.y += 1;
+        for line in input.lines() {
+            for c in line.chars() {
+                let space = Space::from_value(c);
+                if space != Space::Unknown {
+                    area.insert(p, space);
+                    p.x += 1;
                 } else {
-                    println!("Unknown input: 0x{:02x}", c as u8);
+                    panic!("Unknown input: 0x{:02x}", c as u8);
                 }
             }
+            p.x = 0;
+            p.y += 1;
         }
 
         Map {
@@ -252,10 +251,7 @@ impl Map {
             }
         }
 
-        Point {
-            x: 0,
-            y: 0,
-        }
+        panic!("Could not find entrance");
     }
 
     fn find_keys(&self, start_node: &Node) -> Vec<(Node, u32)> {

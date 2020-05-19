@@ -187,14 +187,10 @@ impl Technique {
                 "Deal into new stack".to_owned()
             },
             Technique::DealWithIncrement(n) => {
-                let mut s = "Deal with increment ".to_owned();
-                s.push_str(&n.to_string());
-                s
+                "Deal with increment ".to_owned() + &n.to_string()
             },
             Technique::Cut(n) => {
-                let mut s = "Cut  ".to_owned();
-                s.push_str(&n.to_string());
-                s
+                "Cut ".to_owned() + &n.to_string()
             },
         }
     }
@@ -206,13 +202,8 @@ struct Deck {
 
 impl Deck {
     fn new(size: usize) -> Self {
-        let mut cards = Vec::new();
-        for i in 0..size {
-            cards.push(i);
-        }
-
         Self {
-            cards: cards,
+            cards: (0..size).collect(),
         }
     }
 
@@ -245,9 +236,7 @@ impl Deck {
     }
 
     fn shuffle_many(&mut self, techniques: &Vec<Technique>) {
-        for &t in techniques {
-            self.shuffle(t);
-        }
+        techniques.iter().for_each(|&t| self.shuffle(t))
     }
 
     fn find_card(&self, position: usize) -> Option<usize> {
@@ -261,10 +250,7 @@ pub fn solve(input: &str) -> usize {
                           .map(|line| Technique::from_string(line.trim()))
                           .collect::<Vec<Technique>>();
     let mut deck = Deck::new(10007);
-    for t in techniques {
-        //println!("{}", t.to_string());
-        deck.shuffle(t);
-    }
+    deck.shuffle_many(&techniques);
 
     let position = deck.find_card(2019).expect("Could not find card 2019!");
     println!("Card 2019 position: {}", position);

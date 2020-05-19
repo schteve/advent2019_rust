@@ -229,19 +229,18 @@ impl Map {
             x: 0,
             y: 0,
         };
-        for c in input.chars() {
-            let space = Space::from_value(c);
-            if space != Space::Unknown {
-                area.insert(p, space);
-                p.x += 1;
-            } else {
-                if c == '\n' {
-                    p.x = 0;
-                    p.y += 1;
+        for line in input.lines() {
+            for c in line.chars() {
+                let space = Space::from_value(c);
+                if space != Space::Unknown {
+                    area.insert(p, space);
+                    p.x += 1;
                 } else {
-                    println!("Unknown input: 0x{:02x}", c as u8);
+                    panic!("Unknown input: 0x{:02x}", c as u8);
                 }
             }
+            p.x = 0;
+            p.y += 1;
         }
 
         Map {
@@ -291,10 +290,7 @@ impl Map {
             }
         }
 
-        Point {
-            x: 0,
-            y: 0,
-        }
+        panic!("Could not find entrance");
     }
 
     fn get_entrances(&self) -> Vec<Point> {
@@ -659,19 +655,19 @@ pub fn solve(input: &str) -> u32 {
 
     let (distance, path) = graph.get_shortest_path();
     println!("Distance: {}", distance);
-    println!("Path:");
-    println!("    Start: {:?}", path[0]);
+    print!("Path: {:?}", path[0]);
     for path_idx in 0..path.len() {
         // Check what changed between this index and the previous one (if any) and print it
         if path_idx > 0 {
             let mut zip_iter = path[path_idx].iter().zip(path[path_idx - 1].iter());
             while let Some((&curr, &prev)) = zip_iter.next() {
                 if curr != prev {
-                    println!("    {:?}", curr);
+                    print!(", {:?}", curr);
                 }
             }
         }
     }
+    println!("");
     distance
 }
 

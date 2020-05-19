@@ -75,10 +75,7 @@ impl Program {
                     // println!("Program complete!");
                     break;
                 }
-                _  => {
-                    // println!("FAIL");
-                    break;
-                }
+                _  => panic!("Invalid opcode"),
             }
         }
     }
@@ -157,7 +154,7 @@ impl Program {
         let input = self.input[self.input_idx as usize];
         self.input_idx += 1;
 
-        println!("In {} => [{}]", input, param1_addr);
+        // println!("In {} => [{}]", input, param1_addr);
 
         self.set_value(param1_addr, input);
     }
@@ -171,7 +168,7 @@ impl Program {
 
         self.output.push(param1);
 
-        println!("Out {}", param1);
+        // println!("Out {}", param1);
     }
 
     // If 1 is non-zero, jump to 2
@@ -251,7 +248,7 @@ impl Program {
 
 #[aoc(day5, part2)]
 pub fn solve(input: &str) -> i32 {
-    let code: Vec<i32> = input.split(",").map(|s| s.parse::<i32>().unwrap()).collect();
+    let code: Vec<i32> = input.trim().split(",").map(|s| s.parse::<i32>().unwrap()).collect();
     let input = [5];
 
     let mut program = Program::new(&code, &input);

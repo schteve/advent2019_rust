@@ -76,11 +76,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -301,7 +297,7 @@ impl Program {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 enum Tile {
     Empty,
     Wall,
@@ -357,11 +353,8 @@ impl Game {
     }
 
     fn blocks_left(&self) -> usize {
-        let count = self.tiles.iter()
-                                .filter(|(&_k, &v)| match v {
-                                        Tile::Block => true,
-                                        _ => false,
-                                    })
+        let count = self.tiles.values()
+                                .filter(|&&v| v == Tile::Block)
                                 .count();
         count
     }
@@ -387,8 +380,8 @@ impl Game {
         // println!("y_range: {:?}", y_range);
 
         println!("Score: {}", self.score);
-        for y in (y_range.0)..(y_range.1 + 1) {
-            for x in (x_range.0)..(x_range.1 + 1) {
+        for y in y_range.0 ..= y_range.1 {
+            for x in x_range.0 ..= x_range.1 {
                 if let Some(t) = self.tiles.get(&(x, y)) {
                     print!("{}", t.char());
                 } else {
@@ -502,6 +495,7 @@ pub fn solve(input: &str) -> i64 {
 
     let mut game = Game::new();
     run_program_with_game(&mut program, &mut game);
+
     println!("Final score: {}", game.score);
     game.score
 }

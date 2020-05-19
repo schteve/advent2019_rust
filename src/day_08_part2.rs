@@ -89,13 +89,10 @@ struct Image {
 
 impl Image {
     fn from_slice(input_vec: &[u32], image_width: usize, image_height: usize) -> Image {
-        let mut layers = Vec::new();
         let layer_size = image_width * image_height;
-        for chunk in input_vec.chunks(layer_size) {
-            let layer = Layer::from_slice(chunk, image_width, image_height);
-            layers.push(layer);
-        }
-
+        let layers: Vec<Layer> = input_vec.chunks(layer_size)
+                                        .map(|chunk| Layer::from_slice(chunk, image_width, image_height))
+                                        .collect();
         Image {
             layers: layers,
             width: image_width,
@@ -117,13 +114,10 @@ impl Image {
         let mut pixel_vec = Vec::new();
         for row in 0..self.layers[0].height {
             for col in 0..self.layers[0].width {
-                let mut pixel = 2; // Transparent
-                for layer in &self.layers {
-                    if layer.pixel(row, col) != 2 { // If not transparent, take the color of this pixel and break
-                        pixel = layer.pixel(row, col);
-                        break;
-                    }
-                }
+                let pixel = self.layers.iter()
+                                        .map(|layer| layer.pixel(row, col)) // Get the pixel value at this layer
+                                        .find(|&pixel| pixel != 2) // Find the first non-transparent pixel
+                                        .unwrap_or(2); // If all were transparent, default to the transparent value
                 pixel_vec.push(pixel);
             }
         }

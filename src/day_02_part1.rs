@@ -55,13 +55,10 @@ fn run_program(program: &mut [u32]) {
             1  => opcode_add(program, &mut pc),
             2  => opcode_mul(program, &mut pc),
             99 => {
-                println!("Program complete!");
+                // println!("Program complete!");
                 break;
             }
-            _  => {
-                println!("FAIL");
-                break;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 }
@@ -75,7 +72,7 @@ fn opcode_add(program: &mut [u32], pc: &mut u32) {
     let param1 = program[param1_addr as usize];
     let param2 = program[param2_addr as usize];
 
-    println!("Add {} + {} => {}", param1, param2, target_addr);
+    // println!("Add {} + {} => {}", param1, param2, target_addr);
 
     program[target_addr as usize] = param1 + param2;
 }
@@ -89,14 +86,14 @@ fn opcode_mul(program: &mut [u32], pc: &mut u32)  {
     let param1 = program[param1_addr as usize];
     let param2 = program[param2_addr as usize];
 
-    println!("Add {} * {} => {}", param1, param2, target_addr);
+    // println!("Add {} * {} => {}", param1, param2, target_addr);
 
     program[target_addr as usize] = param1 * param2;
 }
 
 #[aoc(day2, part1)]
 pub fn solve(input: &str) -> u32 {
-    let mut program: Vec<u32> = input.split(",").map(|s| s.parse::<u32>().unwrap()).collect();
+    let mut program: Vec<u32> = input.trim().split(",").map(|s| s.parse::<u32>().unwrap()).collect();
     // Position 1 changed to 12 and position 2 changed to 2 per instructions
     program[1] = 12;
     program[2] = 2;

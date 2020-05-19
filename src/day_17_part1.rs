@@ -103,11 +103,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -404,13 +400,13 @@ impl Space {
     }
 }
 
-struct Camera<'a> {
-    program: &'a mut Program,
+struct Camera {
+    program: Program,
     area: HashMap<(i32, i32), Space>
 }
 
-impl<'a> Camera<'a> {
-    fn new(program: &'a mut Program) -> Camera {
+impl Camera {
+    fn new(program: Program) -> Camera {
         Camera {
             program: program,
             area: HashMap::new(),
@@ -458,8 +454,8 @@ impl<'a> Camera<'a> {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in (y_range.0)..(y_range.1 + 1) {
-            for x in (x_range.0)..(x_range.1 + 1) {
+        for y in y_range.0 ..= y_range.1 {
+            for x in x_range.0 ..= x_range.1 {
                 if let Some(t) = self.area.get(&(x, y)) {
                     print!("{}", t.char());
                 } else {
@@ -473,35 +469,21 @@ impl<'a> Camera<'a> {
     }
 
     fn find_intersections(&self) -> Vec<(i32, i32)> {
-        let mut intersections = Vec::new();
-
-        for (&k, &v) in self.area.iter() {
-            if v == Space::Scaffold {
-                let directions_to_test = [Cardinal::North,
-                                          Cardinal::South,
-                                          Cardinal::West,
-                                          Cardinal::East];
-                let mut is_intersection = true;
-                for &d in &directions_to_test {
-                    let step_coord = d.step_from(k);
-                    if let Some(&s) = self.area.get(&step_coord) {
-                        if s != Space::Scaffold {
-                            is_intersection = false;
-                        }
-                    }
-                }
-
-                if is_intersection == true {
-                    intersections.push(k);
-                }
-            }
-        }
-
+        let intersections: Vec<(i32, i32)> = self.area.iter()
+                                                    .filter(|&(_k, &v)| v == Space::Scaffold)
+                                                    .filter(|&(&k, &_v)| [Cardinal::North,
+                                                                          Cardinal::South,
+                                                                          Cardinal::West,
+                                                                          Cardinal::East].iter()
+                                                                                        .map(move |d| d.step_from(k))
+                                                                                        .all(|step_coord| self.area.get(&step_coord) == Some(&Space::Scaffold)))
+                                                    .map(|(&k, &_v)| k)
+                                                    .collect();
         intersections
     }
 }
 
-fn calculate_alignment_parameter_sum(intersections: &[(i32, i32)]) -> i32 {
+fn calculate_alignment_parameter_sum(intersections: &Vec<(i32, i32)>) -> i32 {
     let sum = intersections.iter()
                             .map(|(x, y)| x * y)
                             .sum();
@@ -515,12 +497,12 @@ pub fn solve(input: &str) -> i32 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-    let mut camera = Camera::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut camera = Camera::new(program);
     camera.snap();
-    camera.display();
+    //camera.display();
     let intersections = camera.find_intersections();
-    println!("Intersections: {:?}", intersections);
+    //println!("Intersections: {:?}", intersections);
     let aps = calculate_alignment_parameter_sum(&intersections);
     println!("Alignment parameter sum: {}", aps);
     aps
@@ -532,7 +514,7 @@ mod test {
 
     #[test]
     fn test_calculate_alignment_parameter_sum() {
-        let intersections = [(2, 2), (2, 4), (6, 4), (10, 4)];
+        let intersections = vec![(2, 2), (2, 4), (6, 4), (10, 4)];
         assert_eq!(calculate_alignment_parameter_sum(&intersections), 76);
     }
 }

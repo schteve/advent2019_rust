@@ -103,11 +103,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -447,13 +443,13 @@ struct Segment {
     distance: i32,
 }
 
-struct Camera<'a> {
-    program: &'a mut Program,
+struct Camera {
+    program: Program,
     area: HashMap<(i32, i32), Space>
 }
 
-impl<'a> Camera<'a> {
-    fn new(program: &'a mut Program) -> Camera {
+impl Camera {
+    fn new(program: Program) -> Camera {
         Camera {
             program: program,
             area: HashMap::new(),
@@ -501,8 +497,8 @@ impl<'a> Camera<'a> {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in (y_range.0)..(y_range.1 + 1) {
-            for x in (x_range.0)..(x_range.1 + 1) {
+        for y in y_range.0 ..= y_range.1 {
+            for x in x_range.0 ..= x_range.1 {
                 if let Some(t) = self.area.get(&(x, y)) {
                     print!("{}", t.char());
                 } else {
@@ -520,12 +516,9 @@ impl<'a> Camera<'a> {
         let mut starting_coord = None;
         let mut starting_dir = None;
         for (&k, &v) in self.area.iter() {
-            match v {
-                Space::Robot(dir) => {
-                    starting_coord = Some(k);
-                    starting_dir = Some(dir);
-                },
-                _ => (),
+            if let Space::Robot(dir) = v {
+                starting_coord = Some(k);
+                starting_dir = Some(dir);
             }
         }
 
@@ -544,10 +537,8 @@ impl<'a> Camera<'a> {
                 // Turn in the candidate direction, then take a step
                 let step_dir = current_dir.turn(t);
                 let step_coord = step_dir.step_from(current_coord);
-                if let Some(&s) = self.area.get(&step_coord) {
-                    if s == Space::Scaffold {
-                        next_turn = Some(t);
-                    }
+                if self.area.get(&step_coord) == Some(&Space::Scaffold) {
+                    next_turn = Some(t);
                 }
             }
 
@@ -562,13 +553,9 @@ impl<'a> Camera<'a> {
             let mut distance = 0;
             loop {
                 let step_coord = current_dir.step_from(current_coord);
-                if let Some(&s) = self.area.get(&step_coord) {
-                    if s == Space::Scaffold {
-                        current_coord = step_coord;
-                        distance += 1;
-                    } else {
-                        break;
-                    }
+                if self.area.get(&step_coord) == Some(&Space::Scaffold) {
+                    current_coord = step_coord;
+                    distance += 1;
                 } else {
                     break;
                 }
@@ -602,7 +589,7 @@ impl<'a> Camera<'a> {
                                             })
                                         .collect::<Vec<String>>()
                                         .join(",");
-        println!("Main routine: {}", main_routine_str);
+        //println!("Main routine: {}", main_routine_str);
 
         self.give_string(&main_routine_str);
     }
@@ -636,7 +623,7 @@ impl<'a> Camera<'a> {
 
             // Make string and give to robot
             let sub_routine_str = sub_routine_vec.join(",");
-            println!("Sub routine: {}", sub_routine_str);
+            //println!("Sub routine: {}", sub_routine_str);
             self.give_string(&sub_routine_str);
         }
     }
@@ -772,23 +759,24 @@ pub fn solve(input: &str) -> i64 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-    let mut camera = Camera::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut camera = Camera::new(program);
     camera.snap();
-    camera.display();
+    //camera.display();
     let path = camera.find_path();
     let (main_routine, sub_routines) = find_3_sub_routines(&path);
 
     let mut control_program = Program::new(&code, &[]);
     control_program.code[0] = 2; // Wake up robot
-    let mut camera = Camera::new(&mut control_program);
+
+    let mut camera = Camera::new(control_program);
     camera.give_main_routine(&main_routine);
     camera.give_sub_routines(&sub_routines);
     camera.enable_video(false);
+
     let dust = camera.feed();
     println!("Space dust: {}", dust);
     dust
-
 }
 
 #[cfg(test)]

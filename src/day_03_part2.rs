@@ -29,13 +29,13 @@
     What is the fewest combined steps the wires must take to reach an intersection?
 */
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 struct Point {
     x: i32,
     y: i32,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 struct Coord {
     p: Point,
     steps: u32,
@@ -45,37 +45,23 @@ fn get_coords_from_path(path: Vec<&str>) -> Vec<Coord> {
     let mut coords = Vec::new();
     let mut current_coord = Coord { p: Point { x: 0, y: 0 }, steps: 0 };
 
-    for &segment in path.iter() {
+    for segment in path {
         let direction = segment.as_bytes()[0];
         let count = segment[1..].parse::<u32>().unwrap();
-
         // println!("Segment {}, {}", direction, count);
 
         for _ in 0..count {
             current_coord.steps += 1;
 
             match direction as char {
-                'R' => {
-                    current_coord.p.x += 1;
-                    coords.push(current_coord);
-                }
-                'L' => {
-                    current_coord.p.x -= 1;
-                    coords.push(current_coord);
-                }
-                'U' => {
-                    current_coord.p.y += 1;
-                    coords.push(current_coord);
-                }
-                'D' => {
-                    current_coord.p.y -= 1;
-                    coords.push(current_coord);
-                }
-                _   => {
-                    println!("FAIL");
-                    break;
-                }
+                'R' => current_coord.p.x += 1,
+                'L' => current_coord.p.x -= 1,
+                'U' => current_coord.p.y += 1,
+                'D' => current_coord.p.y -= 1,
+                _   => panic!("Bad format"),
             }
+
+            coords.push(current_coord);
         }
     }
 
@@ -83,18 +69,11 @@ fn get_coords_from_path(path: Vec<&str>) -> Vec<Coord> {
 }
 
 fn intersection(coords1: Vec<Coord>, coords2: Vec<Coord>) -> Vec<Coord> {
-    let mut intersection = Vec::new();
-
-    for &c1 in coords1.iter() {
-        for &c2 in coords2.iter() {
-            if (c1.p.x == c2.p.x) && (c1.p.y == c2.p.y) {
-                let c = Coord { p: c1.p, steps: c1.steps + c2.steps };
-                println!("Intersect = p ({}, {}), steps {}", c.p.x, c.p.y, c.steps);
-                intersection.push(c);
-            }
-        }
-    }
-
+    let intersection: Vec<Coord> = coords1.iter()
+                                        .flat_map(|&c1| coords2.iter()
+                                                                .filter(move |&&c2| c1.p == c2.p)
+                                                                .map(move |&c2| Coord { p: c1.p, steps: c1.steps + c2.steps }))
+                                        .collect();
     // println!("Intersection = {:?}", intersection);
     intersection
 }
@@ -115,8 +94,8 @@ fn best_intersection(path1: Vec<&str>, path2: Vec<&str>) -> u32 {
 #[aoc(day3, part2)]
 pub fn solve(input: &str) -> u32 {
     let paths: Vec<&str> = input.lines().collect();
-    let path_a = paths[0].split(",").collect::<Vec<&str>>();
-    let path_b = paths[1].split(",").collect::<Vec<&str>>();
+    let path_a: Vec<&str> = paths[0].split(",").collect();
+    let path_b: Vec<&str> = paths[1].split(",").collect();
 
     let steps = best_intersection(path_a, path_b);
     println!("Steps = {}", steps);

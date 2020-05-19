@@ -90,11 +90,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -344,13 +340,13 @@ impl Space {
     }
 }
 
-struct TractorBeam<'a> {
-    program: &'a mut Program,
+struct TractorBeam {
+    program: Program,
     area: HashMap<Point, Space>
 }
 
-impl<'a> TractorBeam<'a> {
-    fn new(program: &'a mut Program) -> TractorBeam {
+impl TractorBeam {
+    fn new(program: Program) -> TractorBeam {
         TractorBeam {
             program: program,
             area: HashMap::new(),
@@ -430,8 +426,8 @@ impl<'a> TractorBeam<'a> {
     }
 
     fn count_points_in_beam(&self) -> u32 {
-        let count = self.area.iter()
-                            .filter(|&(_k, v)| *v == Space::Pulled)
+        let count = self.area.values()
+                            .filter(|&&v| v == Space::Pulled)
                             .count();
         count as u32
     }
@@ -439,16 +435,15 @@ impl<'a> TractorBeam<'a> {
 
 #[aoc(day19, part1)]
 pub fn solve(input: &str) -> u32 {
-    let code: Vec<i64> = input
-                            .trim()
+    let code: Vec<i64> = input.trim()
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-    let mut tractor_beam = TractorBeam::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut tractor_beam = TractorBeam::new(program);
 
     tractor_beam.scan(50, 50);
-    tractor_beam.display();
+    //tractor_beam.display();
 
     let num_points = tractor_beam.count_points_in_beam();
     println!("Points in beam: {}", num_points);
@@ -469,16 +464,16 @@ mod test {
                                 .split(",")
                                 .map(|s| s.parse::<i64>().unwrap())
                                 .collect();
-        let mut program = Program::new(&code, &[]);
-        let mut tractor_beam = TractorBeam::new(&mut program);
+        let program = Program::new(&code, &[]);
+        let mut tractor_beam = TractorBeam::new(program);
         let space = tractor_beam.check_point(Point { x: 0, y: 0 });
         assert_eq!(space, Space::Pulled);
     }
 
     #[test]
     fn test_count_points_in_beam() {
-        let mut program = Program::new(&[], &[]);
-        let mut tractor_beam = TractorBeam::new(&mut program);
+        let program = Program::new(&[], &[]);
+        let mut tractor_beam = TractorBeam::new(program);
 
         for x in 0..10 {
             for y in 0..10 {

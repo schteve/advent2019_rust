@@ -56,10 +56,7 @@ impl Program {
                 8  => self.opcode_eq(),
                 9  => self.opcode_rel(),
                 99 => self.opcode_halt(),
-                _  => {
-                    // println!("FAIL");
-                    break;
-                }
+                _  => panic!("Invalid opcode"),
             }
         }
     }
@@ -83,10 +80,7 @@ impl Program {
                 8  => self.opcode_eq(),
                 9  => self.opcode_rel(),
                 99 => self.opcode_halt(),
-                _  => {
-                    // println!("FAIL");
-                    break;
-                }
+                _  => panic!("Invalid opcode"),
             }
         }
     }

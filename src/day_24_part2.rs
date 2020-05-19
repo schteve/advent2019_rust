@@ -179,7 +179,7 @@ impl BugSim {
                 // Bug. Set to 1.
                 state |= 1 << idx;
                 idx += 1;
-            } else if c == '\n' {
+            } else if c == '\r' || c == '\n' {
                 // Line break, just consume
             } else {
                 panic!("Unknown input: 0x{:02x}", c as u8);
@@ -196,7 +196,7 @@ impl BugSim {
 
     fn get_tile(&self, depth: i32, row: i32, col: i32) -> Option<bool> {
         if row < 0 || row >= 5 || col < 0 || col >= 5 || (row == 2 && col == 2) {
-            return None; // Invalid tiles may result from looking beyond the grid boundaries, these should always count as empty
+            return None; // Invalid tiles may result from looking beyond the grid boundaries, or from the recursive tile
         }
 
         if let Some(state) = self.state.get(&depth) {
@@ -209,7 +209,7 @@ impl BugSim {
     }
 
     fn display(&self) {
-        let mut keys = self.state.keys().cloned().collect::<Vec<i32>>();
+        let mut keys: Vec<i32> = self.state.keys().cloned().collect();
         keys.sort();
         for k in keys {
             println!("Depth: {}", k);
@@ -358,9 +358,7 @@ impl BugSim {
     }
 
     fn step(&mut self, num_steps: i32) {
-        for _ in 0..num_steps {
-            self.step_single();
-        }
+        (0..num_steps).for_each(|_| self.step_single());
     }
 
     fn count_bugs(&self) -> i32 {
@@ -368,7 +366,7 @@ impl BugSim {
         for &depth in self.state.keys() {
             for row in 0..5 {
                 for col in 0..5 {
-                    if let Some(true) = self.get_tile(depth, row, col) {
+                    if self.get_tile(depth, row, col) == Some(true) {
                         count += 1;
                     }
                 }

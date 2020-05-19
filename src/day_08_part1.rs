@@ -76,13 +76,10 @@ struct Image {
 
 impl Image {
     fn from_slice(input_vec: &[u32], image_width: usize, image_height: usize) -> Image {
-        let mut layers = Vec::new();
         let layer_size = image_width * image_height;
-        for chunk in input_vec.chunks(layer_size) {
-            let layer = Layer::from_slice(chunk, image_width, image_height);
-            layers.push(layer);
-        }
-
+        let layers: Vec<Layer> = input_vec.chunks(layer_size)
+                                        .map(|chunk| Layer::from_slice(chunk, image_width, image_height))
+                                        .collect();
         Image {
             layers: layers,
             width: image_width,
@@ -102,17 +99,11 @@ impl Image {
 }
 
 fn image_layer_with_fewest_zeros(image: &Image) -> usize {
-    let mut layer_id = 0;
-    let mut lowest_count = std::u32::MAX;
-
-    for i in 0..image.layers.len() {
-        let count = image.layers[i].count_digits(0);
-        if count < lowest_count {
-            layer_id = i;
-            lowest_count = count;
-        }
-    }
-
+    let layer_id = image.layers.iter()
+                                .enumerate()
+                                .min_by_key(|&(_, layer)| layer.count_digits(0))
+                                .unwrap()
+                                .0;
     layer_id
 }
 

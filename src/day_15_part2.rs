@@ -106,11 +106,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -439,14 +435,14 @@ impl Space {
     }
 }
 
-struct Drone<'a> {
-    controller: &'a mut Program,
+struct Drone {
+    controller: Program,
     area: HashMap<(i32, i32), Space>,
     location: (i32, i32),
 }
 
-impl<'a> Drone<'a> {
-    fn new(controller: &'a mut Program) -> Drone {
+impl Drone {
+    fn new(controller: Program) -> Drone {
         let mut area = HashMap::new();
         area.insert((0, 0), Space::Empty);
         Drone {
@@ -476,8 +472,8 @@ impl<'a> Drone<'a> {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in (y_range.0)..(y_range.1 + 1) {
-            for x in (x_range.0)..(x_range.1 + 1) {
+        for y in y_range.0 ..= y_range.1 {
+            for x in x_range.0 ..= x_range.1 {
                 if self.location == (x, y) {
                     print!("D");
                 } else if let Some(t) = self.area.get(&(x, y)) {
@@ -552,45 +548,43 @@ impl<'a> Drone<'a> {
     }
 
     fn fill_with_oxygen(&mut self) -> i32 {
-        if let Some(oxygen) = self.area.iter().find(|(_k, v)| **v == Space::Oxygen) {
-            let mut counter = 0;
-            let mut frontier: Vec<(i32, i32)> = Vec::new();
-            frontier.push(*oxygen.0);
+        let oxygen = self.area.iter().find(|(_k, v)| **v == Space::Oxygen)
+                            .expect("Could not find oxygen");
+        let mut counter = 0;
+        let mut frontier: Vec<(i32, i32)> = Vec::new();
+        frontier.push(*oxygen.0);
 
-            loop {
-                let mut empties = Vec::new();
-                for location in frontier.drain(..).collect::<Vec<(i32, i32)>>() {
-                    let candidates = vec![Direction::North,
-                                          Direction::South,
-                                          Direction::West,
-                                          Direction::East];
-                    for direction in candidates {
-                        let step_in_direction = direction.step_from(location);
-                        match self.area.get(&step_in_direction) {
-                            Some(Space::Empty) => {
-                                empties.push(step_in_direction);
-                            },
-                            _ => (),
-                        }
+        loop {
+            let mut empties = Vec::new();
+            for location in frontier.drain(..) {
+                let candidates = vec![Direction::North,
+                                        Direction::South,
+                                        Direction::West,
+                                        Direction::East];
+                for direction in candidates {
+                    let step_in_direction = direction.step_from(location);
+                    match self.area.get(&step_in_direction) {
+                        Some(Space::Empty) => {
+                            empties.push(step_in_direction);
+                        },
+                        _ => (),
                     }
                 }
-
-                for e in empties {
-                    self.area.insert(e, Space::Oxygen);
-                    frontier.push(e);
-                }
-
-                if frontier.len() == 0 {
-                    return counter;
-                } else {
-                    counter += 1;
-                }
-
-                // self.display_area();
             }
-        }
 
-        0
+            for e in empties {
+                self.area.insert(e, Space::Oxygen);
+                frontier.push(e);
+            }
+
+            if frontier.len() == 0 {
+                return counter;
+            } else {
+                counter += 1;
+            }
+
+            // self.display_area();
+        }
     }
 }
 
@@ -601,15 +595,14 @@ pub fn solve(input: &str) -> i32 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-
-    let mut drone = Drone::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut drone = Drone::new(program);
     drone.map_area();
-    drone.display_area();
+    //drone.display_area();
 
     // Flood the room with oxygen
     let minutes = drone.fill_with_oxygen();
-    drone.display_area();
+    //drone.display_area();
 
     println!("Minutes to fill room with oxygen: {}", minutes);
     minutes

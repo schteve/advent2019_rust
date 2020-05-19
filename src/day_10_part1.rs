@@ -97,8 +97,6 @@
     Find the best location for a new monitoring station. How many other asteroids can be detected from that location?
 */
 
-extern crate num;
-
 use num::integer::gcd;
 use std::collections::HashSet;
 
@@ -170,16 +168,9 @@ impl AsteroidMap {
     }
 
     fn best_station(&self) -> (i32, i32) {
-        let mut best_asteroid = (0, 0);
-        let mut best_count = 0;
-        for &asteroid in &self.data {
-            let count = self.count_visible(asteroid);
-            if count > best_count {
-                best_asteroid = asteroid;
-                best_count = count;
-            }
-        }
-
+        let best_asteroid = *self.data.iter()
+                                    .max_by_key(|&&asteroid| self.count_visible(asteroid))
+                                    .unwrap();
         best_asteroid
     }
 }

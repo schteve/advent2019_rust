@@ -130,11 +130,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -462,14 +458,14 @@ impl Space {
     }
 }
 
-struct Drone<'a> {
-    controller: &'a mut Program,
+struct Drone {
+    controller: Program,
     area: HashMap<(i32, i32), Space>,
     location: (i32, i32),
 }
 
-impl<'a> Drone<'a> {
-    fn new(controller: &'a mut Program) -> Drone {
+impl Drone {
+    fn new(controller: Program) -> Drone {
         let mut area = HashMap::new();
         area.insert((0, 0), Space::Empty);
         Drone {
@@ -499,8 +495,8 @@ impl<'a> Drone<'a> {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in (y_range.0)..(y_range.1 + 1) {
-            for x in (x_range.0)..(x_range.1 + 1) {
+        for y in y_range.0 ..= y_range.1 {
+            for x in x_range.0 ..= x_range.1 {
                 if self.location == (x, y) {
                     print!("D");
                 } else if let Some(t) = self.area.get(&(x, y)) {
@@ -550,11 +546,12 @@ impl<'a> Drone<'a> {
     }
 
     fn find_oxygen(&mut self) -> i32 {
-        self.search(0).unwrap()
+        self.search(0).expect("Could not find oxygen")
     }
 
     fn search(&mut self, depth: i32) -> Option<i32> {
-        self.display_area();
+        // self.display_area();
+
         let candidates = vec![Direction::North,
                               Direction::South,
                               Direction::West,
@@ -591,12 +588,11 @@ pub fn solve(input: &str) -> i32 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-
-    let mut drone = Drone::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut drone = Drone::new(program);
 
     let oxygen_moves = drone.find_oxygen();
-    drone.display_area();
+    //drone.display_area();
 
     println!("Moves to oxygen: {}", oxygen_moves);
     oxygen_moves

@@ -32,7 +32,7 @@ pub fn solve(input: &str) -> u32 {
 
     let total = modules.iter()
         .map(|&mass| calculate_fuel(mass))
-        .fold(0, |accumulator, fuel| accumulator + fuel);
+        .sum();
 
     println!("Total fuel: {}", total);
     total

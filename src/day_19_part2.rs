@@ -109,11 +109,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -363,13 +359,13 @@ impl Space {
     }
 }
 
-struct TractorBeam<'a> {
-    program: &'a mut Program,
+struct TractorBeam {
+    program: Program,
     area: HashMap<Point, Space>
 }
 
-impl<'a> TractorBeam<'a> {
-    fn new(program: &'a mut Program) -> TractorBeam {
+impl TractorBeam {
+    fn new(program: Program) -> TractorBeam {
         TractorBeam {
             program: program,
             area: HashMap::new(),
@@ -515,8 +511,8 @@ pub fn solve(input: &str) -> i64 {
                             .split(",")
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
-    let mut program = Program::new(&code, &[]);
-    let mut tractor_beam = TractorBeam::new(&mut program);
+    let program = Program::new(&code, &[]);
+    let mut tractor_beam = TractorBeam::new(program);
 
     let box_coord = tractor_beam.scan_for_box(100);
     println!("Box coordinate: {}", box_coord);
@@ -538,8 +534,8 @@ mod test {
                                 .split(",")
                                 .map(|s| s.parse::<i64>().unwrap())
                                 .collect();
-        let mut program = Program::new(&code, &[]);
-        let mut tractor_beam = TractorBeam::new(&mut program);
+        let program = Program::new(&code, &[]);
+        let mut tractor_beam = TractorBeam::new(program);
         let space = tractor_beam.check_point(Point { x: 0, y: 0 });
         assert_eq!(space, Space::Pulled);
     }

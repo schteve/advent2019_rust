@@ -19,26 +19,19 @@ fn ones_digit(input: i32) -> i32 {
     output.abs()
 }
 
-fn phase(input: &[i32]) -> Vec<i32> {
-    let mut output = Vec::new();
+fn phase(input: &Vec<i32>) -> Vec<i32> {
     let mut sum = 0;
-    for i in input.iter().rev() {
-        sum += i;
-        sum = ones_digit(sum);
-        output.push(sum);
-    }
-
-    output.reverse();
+    let mut output: Vec<i32> = input.iter()
+                                    .rev()
+                                    .map(|i| { sum = ones_digit(sum + i); sum })
+                                    .collect();
+    output.reverse(); // Note: the same cannot be achieved by using rev() twice on the iterator (it reverses the iterator back to its starting order, even if there is a map() between)
     output
 }
 
-fn fft(input: &[i32], phases: i32) -> Vec<i32> {
-    let mut working_vec = input.to_vec();
-    for _ in 0..phases {
-        let phase_output = phase(&working_vec);
-        working_vec = phase_output;
-    }
-
+fn fft(input: Vec<i32>, phases: i32) -> Vec<i32> {
+    let mut working_vec = input;
+    (0..phases).for_each(|_| working_vec = phase(&working_vec));
     working_vec
 }
 
@@ -53,32 +46,35 @@ fn parse_string(s: &str) -> Vec<i32> {
 fn parse_string_x1000(s: &str) -> Vec<i32> {
     let clean_s = s.trim();
     let list: Vec<i32> = clean_s.chars()
-                            .map(|c| c.to_digit(10).unwrap() as i32)
-                            .cycle()
-                            .take(clean_s.len() * 10000)
-                            .collect();
+                                .map(|c| c.to_digit(10).unwrap() as i32)
+                                .cycle()
+                                .take(clean_s.len() * 10000)
+                                .collect();
     list
 }
 
-fn get_offset(list: &[i32]) -> i32 {
-    let mut offset = 0;
-    for (i, &item) in list[0..7].iter().rev().enumerate() {
-        offset += 10i32.pow(i as u32) * item;
-    }
-    println!("Offset: {}", offset);
+fn get_offset(list: &Vec<i32>) -> i32 {
+    let offset = list[0..7].iter()
+                        .rev()
+                        .enumerate()
+                        .map(|(i, item)| 10i32.pow(i as u32) * item)
+                        .sum();
+    //println!("Offset: {}", offset);
     offset
 }
 
 #[aoc(day16, part2)]
 pub fn solve(input: &str) -> String {
-    let list = parse_string_x1000(&input);
+    let mut list = parse_string_x1000(&input);
     let offset = get_offset(&list);
-    println!("Size: {}", list[(offset as usize)..].len());
 
-    let fft_result = fft(&list[(offset as usize)..], 100);
-    let fft_result_str: String = fft_result[0..8].into_iter()
-                                .map(|i| i.to_string())
-                                .collect::<String>();
+    list.drain(0..(offset as usize)); // Don't care about anything before the offset
+    //println!("Size: {}", list.len());
+
+    let fft_result = fft(list, 100);
+    let fft_result_str: String = fft_result[0..8].iter()
+                                                .map(|i| i.to_string())
+                                                .collect();
     println!("FFT x10000: {}", fft_result_str);
     fft_result_str
 }
@@ -88,20 +84,42 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_phase() {
+        let input = parse_string("12345678");
+        let phase_result = phase(&input);
+        assert_eq!(&phase_result, &parse_string("65306158"));
+
+        let input = parse_string("65306158");
+        let phase_result = phase(&input);
+        assert_eq!(&phase_result, &parse_string("48300438"));
+
+        let input = parse_string("48300438");
+        let phase_result = phase(&input);
+        assert_eq!(&phase_result, &parse_string("06855518"));
+
+        let input = parse_string("06855518");
+        let phase_result = phase(&input);
+        assert_eq!(&phase_result, &parse_string("88249498"));
+    }
+
+    #[test]
     fn test_fft() {
         let list = parse_string_x1000("03036732577212944063491565474664");
         let offset = get_offset(&list);
-        let fft_result = fft(&list[(offset as usize)..], 100);
+        let offset_vec = list[(offset as usize)..].to_vec();
+        let fft_result = fft(offset_vec, 100);
         assert_eq!(&fft_result[0..8], &parse_string("84462026")[..]);
 
         let list = parse_string_x1000("02935109699940807407585447034323");
         let offset = get_offset(&list);
-        let fft_result = fft(&list[(offset as usize)..], 100);
+        let offset_vec = list[(offset as usize)..].to_vec();
+        let fft_result = fft(offset_vec, 100);
         assert_eq!(&fft_result[0..8], &parse_string("78725270")[..]);
 
         let list = parse_string_x1000("03081770884921959731165446850517");
         let offset = get_offset(&list);
-        let fft_result = fft(&list[(offset as usize)..], 100);
+        let offset_vec = list[(offset as usize)..].to_vec();
+        let fft_result = fft(offset_vec, 100);
         assert_eq!(&fft_result[0..8], &parse_string("53553731")[..]);
     }
 }

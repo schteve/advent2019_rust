@@ -80,10 +80,7 @@ impl Program {
                 7  => self.opcode_lt(),
                 8  => self.opcode_eq(),
                 99 => self.opcode_halt(),
-                _  => {
-                    // println!("FAIL");
-                    break;
-                }
+                _  => panic!("Invalid opcode"),
             }
         }
     }
@@ -263,11 +260,9 @@ impl Program {
 }
 
 fn check_signal(code: &[i32], phase: &[i32]) -> i32 {
-    let mut amp_programs = Vec::new();
-    for &i in phase {
-        amp_programs.push(Program::new(&code, &[i])); // Set initial input to phase settings
-    }
-
+    let mut amp_programs: Vec<Program> = phase.iter()
+                                                .map(|&i| Program::new(&code, &[i])) // Set initial input to phase settings
+                                                .collect();
     let mut next_input = Some(0);
     let mut last_output = 0;
     for p in &mut amp_programs {

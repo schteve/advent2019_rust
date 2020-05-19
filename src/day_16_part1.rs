@@ -69,16 +69,13 @@
     After 100 phases of FFT, what are the first eight digits in the final output list?
 */
 
+use std::iter;
+
 fn gen_base_pattern(element: i32) -> Vec<i32> {
-    let mut pattern = Vec::new();
-    for &i in &[0, 1, 0, -1] {
-        for _ in 0..element {
-            pattern.push(i);
-        }
-    }
-
+    let mut pattern: Vec<i32> = [0, 1, 0, -1].iter()
+                                            .flat_map(|&i| iter::repeat(i).take((element + 1) as usize)) // If user specifies element 0 then want a pattern with 1 of each value
+                                            .collect();
     pattern.rotate_left(1);
-
     pattern
 }
 
@@ -87,39 +84,26 @@ fn ones_digit(input: i32) -> i32 {
     output.abs()
 }
 
-fn mult_pattern(input: &[i32], pattern: &[i32]) -> i32 {
-    let mut sum = 0;
-    let mut pattern_idx: usize = 0;
-    for i in input.iter() {
-        sum += i * pattern[pattern_idx];
-
-        pattern_idx += 1;
-        if pattern_idx >= pattern.len() {
-            pattern_idx = 0;
-        }
-    }
-
+fn mult_pattern(input: &Vec<i32>, pattern: &Vec<i32>) -> i32 {
+    let sum: i32 = pattern.iter()
+                        .cycle()
+                        .zip(input.iter())
+                        .map(|(p, i)| i * p)
+                        .sum();
     ones_digit(sum)
 }
 
-fn phase(input: &[i32]) -> Vec<i32> {
-    let mut output = Vec::new();
-    for i in 0..input.len() {
-        let pattern = gen_base_pattern((i + 1) as i32);
-        let line_digit = mult_pattern(&input, &pattern);
-        output.push(line_digit);
-    }
-
+fn phase(input: &Vec<i32>) -> Vec<i32> {
+    let output: Vec<i32> = (0..input.len())
+                                .map(|i| gen_base_pattern(i as i32))
+                                .map(|pattern| mult_pattern(input, &pattern))
+                                .collect();
     output
 }
 
-fn fft(input: &[i32], phases: i32) -> Vec<i32> {
-    let mut working_vec = input.to_vec();
-    for _ in 0..phases {
-        let phase_output = phase(&working_vec);
-        working_vec = phase_output;
-    }
-
+fn fft(input: Vec<i32>, phases: i32) -> Vec<i32> {
+    let mut working_vec = input;
+    (0..phases).for_each(|_| working_vec = phase(&working_vec));
     working_vec
 }
 
@@ -134,10 +118,10 @@ fn parse_string(s: &str) -> Vec<i32> {
 #[aoc(day16, part1)]
 pub fn solve(input: &str) -> String {
     let list = parse_string(&input);
-    let fft_result = fft(&list, 100);
-    let fft_result_str: String = fft_result[..8].into_iter()
-                                .map(|i| i.to_string())
-                                .collect::<String>();
+    let fft_result = fft(list, 100);
+    let fft_result_str: String = fft_result[..8].iter()
+                                                .map(|i| i.to_string())
+                                                .collect();
     println!("First 8 digits of FFT: {}", fft_result_str);
     fft_result_str
 }
@@ -148,13 +132,13 @@ mod test {
 
     #[test]
     fn test_gen_base_pattern() {
-        let pattern = gen_base_pattern(1);
+        let pattern = gen_base_pattern(0);
         assert_eq!(&pattern, &[1, 0, -1, 0]);
 
-        let pattern = gen_base_pattern(2);
+        let pattern = gen_base_pattern(1);
         assert_eq!(&pattern, &[0, 1, 1, 0, 0, -1, -1, 0]);
 
-        let pattern = gen_base_pattern(3);
+        let pattern = gen_base_pattern(2);
         assert_eq!(&pattern, &[0, 0, 1, 1, 1, 0, 0, 0, -1, -1, -1, 0]);
     }
 
@@ -169,32 +153,32 @@ mod test {
     #[test]
     fn test_mult_pattern() {
         let input = parse_string("98765");
-        let pattern = [1, 2, 3];
+        let pattern = vec![1, 2, 3];
         assert_eq!(mult_pattern(&input, &pattern), 2);
 
         let input = parse_string("12345678");
-        let pattern = gen_base_pattern(1);
+        let pattern = gen_base_pattern(0);
         assert_eq!(mult_pattern(&input, &pattern), 4);
 
-        let pattern = gen_base_pattern(2);
+        let pattern = gen_base_pattern(1);
         assert_eq!(mult_pattern(&input, &pattern), 8);
+
+        let pattern = gen_base_pattern(2);
+        assert_eq!(mult_pattern(&input, &pattern), 2);
 
         let pattern = gen_base_pattern(3);
         assert_eq!(mult_pattern(&input, &pattern), 2);
 
         let pattern = gen_base_pattern(4);
-        assert_eq!(mult_pattern(&input, &pattern), 2);
-
-        let pattern = gen_base_pattern(5);
         assert_eq!(mult_pattern(&input, &pattern), 6);
 
-        let pattern = gen_base_pattern(6);
+        let pattern = gen_base_pattern(5);
         assert_eq!(mult_pattern(&input, &pattern), 1);
 
-        let pattern = gen_base_pattern(7);
+        let pattern = gen_base_pattern(6);
         assert_eq!(mult_pattern(&input, &pattern), 5);
 
-        let pattern = gen_base_pattern(8);
+        let pattern = gen_base_pattern(7);
         assert_eq!(mult_pattern(&input, &pattern), 8);
     }
 
@@ -220,19 +204,19 @@ mod test {
     #[test]
     fn test_fft() {
         let input = parse_string("12345678");
-        let fft_result = fft(&input, 4);
+        let fft_result = fft(input, 4);
         assert_eq!(&fft_result, &parse_string("01029498"));
 
         let input = parse_string("80871224585914546619083218645595");
-        let fft_result = fft(&input, 100);
+        let fft_result = fft(input, 100);
         assert_eq!(&fft_result[0..8], &parse_string("24176176")[..]);
 
         let input = parse_string("19617804207202209144916044189917");
-        let fft_result = fft(&input, 100);
+        let fft_result = fft(input, 100);
         assert_eq!(&fft_result[0..8], &parse_string("73745418")[..]);
 
         let input = parse_string("69317163492948606335995924319873");
-        let fft_result = fft(&input, 100);
+        let fft_result = fft(input, 100);
         assert_eq!(&fft_result[0..8], &parse_string("52432133")[..]);
     }
 

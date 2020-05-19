@@ -59,8 +59,6 @@
     The Elves are placing bets on which will be the 200th asteroid to be vaporized. Win the bet by determining which asteroid that will be; what do you get if you multiply its X coordinate by 100 and then add its Y coordinate? (For example, 8,2 becomes 802.)
 */
 
-extern crate num;
-
 use num::integer::gcd;
 use std::collections::HashSet;
 use std::f32;
@@ -133,16 +131,9 @@ impl AsteroidMap {
     }
 
     fn best_station(&self) -> (i32, i32) {
-        let mut best_asteroid = (0, 0);
-        let mut best_count = 0;
-        for &asteroid in &self.data {
-            let count = self.count_visible(asteroid);
-            if count > best_count {
-                best_asteroid = asteroid;
-                best_count = count;
-            }
-        }
-
+        let best_asteroid = *self.data.iter()
+                                    .max_by_key(|&&asteroid| self.count_visible(asteroid))
+                                    .unwrap();
         best_asteroid
     }
 
@@ -176,7 +167,6 @@ impl AsteroidMap {
 fn angle_between_points(point_a: (i32, i32), point_b: (i32, i32)) -> f32 {
     let diff = (point_b.0 - point_a.0, point_b.1 - point_a.1);
     let angle = (diff.1 as f32).atan2(diff.0 as f32).to_degrees();
-    // angle
     let mut adjusted_angle = angle + 90.0;
     if adjusted_angle < 0.0 {
         adjusted_angle += 360.0;

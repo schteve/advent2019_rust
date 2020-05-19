@@ -80,11 +80,7 @@ impl Program {
             8  => self.opcode_eq(),
             9  => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => {
-                // println!("FAIL");
-                self.running = false;
-                self.halted = true;
-            }
+            _  => panic!("Invalid opcode"),
         }
     }
 
@@ -383,14 +379,8 @@ struct Router {
 
 impl Router {
     fn new(program: Program) -> Self {
-        let mut computers = Vec::new();
-        for i in 0..50 {
-            let c = Computer::new(program.clone(), i);
-            computers.push(c);
-        }
-
         Self {
-            computers: computers,
+            computers: (0..50).map(|i| Computer::new(program.clone(), i)).collect(),
         }
     }
 

@@ -104,9 +104,7 @@ impl Sim {
             }
         }
 
-        for i in 0..objects_n.len() {
-            objects_n[i].position += objects_n[i].velocity;
-        }
+        objects_n.iter_mut().for_each(|obj| obj.position += obj.velocity);
     }
 
     fn single_step(&mut self) {
