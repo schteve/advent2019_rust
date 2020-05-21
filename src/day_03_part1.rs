@@ -41,20 +41,17 @@
     What is the Manhattan distance from the central port to the closest intersection?
 */
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+use std::collections::HashSet;
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 struct Point {
     x: i32,
     y: i32,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
-struct Coord {
-    p: Point,
-}
-
-fn get_coords_from_path(path: Vec<&str>) -> Vec<Coord> {
-    let mut coords = Vec::new();
-    let mut current_coord = Coord { p: Point { x: 0, y: 0 } };
+fn get_points_from_path(path: Vec<&str>) -> HashSet<Point> {
+    let mut points: HashSet<Point> = HashSet::new();
+    let mut current_point = Point { x: 0, y: 0 };
 
     for segment in path {
         let direction = segment.as_bytes()[0];
@@ -63,24 +60,24 @@ fn get_coords_from_path(path: Vec<&str>) -> Vec<Coord> {
 
         for _ in 0..count {
             match direction as char {
-                'R' => current_coord.p.x += 1,
-                'L' => current_coord.p.x -= 1,
-                'U' => current_coord.p.y += 1,
-                'D' => current_coord.p.y -= 1,
+                'R' => current_point.x += 1,
+                'L' => current_point.x -= 1,
+                'U' => current_point.y += 1,
+                'D' => current_point.y -= 1,
                 _   => panic!("Bad format"),
             }
 
-            coords.push(current_coord);
+            points.insert(current_point);
         }
     }
 
-    coords
+    points
 }
 
-fn intersection(coords1: Vec<Coord>, coords2: Vec<Coord>) -> Vec<Coord> {
-    let intersection: Vec<Coord> = coords1.iter()
-                                        .filter(|&&c1| coords2.contains(&c1))
-                                        .map(|&c| c)
+fn intersection(points1: &HashSet<Point>, points2: &HashSet<Point>) -> Vec<Point> {
+    let intersection: Vec<Point> = points1.iter()
+                                        .filter(|&&p1| points2.contains(&p1))
+                                        .map(|&p| p)
                                         .collect();
     // println!("Intersection = {:?}", intersection);
     intersection
@@ -92,15 +89,15 @@ fn manhattan_distance(p: Point) -> u32 {
 }
 
 fn best_intersection(path1: Vec<&str>, path2: Vec<&str>) -> u32 {
-    let path1_coords = get_coords_from_path(path1);
-    let path2_coords = get_coords_from_path(path2);
+    let path1_points = get_points_from_path(path1);
+    let path2_points = get_points_from_path(path2);
 
-    let intersect_coords = intersection(path1_coords, path2_coords);
+    let intersect_points = intersection(&path1_points, &path2_points);
 
-    let closest_distance = intersect_coords.iter()
-        .map(|&c| manhattan_distance(c.p))
-        .min()
-        .unwrap();
+    let closest_distance = intersect_points.iter()
+                                        .map(|&p| manhattan_distance(p))
+                                        .min()
+                                        .unwrap();
     closest_distance
 }
 

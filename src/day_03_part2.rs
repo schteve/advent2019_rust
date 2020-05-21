@@ -29,21 +29,18 @@
     What is the fewest combined steps the wires must take to reach an intersection?
 */
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+use std::collections::HashMap;
+
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 struct Point {
     x: i32,
     y: i32,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
-struct Coord {
-    p: Point,
-    steps: u32,
-}
-
-fn get_coords_from_path(path: Vec<&str>) -> Vec<Coord> {
-    let mut coords = Vec::new();
-    let mut current_coord = Coord { p: Point { x: 0, y: 0 }, steps: 0 };
+fn get_points_from_path(path: Vec<&str>) -> HashMap<Point, u32> {
+    let mut points: HashMap<Point, u32> = HashMap::new();
+    let mut current_point = Point { x: 0, y: 0 };
+    let mut steps = 0;
 
     for segment in path {
         let direction = segment.as_bytes()[0];
@@ -51,43 +48,42 @@ fn get_coords_from_path(path: Vec<&str>) -> Vec<Coord> {
         // println!("Segment {}, {}", direction, count);
 
         for _ in 0..count {
-            current_coord.steps += 1;
+            steps += 1;
 
             match direction as char {
-                'R' => current_coord.p.x += 1,
-                'L' => current_coord.p.x -= 1,
-                'U' => current_coord.p.y += 1,
-                'D' => current_coord.p.y -= 1,
+                'R' => current_point.x += 1,
+                'L' => current_point.x -= 1,
+                'U' => current_point.y += 1,
+                'D' => current_point.y -= 1,
                 _   => panic!("Bad format"),
             }
 
-            coords.push(current_coord);
+            points.insert(current_point, steps);
         }
     }
 
-    coords
+    points
 }
 
-fn intersection(coords1: Vec<Coord>, coords2: Vec<Coord>) -> Vec<Coord> {
-    let intersection: Vec<Coord> = coords1.iter()
-                                        .flat_map(|&c1| coords2.iter()
-                                                                .filter(move |&&c2| c1.p == c2.p)
-                                                                .map(move |&c2| Coord { p: c1.p, steps: c1.steps + c2.steps }))
+fn intersection(points1: &HashMap<Point, u32>, points2: &HashMap<Point, u32>) -> Vec<Point> {
+    let intersection: Vec<Point> = points1.keys()
+                                        .filter(|&&p1| points2.contains_key(&p1))
+                                        .map(|&p| p)
                                         .collect();
     // println!("Intersection = {:?}", intersection);
     intersection
 }
 
 fn best_intersection(path1: Vec<&str>, path2: Vec<&str>) -> u32 {
-    let path1_coords = get_coords_from_path(path1);
-    let path2_coords = get_coords_from_path(path2);
+    let path1_points = get_points_from_path(path1);
+    let path2_points = get_points_from_path(path2);
 
-    let intersect_coords = intersection(path1_coords, path2_coords);
+    let intersect_points = intersection(&path1_points, &path2_points);
 
-    let shortest_steps = intersect_coords.iter()
-        .map(|&c| c.steps)
-        .min()
-        .unwrap();
+    let shortest_steps = intersect_points.iter()
+                                        .map(|&c| path1_points[&c] + path2_points[&c])
+                                        .min()
+                                        .unwrap();
     shortest_steps
 }
 
