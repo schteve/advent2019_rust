@@ -12,39 +12,40 @@
 
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, Hash, PartialEq)]
 struct Chemical {
-    name: String,
+    id: u32,
     num: i64,
 }
 
 impl Chemical {
-    fn from_string(input: &str) -> Self {
+    fn from_string(input: &str, name_map: &mut NameMap) -> Self {
         // Parses string in format: "7 A"
         let mut parts = input.trim().split(" ");
         let num = parts.next().unwrap().parse::<i64>().unwrap();
-        let name = parts.next().unwrap().to_string();
+        let name = parts.next().unwrap();
+        let id = name_map.get_id(name);
 
         Self {
-            name: name,
+            id: id,
             num: num,
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, Hash, PartialEq)]
 struct Reaction {
     from: Vec<Chemical>,
     to: Chemical,
 }
 
 impl Reaction {
-    fn from_string(input: &str) -> Self {
+    fn from_string(input: &str, name_map: &mut NameMap) -> Self {
         let pieces: Vec<&str> = input.split("=>").collect();
         let from_chemicals: Vec<Chemical> = pieces[0].split(",")
-                                                    .map(|s| Chemical::from_string(s))
+                                                    .map(|s| Chemical::from_string(s, name_map))
                                                     .collect();
-        let to_chemical = Chemical::from_string(pieces[1]);
+        let to_chemical = Chemical::from_string(pieces[1], name_map);
 
         Self {
             from: from_chemicals,
@@ -52,39 +53,70 @@ impl Reaction {
         }
     }
 
-    fn react(&self, supply: &mut HashMap<String, i64>) {
+    fn react(&self, supply: &mut HashMap<u32, i64>, count: i64) {
         for consumed_chemical in &self.from {
-            let chemical_name = consumed_chemical.name.clone();
+            let chemical_name = consumed_chemical.id;
             let entry = supply.entry(chemical_name).or_insert(0);
-            *entry -= consumed_chemical.num;
+            *entry -= consumed_chemical.num * count;
         }
 
         let produced_chemical = &self.to;
-        let chemical_name = produced_chemical.name.clone();
+        let chemical_name = produced_chemical.id;
         let entry = supply.entry(chemical_name).or_insert(0);
-        *entry += produced_chemical.num;
+        *entry += produced_chemical.num * count;
+    }
+}
+
+struct NameMap {
+    map: HashMap<String, u32>,
+    next_id: u32,
+}
+
+impl NameMap {
+    fn new() -> Self {
+        Self {
+            map: HashMap::new(),
+            next_id: 0,
+        }
+    }
+
+    fn get_id(&mut self, input: &str) -> u32 {
+        let input_owned = input.to_owned();
+        let id = self.map.get(&input_owned);
+        if id.is_some() == true {
+            *id.unwrap()
+        } else {
+            let next_id = self.next_id;
+            self.next_id += 1;
+            self.map.insert(input_owned, next_id);
+            next_id
+        }
     }
 }
 
 struct RecipeBook {
-    reactions: Vec<Reaction>,
+    reactions: HashMap<u32, Reaction>,
+    name_map: NameMap,
 }
 
 impl RecipeBook {
     fn from_string(input: &str) -> Self {
-        let reactions: Vec<Reaction> = input.trim().lines()
-                                                .map(|line| Reaction::from_string(line))
-                                                .collect();
+        let mut name_map = NameMap::new();
+        let reactions: HashMap<u32, Reaction> = input.trim().lines()
+                                                            .map(|line| {
+                                                                    let reaction = Reaction::from_string(line, &mut name_map);
+                                                                    (reaction.to.id, reaction)
+                                                                })
+                                                            .collect();
         Self {
             reactions,
+            name_map,
         }
     }
 
-    fn produce_chemical(&self, supply: &mut HashMap<String, i64>, chemical: &Chemical) {
+    fn produce_chemical(&self, supply: &mut HashMap<u32, i64>, chemical: &Chemical) {
         // Find reaction which produces chemical
-        let reaction = self.reactions.iter()
-                                    .find(|&r| r.to.name == chemical.name)
-                                    .expect("Reaction not found");
+        let reaction = &self.reactions[&chemical.id];
 
         // Calculate how many times the reaction needs to occur to produce the desired number of chemical
         let mut react_count = chemical.num / reaction.to.num;
@@ -93,20 +125,20 @@ impl RecipeBook {
         }
 
         // Perform reaction X times
-        (0..react_count).for_each(|_| reaction.react(supply));
+        reaction.react(supply, react_count);
     }
 
-    fn resolve_debt(&self, supply: &mut HashMap<String, i64>) {
+    fn resolve_debt(&mut self, supply: &mut HashMap<u32, i64>) {
         loop {
             // Get all elements in the supply with a negative number (chemical debt)
+            let ore_id = self.name_map.get_id("ORE");
             let chemical_debts: Vec<Chemical> = supply.iter()
-                                                    .filter(|&(k, v)| (*v < 0) && (k != "ORE"))
-                                                    .map(|(k, v)| Chemical {
-                                                            name: k.clone(),
+                                                    .filter(|&(&k, &v)| (v < 0) && (k != ore_id))
+                                                    .map(|(&k, &v)| Chemical {
+                                                            id: k,
                                                             num: -v, // Negate to get the amount needed to produce
                                                         })
                                                     .collect();
-
             if chemical_debts.len() == 0 {
                 // No more chemical debt, return
                 break;
@@ -116,33 +148,67 @@ impl RecipeBook {
         }
     }
 
-    fn calculate_max_fuel(&self, ore_to_use: i64) -> i64 {
-        let mut supply: HashMap::<String, i64> = HashMap::new();
+    fn calculate_ore_for_fuel(&mut self, num_fuel: i64) -> i64 {
+        let mut supply: HashMap::<u32, i64> = HashMap::new();
 
-        let mut counter = 0;
-        while (supply.get("ORE").unwrap_or(&0i64) * -1) <= ore_to_use {
-            let fuel = Chemical {
-                name: "FUEL".to_string(),
-                num: 1,
-            };
-            self.produce_chemical(&mut supply, &fuel);
-            self.resolve_debt(&mut supply);
+        let ore_id = self.name_map.get_id("ORE");
+        let fuel_id = self.name_map.get_id("FUEL");
 
-            counter += 1;
-            if counter >= 1000 {
-                counter = 0;
-                println!("Ore used: {}", supply.get("ORE").unwrap_or(&0i64) * -1);
+        let fuel = Chemical {
+            id: fuel_id,
+            num: num_fuel
+        };
+        self.produce_chemical(&mut supply, &fuel);
+        self.resolve_debt(&mut supply);
+
+        // println!();
+        // println!("Final supply: {:?}", supply);
+
+        let ore_required = supply.get(&ore_id).unwrap_or(&0i64) * -1;
+        ore_required
+    }
+
+    fn calculate_max_fuel(&mut self, ore_to_use: i64) -> i64 {
+        let mut last_good = 0;
+        let mut attempt = 1;
+
+        // Find an upper bound on the answer
+        loop {
+            let ore = self.calculate_ore_for_fuel(attempt);
+            //println!("{} ore makes {} fuel", ore, attempt);
+            if ore <= ore_to_use {
+                // Success. Increase the amount we attempt next.
+                last_good = attempt;
+                attempt *= 2;
+            } else {
+                // Fail. Move to next stage.
+                break;
             }
         }
 
-        let max_fuel = *supply.get("FUEL").unwrap_or(&0i64) - 1; // Subtract one since the last attempt to create fuel necessarily failed.
-        max_fuel
+        // Now that the upper bound is known, binary search to find the answer
+        let mut lower = last_good;
+        let mut upper = attempt;
+        while lower + 1 != upper { // Calculation ends with lower == upper - 1 since lower is always a good attempt and upper is always a bad one
+            let middle = (lower + upper) / 2;
+            let ore = self.calculate_ore_for_fuel(middle);
+            //println!("{} ore makes {} fuel", ore, attempt);
+            if ore <= ore_to_use {
+                // Success. Increase the lower bound and thus the amount we attempt next.
+                lower = middle;
+            } else {
+                // Fail. Decrease the upper bound and thus the amount we attempt next.
+                upper = middle;
+            }
+        }
+
+        lower
     }
 }
 
 #[aoc(day14, part2)]
 pub fn solve(input: &str) -> i64 {
-    let recipe_book = RecipeBook::from_string(input);
+    let mut recipe_book = RecipeBook::from_string(input);
     let max_fuel = recipe_book.calculate_max_fuel(1_000_000_000_000);
     println!("Max fuel: {}", max_fuel);
     max_fuel
@@ -153,7 +219,6 @@ mod test {
     use super::*;
 
     #[test]
-    #[ignore]
     fn test_calculate_max_fuel() {
         let input = "
 157 ORE => 5 NZVS
@@ -166,7 +231,7 @@ mod test {
 165 ORE => 2 GPVTF
 3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT
 ";
-        let recipe_book = RecipeBook::from_string(input);
+        let mut recipe_book = RecipeBook::from_string(input);
         let max_fuel = recipe_book.calculate_max_fuel(1_000_000_000_000);
         assert_eq!(max_fuel, 82892753);
 
@@ -184,7 +249,7 @@ mod test {
 1 VJHF, 6 MNCFX => 4 RFSQX
 176 ORE => 6 VJHF
 ";
-        let recipe_book = RecipeBook::from_string(input);
+        let mut recipe_book = RecipeBook::from_string(input);
         let max_fuel = recipe_book.calculate_max_fuel(1_000_000_000_000);
         assert_eq!(max_fuel, 5586022);
 
@@ -207,7 +272,7 @@ mod test {
 7 XCVML => 6 RJRHP
 5 BHXH, 4 VRPVC => 5 LTCX
 ";
-        let recipe_book = RecipeBook::from_string(input);
+        let mut recipe_book = RecipeBook::from_string(input);
         let max_fuel = recipe_book.calculate_max_fuel(1_000_000_000_000);
         assert_eq!(max_fuel, 460664);
     }
