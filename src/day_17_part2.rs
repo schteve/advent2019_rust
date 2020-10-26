@@ -42,6 +42,7 @@
 */
 
 use std::collections::HashMap;
+use std::fmt;
 
 struct Program {
     code: Vec<i64>,
@@ -121,19 +122,17 @@ impl Program {
 
     fn get_mode(code_word: i64, digit: u32) -> i64 {
         let modes = code_word / 100;
-        let mode = (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1);
-        mode
+        (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> usize {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
             2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
             _ => panic!("Invalid param address mode: {}", mode),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: usize) -> i64 {
@@ -200,7 +199,7 @@ impl Program {
     fn opcode_in(&mut self) {
         let param1_addr = self.get_param_addr(1);
 
-        if self.input.len() > 0 {
+        if self.input.is_empty() == false {
             let input = self.input.remove(0);
             self.input_needed = false;
             self.pc += 2;
@@ -330,12 +329,13 @@ enum Turn {
     Right,
 }
 
-impl Turn {
-    fn to_string(&self) -> String {
-        match *self {
-            Self::Left => "L".to_string(),
-            Self::Right => "R".to_string(),
-        }
+impl fmt::Display for Turn {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Self::Left => "L",
+            Self::Right => "R",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -348,15 +348,6 @@ enum Cardinal {
 }
 
 impl Cardinal {
-    fn to_string(&self) -> String {
-        match *self {
-            Self::North => "North".to_string(),
-            Self::South => "South".to_string(),
-            Self::West => "West".to_string(),
-            Self::East => "East".to_string(),
-        }
-    }
-
     fn step_from(&self, coord: (i32, i32)) -> (i32, i32) {
         let delta = match *self {
             Self::North => (0, -1),
@@ -397,6 +388,18 @@ impl Cardinal {
                 }
             },
         }
+    }
+}
+
+impl fmt::Display for Cardinal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Self::North => "North",
+            Self::South => "South",
+            Self::West => "West",
+            Self::East => "East",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -451,7 +454,7 @@ struct Camera {
 impl Camera {
     fn new(program: Program) -> Camera {
         Camera {
-            program: program,
+            program,
             area: HashMap::new(),
         }
     }
@@ -466,13 +469,11 @@ impl Camera {
             if space != Space::Unknown {
                 self.area.insert((x_coord, y_coord), space);
                 x_coord += 1;
+            } else if o == 0x0A {
+                x_coord = 0;
+                y_coord += 1;
             } else {
-                if o == 0x0A {
-                    x_coord = 0;
-                    y_coord += 1;
-                } else {
-                    println!("Unknown output: {}", o);
-                }
+                println!("Unknown output: {}", o);
             }
         }
     }
@@ -505,10 +506,10 @@ impl Camera {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 
     fn find_path(&self) -> Vec<Segment> {
@@ -564,7 +565,7 @@ impl Camera {
             // Segment is complete
             let segment = Segment {
                 turn: next_turn,
-                distance: distance,
+                distance,
             };
             path.push(segment);
         }
@@ -579,7 +580,7 @@ impl Camera {
         self.program.input.push(0x0A as i64); // Always end with newline
     }
 
-    fn give_main_routine(&mut self, main_routine: &Vec<usize>) {
+    fn give_main_routine(&mut self, main_routine: &[usize]) {
         let main_routine_str = main_routine.iter()
                                         .map(|x| match x {
                                                 0 => "A".to_string(),
@@ -594,7 +595,7 @@ impl Camera {
         self.give_string(&main_routine_str);
     }
 
-    fn give_sub_routines(&mut self, sub_routines: &Vec<String>) {
+    fn give_sub_routines(&mut self, sub_routines: &[String]) {
         for routine in sub_routines {
             // Routines are in a packed string format. Need to split and insert commas.
             let mut expect_alpha = true;
@@ -614,7 +615,7 @@ impl Camera {
             }
 
             // If there's anything leftover at the end (should be), push it too.
-            if tmp_vec.len() > 0 {
+            if tmp_vec.is_empty() == false {
                 let value_string = tmp_vec.iter().collect::<String>();
                 tmp_vec.clear();
 
@@ -657,9 +658,7 @@ impl Camera {
 fn segment_to_string(segment: &Segment, with_comma: bool) -> String {
     let parts = [segment.turn.to_string(),
                  segment.distance.to_string()];
-    let segment_string = parts.join(if with_comma == true { "," } else { "" });
-    // println!("Segment: {}", segment_string);
-    segment_string
+    parts.join(if with_comma == true { "," } else { "" })
 }
 
 fn path_to_string(path: &[Segment], with_comma: bool) -> String {
@@ -698,39 +697,37 @@ fn split_sub_routines(path: &[Segment]) -> Vec<String> {
     paths_vec
 }
 
-fn match_path(path_str: &str, candidates: &Vec<String>, main_routine: &mut Vec<usize>, sub_routines: &mut Vec<String>) -> bool {
+fn match_path(path_str: &str, candidates: &[String], main_routine: &mut Vec<usize>, sub_routines: &mut Vec<String>) -> bool {
     for c in candidates {
-        if c.len() <= path_str.len() {
-            if c == &path_str[0..c.len()] {
-                let mut routine_pushed = false;
-                if sub_routines.contains(c) == false {
-                    if sub_routines.len() < 3 {
-                        sub_routines.push(c.clone());
-                        routine_pushed = true;
-                    } else {
-                        // We already had 3 sub routines in use and this candidate wasn't one of them. Move along.
-                        continue;
-                    }
+        if c.len() <= path_str.len() && c == &path_str[0..c.len()] {
+            let mut routine_pushed = false;
+            if sub_routines.contains(c) == false {
+                if sub_routines.len() < 3 {
+                    sub_routines.push(c.clone());
+                    routine_pushed = true;
+                } else {
+                    // We already had 3 sub routines in use and this candidate wasn't one of them. Move along.
+                    continue;
                 }
+            }
 
-                let position = sub_routines.iter().position(|i| i == c).unwrap();
-                main_routine.push(position);
+            let position = sub_routines.iter().position(|i| i == c).unwrap();
+            main_routine.push(position);
 
-                // Check if the full path has been matched.
-                if c.len() == path_str.len() {
-                    return true;
-                }
+            // Check if the full path has been matched.
+            if c.len() == path_str.len() {
+                return true;
+            }
 
-                let result = match_path(&path_str[c.len()..], candidates, main_routine, sub_routines);
-                if result == true {
-                    return true; // Propagate a full match
-                }
-                // It didn't work out. That's fine, we probably have other candidates to try.
+            let result = match_path(&path_str[c.len()..], candidates, main_routine, sub_routines);
+            if result == true {
+                return true; // Propagate a full match
+            }
+            // It didn't work out. That's fine, we probably have other candidates to try.
 
-                main_routine.pop();
-                if routine_pushed == true {
-                    sub_routines.pop();
-                }
+            main_routine.pop();
+            if routine_pushed == true {
+                sub_routines.pop();
             }
         }
     }
@@ -756,7 +753,7 @@ fn find_3_sub_routines(path: &[Segment]) -> (Vec<usize>, Vec<String>) {
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
-                            .split(",")
+                            .split(',')
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
     let program = Program::new(&code, &[]);

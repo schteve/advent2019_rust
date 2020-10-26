@@ -179,6 +179,7 @@
 */
 
 use regex::Regex;
+use std::cmp::Ordering;
 
 struct SpaceObject {
     position: (i32, i32, i32),
@@ -188,23 +189,17 @@ struct SpaceObject {
 impl SpaceObject {
     fn from_position(position: (i32, i32, i32)) -> SpaceObject {
         SpaceObject {
-            position: position,
+            position,
             velocity: (0, 0, 0),
         }
     }
 
     fn potential_energy(&self) -> i32 {
-        let potential = self.position.0.abs() +
-                        self.position.1.abs() +
-                        self.position.2.abs();
-        potential
+        self.position.0.abs() + self.position.1.abs() + self.position.2.abs()
     }
 
     fn kinetic_energy(&self) -> i32 {
-        let kinetic = self.velocity.0.abs() +
-                      self.velocity.1.abs() +
-                      self.velocity.2.abs();
-        kinetic
+        self.velocity.0.abs() + self.velocity.1.abs() + self.velocity.2.abs()
     }
 
     fn energy(&self) -> i32 {
@@ -260,7 +255,7 @@ impl Sim {
     fn total_energy(&self) -> i32 {
         self.objects.iter()
                     .map(|obj| obj.energy())
-                    .fold(0, |sum, val| sum + val)
+                    .sum()
     }
 
     fn display(&self) {
@@ -272,12 +267,10 @@ impl Sim {
     }
 
     fn get_gravity(a: i32, b: i32) -> i32 {
-        if a < b {
-            1
-        } else if a > b {
-            -1
-        } else {
-            0
+        match a.cmp(&b) {
+            Ordering::Less => 1,
+            Ordering::Greater => -1,
+            Ordering::Equal => 0,
         }
     }
 }

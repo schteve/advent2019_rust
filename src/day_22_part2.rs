@@ -13,6 +13,8 @@
     After shuffling your new, giant, factory order deck that many times, what number is on the card that ends up in position 2020?
 */
 
+use std::fmt;
+
 fn modulo(n: i64, modulus: i64) -> i64 {
     let mut m = n;
 
@@ -54,8 +56,7 @@ fn modulo_div(x: i64, n: i64, modulus: i64) -> i64 {
     // Given x and n, find the inverse of x then multiply by n to get y.
     // E.g. 7 * 5 = 35 = 16 mod 19, given x = 7 and n = 16 find inv_x = -8 then y = -8 * 16 mod 19
     let inv_x = gcd_extended(x, modulus);
-    let result = modulo_mult(inv_x, n, modulus);
-    result
+    modulo_mult(inv_x, n, modulus)
 }
 
 fn gcd_extended(a: i64, b: i64) -> i64 {
@@ -119,20 +120,6 @@ impl Technique {
         panic!("Unknown technique: {}", s);
     }
 
-    fn to_string(&self) -> String {
-        match self {
-            Technique::DealNewStack => {
-                "Deal into new stack".to_owned()
-            },
-            Technique::DealWithIncrement(n) => {
-                "Deal with increment ".to_owned() + &n.to_string()
-            },
-            Technique::Cut(n) => {
-                "Cut ".to_owned() + &n.to_string()
-            },
-        }
-    }
-
     fn combine_or_swap(x: Self, y: Self, modulus: i64) -> Vec<Self> {
         match x {
             Self::DealNewStack => {
@@ -190,6 +177,16 @@ impl Technique {
     }
 }
 
+impl fmt::Display for Technique {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Technique::DealNewStack => write!(f, "Deal into new stack"),
+            Technique::DealWithIncrement(n) => write!(f, "Deal with increment {}", n),
+            Technique::Cut(n) => write!(f, "Cut {}", n),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 struct Deck {
     cards: Vec<usize>,
@@ -230,7 +227,7 @@ impl Deck {
         }
     }
 
-    fn shuffle_many(&mut self, techniques: &Vec<Technique>) {
+    fn shuffle_many(&mut self, techniques: &[Technique]) {
         techniques.iter().for_each(|&t| self.shuffle(t))
     }
 
@@ -239,10 +236,10 @@ impl Deck {
     }
 }
 
-fn reduce(techniques: &Vec<Technique>, modulus: i64) -> Vec<Technique> {
+fn reduce(techniques: &[Technique], modulus: i64) -> Vec<Technique> {
     // Combine repeated techniques. Pull DealWithIncrement to the front. Push Cut to the back.
     // Thanks to /u/MegaGreenLightning for the idea
-    let mut current_vec = techniques.clone();
+    let mut current_vec = techniques.to_owned();
     let mut fresh_data = true;
     while fresh_data == true {
         fresh_data = false;
@@ -283,10 +280,10 @@ fn reduce(techniques: &Vec<Technique>, modulus: i64) -> Vec<Technique> {
     current_vec
 }
 
-fn expand(techniques: &Vec<Technique>, modulus: i64, target: i64) -> Vec<Technique> {
+fn expand(techniques: &[Technique], modulus: i64, target: i64) -> Vec<Technique> {
     // For each of the 64 bits, create a techniques vector that can be performed to accomplish that number of shuffles. Not all bits will be needed.
     let mut bit_vec: Vec<Vec<Technique>> = Vec::new();
-    let mut techniques_multiple = techniques.clone();
+    let mut techniques_multiple = techniques.to_owned();
     for _ in 0..64 {
         bit_vec.push(techniques_multiple.clone());
         techniques_multiple.extend(techniques_multiple.clone()); // Double the vector
@@ -294,9 +291,9 @@ fn expand(techniques: &Vec<Technique>, modulus: i64, target: i64) -> Vec<Techniq
     }
 
     let mut target_vec: Vec<Technique> = Vec::new();
-    for i in 0..64 {
+    for (i, bit) in bit_vec.iter().enumerate().take(64) {
         if (target & (1 << i)) != 0 {
-            target_vec.extend(bit_vec[i].clone());
+            target_vec.extend(bit);
         }
     }
 
@@ -304,14 +301,13 @@ fn expand(techniques: &Vec<Technique>, modulus: i64, target: i64) -> Vec<Techniq
     target_vec
 }
 
-fn get_card_at_position(techniques: &Vec<Technique>, modulus: i64, position: usize) -> i64 {
+fn get_card_at_position(techniques: &[Technique], modulus: i64, position: usize) -> i64 {
     match techniques[..] {
         [Technique::DealWithIncrement(x), Technique::Cut(c)] => {
             // DealWithIncrement is the same as modular multiplication. We are trying to undo it and so
             // use modular division. Note that we are trying to find the card that ends up in a position, but
             // since there is a Cut after the Deal we need to adjust the position we are actually looking for.
-            let result = modulo_div(x, position as i64 + c, modulus);
-            result
+            modulo_div(x, position as i64 + c, modulus)
         },
         _ => panic!("Reduced vec not in expected form"), // Expect to be in the form: DealWithIncrement, Cut
     }

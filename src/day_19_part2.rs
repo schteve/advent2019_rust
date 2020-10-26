@@ -127,19 +127,17 @@ impl Program {
 
     fn get_mode(code_word: i64, digit: u32) -> i64 {
         let modes = code_word / 100;
-        let mode = (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1);
-        mode
+        (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> usize {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
             2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
             _ => panic!("Invalid param address mode: {}", mode),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: usize) -> i64 {
@@ -206,7 +204,7 @@ impl Program {
     fn opcode_in(&mut self) {
         let param1_addr = self.get_param_addr(1);
 
-        if self.input.len() > 0 {
+        if self.input.is_empty() == false {
             let input = self.input.remove(0);
             self.input_needed = false;
             self.pc += 2;
@@ -367,7 +365,7 @@ struct TractorBeam {
 impl TractorBeam {
     fn new(program: Program) -> TractorBeam {
         TractorBeam {
-            program: program,
+            program,
             area: HashMap::new(),
         }
     }
@@ -384,7 +382,7 @@ impl TractorBeam {
             oracle_program.input.push(point.y as i64);
             oracle_program.run_with_pause();
 
-            if oracle_program.output.len() > 0 {
+            if oracle_program.output.is_empty() == false {
                 let result = oracle_program.output.remove(0);
                 let space = Space::from_value(result);
 
@@ -423,12 +421,12 @@ impl TractorBeam {
                 // Check the spaces at the far edges of the box
                 let p = Point {
                     x: x + box_size as i32 - 1,
-                    y: y,
+                    y,
                 };
                 let space = self.check_point(p);
                 if space == Space::Pulled {
                     let p = Point {
-                        x: x,
+                        x,
                         y: y + box_size as i32 - 1,
                     };
                     let space = self.check_point(p);
@@ -497,10 +495,10 @@ impl TractorBeam {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 }
 
@@ -508,7 +506,7 @@ impl TractorBeam {
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
-                            .split(",")
+                            .split(',')
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
     let program = Program::new(&code, &[]);
@@ -531,7 +529,7 @@ mod test {
                     .expect("Something went wrong reading the file");
         let code: Vec<i64> = input
                                 .trim()
-                                .split(",")
+                                .split(',')
                                 .map(|s| s.parse::<i64>().unwrap())
                                 .collect();
         let program = Program::new(&code, &[]);

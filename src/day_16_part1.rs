@@ -80,10 +80,9 @@ fn gen_base_pattern(element: i32) -> Vec<i32> {
 }
 
 fn gen_pattern_table(elements: i32) -> Vec<Vec<i32>> {
-    let pattern_table = (0..elements)
-                                .map(|i| gen_base_pattern(i))
-                                .collect();
-    pattern_table
+    (0..elements)
+        .map(gen_base_pattern)
+        .collect()
 }
 
 fn ones_digit(input: i32) -> i32 {
@@ -91,7 +90,7 @@ fn ones_digit(input: i32) -> i32 {
     output.abs()
 }
 
-fn mult_pattern(input: &Vec<i32>, pattern: &Vec<i32>) -> i32 {
+fn mult_pattern(input: &[i32], pattern: &[i32]) -> i32 {
     let sum: i32 = pattern.iter()
                         .cycle()
                         .zip(input.iter())
@@ -100,7 +99,7 @@ fn mult_pattern(input: &Vec<i32>, pattern: &Vec<i32>) -> i32 {
     ones_digit(sum)
 }
 
-fn phase(input: &Vec<i32>, pattern_table: &Vec<Vec<i32>>) -> Vec<i32> {
+fn phase(input: &[i32], pattern_table: &[Vec<i32>]) -> Vec<i32> {
     let output: Vec<i32> = (0..input.len())
                                 .map(|i| mult_pattern(input, &pattern_table[i]))
                                 .collect();

@@ -99,19 +99,17 @@ impl Program {
 
     fn get_mode(code_word: i64, digit: u32) -> i64 {
         let modes = code_word / 100;
-        let mode = (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1);
-        mode
+        (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> usize {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
             2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
             _ => panic!(),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: usize) -> i64 {
@@ -299,7 +297,7 @@ impl Program {
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
                             .trim()
-                            .split(",")
+                            .split(',')
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
     let mut program = Program::new(&code, &[2]);

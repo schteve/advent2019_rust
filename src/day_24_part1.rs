@@ -94,8 +94,7 @@ impl BugSim {
             return false; // Invalid tiles may result from looking beyond the grid boundaries, these should always count as empty
         }
         let idx = row * 5 + col;
-        let tile_is_bug = (self.state & (1 << idx)) != 0;
-        tile_is_bug
+        (self.state & (1 << idx)) != 0
     }
 
     fn display(&self) {
@@ -107,23 +106,23 @@ impl BugSim {
                     print!("#");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
+        println!();
     }
 
     fn count_adjacent(&self, row: i32, col: i32) -> i32 {
         let mut count = 0;
-        if self.get_tile(row - 1, col + 0) == true {
+        if self.get_tile(row - 1, col) == true {
             count += 1;
         }
-        if self.get_tile(row + 1, col + 0) == true {
+        if self.get_tile(row + 1, col) == true {
             count += 1;
         }
-        if self.get_tile(row + 0, col - 1) == true {
+        if self.get_tile(row, col - 1) == true {
             count += 1;
         }
-        if self.get_tile(row + 0, col + 1) == true {
+        if self.get_tile(row, col + 1) == true {
             count += 1;
         }
         count

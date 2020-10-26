@@ -19,7 +19,7 @@ fn ones_digit(input: i32) -> i32 {
     output.abs()
 }
 
-fn phase(input: &Vec<i32>) -> Vec<i32> {
+fn phase(input: &[i32]) -> Vec<i32> {
     let mut sum = 0;
     let mut output: Vec<i32> = input.iter()
                                     .rev()
@@ -53,7 +53,7 @@ fn parse_string_x1000(s: &str) -> Vec<i32> {
     list
 }
 
-fn get_offset(list: &Vec<i32>) -> i32 {
+fn get_offset(list: &[i32]) -> i32 {
     let offset = list[0..7].iter()
                         .rev()
                         .enumerate()

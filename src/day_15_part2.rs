@@ -45,6 +45,7 @@
 */
 
 use std::collections::HashMap;
+use std::fmt;
 
 struct Program {
     code: Vec<i64>,
@@ -124,19 +125,17 @@ impl Program {
 
     fn get_mode(code_word: i64, digit: u32) -> i64 {
         let modes = code_word / 100;
-        let mode = (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1);
-        mode
+        (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> usize {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
             2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
             _ => panic!("Invalid param address mode: {}", mode),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: usize) -> i64 {
@@ -203,7 +202,7 @@ impl Program {
     fn opcode_in(&mut self) {
         let param1_addr = self.get_param_addr(1);
 
-        if self.input.len() > 0 {
+        if self.input.is_empty() == false {
             let input = self.input.remove(0);
             self.input_needed = false;
             self.pc += 2;
@@ -355,15 +354,6 @@ impl Direction {
         }
     }
 
-    fn to_string(&self) -> String {
-        match *self {
-            Direction::North => "North".to_string(),
-            Direction::South => "South".to_string(),
-            Direction::West => "West".to_string(),
-            Direction::East => "East".to_string(),
-        }
-    }
-
     fn step_from(&self, from: (i32, i32)) -> (i32, i32) {
         match *self {
             Direction::North => (from.0, from.1 - 1),
@@ -380,6 +370,18 @@ impl Direction {
             Direction::West =>  Direction::East,
             Direction::East =>  Direction::West,
         }
+    }
+}
+
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Direction::North => "North",
+            Direction::South => "South",
+            Direction::West => "West",
+            Direction::East => "East",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -406,13 +408,16 @@ impl Status {
             Status::Oxygen => 2,
         }
     }
+}
 
-    fn to_string(&self) -> String {
-        match *self {
-            Status::Wall => "Wall".to_string(),
-            Status::Moved => "Moved".to_string(),
-            Status::Oxygen => "Oxygen".to_string(),
-        }
+impl fmt::Display for Status {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Status::Wall => "Wall",
+            Status::Moved => "Moved",
+            Status::Oxygen => "Oxygen",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -446,8 +451,8 @@ impl Drone {
         let mut area = HashMap::new();
         area.insert((0, 0), Space::Empty);
         Drone {
-            controller: controller,
-            area: area,
+            controller,
+            area,
             location: (0, 0),
         }
     }
@@ -482,17 +487,17 @@ impl Drone {
                     print!(".");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 
     fn movement(&mut self, direction: Direction) -> bool {
         self.controller.input.push(direction.value() as i64);
         self.controller.run_with_pause();
 
-        if self.controller.output.len() > 0 {
+        if self.controller.output.is_empty() == false {
             let result = self.controller.output.remove(0);
             let status = Status::from_value(result);
             // println!("Move {}: {}", direction.to_string(), status.to_string());
@@ -535,14 +540,9 @@ impl Drone {
                               Direction::East];
         for direction in candidates {
             let step_in_direction = direction.step_from(self.location);
-            match self.area.get(&step_in_direction) {
-                None => {
-                    if self.movement(direction) == true {
-                        self.search();
-                        self.movement(direction.undo());
-                    }
-                },
-                _ => (),
+            if self.area.get(&step_in_direction).is_none() && self.movement(direction) == true {
+                self.search();
+                self.movement(direction.undo());
             }
         }
     }
@@ -563,11 +563,8 @@ impl Drone {
                                         Direction::East];
                 for direction in candidates {
                     let step_in_direction = direction.step_from(location);
-                    match self.area.get(&step_in_direction) {
-                        Some(Space::Empty) => {
-                            empties.push(step_in_direction);
-                        },
-                        _ => (),
+                    if let Some(Space::Empty) = self.area.get(&step_in_direction) {
+                        empties.push(step_in_direction);
                     }
                 }
             }
@@ -577,7 +574,7 @@ impl Drone {
                 frontier.push(e);
             }
 
-            if frontier.len() == 0 {
+            if frontier.is_empty() == true {
                 return counter;
             } else {
                 counter += 1;
@@ -592,7 +589,7 @@ impl Drone {
 pub fn solve(input: &str) -> i32 {
     let code: Vec<i64> = input
                             .trim()
-                            .split(",")
+                            .split(',')
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
     let program = Program::new(&code, &[]);

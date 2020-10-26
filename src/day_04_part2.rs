@@ -56,7 +56,7 @@ fn is_password_valid(password: u32) -> bool {
 }
 
 fn count_passwords(start: u32, end: u32) -> u32 {
-    let count = (start..end).map(|i| is_password_valid(i))
+    let count = (start..end).map(is_password_valid)
                             .filter(|&is_valid| is_valid == true)
                             .count();
     count as u32
@@ -64,7 +64,7 @@ fn count_passwords(start: u32, end: u32) -> u32 {
 
 #[aoc(day4, part2)]
 pub fn solve(input: &str) -> u32 {
-    let range: Vec<u32> = input.trim().split("-")
+    let range: Vec<u32> = input.trim().split('-')
                                 .map(|s| s.parse::<u32>().unwrap())
                                 .collect();
     let count = count_passwords(range[0], range[1]);

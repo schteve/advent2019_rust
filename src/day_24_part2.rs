@@ -210,7 +210,7 @@ impl BugSim {
 
     fn display(&self) {
         let mut keys: Vec<i32> = self.state.keys().cloned().collect();
-        keys.sort();
+        keys.sort_unstable();
         for k in keys {
             println!("Depth: {}", k);
             for row in 0..5 {
@@ -225,11 +225,11 @@ impl BugSim {
                         print!("?");
                     }
                 }
-                println!("");
+                println!();
             }
-            println!("");
+            println!();
         }
-        println!("");
+        println!();
     }
 
     fn count_adjacent(&self, depth: i32, row: i32, col: i32) -> i32 {

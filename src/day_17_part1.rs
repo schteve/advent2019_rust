@@ -42,6 +42,7 @@
 */
 
 use std::collections::HashMap;
+use std::fmt;
 
 struct Program {
     code: Vec<i64>,
@@ -121,19 +122,17 @@ impl Program {
 
     fn get_mode(code_word: i64, digit: u32) -> i64 {
         let modes = code_word / 100;
-        let mode = (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1);
-        mode
+        (modes % 10i64.pow(digit)) / 10i64.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> usize {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
             2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
             _ => panic!("Invalid param address mode: {}", mode),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: usize) -> i64 {
@@ -200,7 +199,7 @@ impl Program {
     fn opcode_in(&mut self) {
         let param1_addr = self.get_param_addr(1);
 
-        if self.input.len() > 0 {
+        if self.input.is_empty() == false {
             let input = self.input.remove(0);
             self.input_needed = false;
             self.pc += 2;
@@ -333,15 +332,6 @@ enum Cardinal {
 }
 
 impl Cardinal {
-    fn to_string(&self) -> String {
-        match *self {
-            Self::North => "North".to_string(),
-            Self::South => "South".to_string(),
-            Self::West => "West".to_string(),
-            Self::East => "East".to_string(),
-        }
-    }
-
     fn step_from(&self, coord: (i32, i32)) -> (i32, i32) {
         let delta = match *self {
             Self::North => (0, -1),
@@ -360,6 +350,18 @@ impl Cardinal {
             Self::West =>  Self::East,
             Self::East =>  Self::West,
         }
+    }
+}
+
+impl fmt::Display for Cardinal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Self::North => "North",
+            Self::South => "South",
+            Self::West => "West",
+            Self::East => "East",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -408,7 +410,7 @@ struct Camera {
 impl Camera {
     fn new(program: Program) -> Camera {
         Camera {
-            program: program,
+            program,
             area: HashMap::new(),
         }
     }
@@ -423,13 +425,11 @@ impl Camera {
             if space != Space::Unknown {
                 self.area.insert((x_coord, y_coord), space);
                 x_coord += 1;
+            } else if o == 0x0A {
+                x_coord = 0;
+                y_coord += 1;
             } else {
-                if o == 0x0A {
-                    x_coord = 0;
-                    y_coord += 1;
-                } else {
-                    println!("Unknown output: {}", o);
-                }
+                println!("Unknown output: {}", o);
             }
         }
     }
@@ -462,10 +462,10 @@ impl Camera {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 
     fn find_intersections(&self) -> Vec<(i32, i32)> {
@@ -483,7 +483,7 @@ impl Camera {
     }
 }
 
-fn calculate_alignment_parameter_sum(intersections: &Vec<(i32, i32)>) -> i32 {
+fn calculate_alignment_parameter_sum(intersections: &[(i32, i32)]) -> i32 {
     let sum = intersections.iter()
                             .map(|(x, y)| x * y)
                             .sum();
@@ -494,7 +494,7 @@ fn calculate_alignment_parameter_sum(intersections: &Vec<(i32, i32)>) -> i32 {
 pub fn solve(input: &str) -> i32 {
     let code: Vec<i64> = input
                             .trim()
-                            .split(",")
+                            .split(',')
                             .map(|s| s.parse::<i64>().unwrap())
                             .collect();
     let program = Program::new(&code, &[]);

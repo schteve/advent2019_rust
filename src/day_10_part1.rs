@@ -125,7 +125,7 @@ impl AsteroidMap {
         }
 
         AsteroidMap {
-            data: data,
+            data,
         }
     }
 
@@ -159,7 +159,7 @@ impl AsteroidMap {
         self.data
             .iter()
             .filter(|&&asteroid| self.is_visible(asteroid, from_location))
-            .map(|&x| x)
+            .copied()
             .collect()
     }
 

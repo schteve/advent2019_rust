@@ -63,7 +63,7 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
     let mut graph: Vec<SpaceObject> = Vec::new();
     for line in input.lines() {
         // println!("line: {}", line);
-        let items: Vec<&str> = line.split(")").collect();
+        let items: Vec<&str> = line.split(')').collect();
         let obj = SpaceObject {
             name: items[1].to_string(),
             parent_name: items[0].to_string(),
@@ -114,7 +114,7 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
     graph
 }
 
-fn count_orbits(graph: &Vec<SpaceObject>) -> u32 {
+fn count_orbits(graph: &[SpaceObject]) -> u32 {
     // Get the total number of orbits
     let total_orbits = graph.iter()
                             .map(|obj| obj.orbit_count)

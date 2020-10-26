@@ -42,6 +42,7 @@
 
 use num::integer::lcm;
 use regex::Regex;
+use std::cmp::Ordering;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 struct Component {
@@ -52,7 +53,7 @@ struct Component {
 impl Component {
     fn from_position(position: i32) -> Component {
         Component {
-            position: position,
+            position,
             velocity: 0,
         }
     }
@@ -86,12 +87,10 @@ impl Sim {
     }
 
     fn get_gravity(a: i32, b: i32) -> i32 {
-        if a < b {
-            1
-        } else if a > b {
-            -1
-        } else {
-            0
+        match a.cmp(&b) {
+            Ordering::Less => 1,
+            Ordering::Greater => -1,
+            Ordering::Equal => 0,
         }
     }
 
@@ -100,7 +99,7 @@ impl Sim {
             for j in 0..objects_n.len() {
                 let gravity = Sim::get_gravity(objects_n[i].position,
                                                objects_n[j].position);
-                objects_n[i].velocity = objects_n[i].velocity + gravity;
+                objects_n[i].velocity += gravity;
             }
         }
 
@@ -139,8 +138,7 @@ impl Sim {
         let repeat_y = Sim::find_repeat_component(&mut self.objects.y);
         let repeat_z = Sim::find_repeat_component(&mut self.objects.z);
         // println!("{} {} {}", repeat_x, repeat_y, repeat_z);
-        let repeat = lcm(lcm(repeat_x, repeat_y), repeat_z);
-        repeat
+        lcm(lcm(repeat_x, repeat_y), repeat_z)
     }
 
     fn display(&self) {

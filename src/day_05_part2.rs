@@ -94,18 +94,16 @@ impl Program {
 
     fn get_mode(code_word: i32, digit: u32) -> i32 {
         let modes = code_word / 100;
-        let mode = (modes % 10i32.pow(digit)) / 10i32.pow(digit - 1);
-        mode
+        (modes % 10i32.pow(digit)) / 10i32.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> u32 {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx) as u32,
             1 => self.pc + param_idx,
             _ => panic!(),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: u32) -> i32 {
@@ -248,7 +246,7 @@ impl Program {
 
 #[aoc(day5, part2)]
 pub fn solve(input: &str) -> i32 {
-    let code: Vec<i32> = input.trim().split(",").map(|s| s.parse::<i32>().unwrap()).collect();
+    let code: Vec<i32> = input.trim().split(',').map(|s| s.parse::<i32>().unwrap()).collect();
     let input = [5];
 
     let mut program = Program::new(&code, &input);

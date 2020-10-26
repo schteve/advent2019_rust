@@ -133,6 +133,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Cardinal {
@@ -143,15 +144,6 @@ enum Cardinal {
 }
 
 impl Cardinal {
-    fn to_string(&self) -> String {
-        match *self {
-            Self::North => "North".to_string(),
-            Self::South => "South".to_string(),
-            Self::West => "West".to_string(),
-            Self::East => "East".to_string(),
-        }
-    }
-
     fn step_from(&self, coord: Point) -> Point {
         let delta = match *self {
             Self::North => (0, -1),
@@ -173,6 +165,18 @@ impl Cardinal {
             Self::West =>  Self::East,
             Self::East =>  Self::West,
         }
+    }
+}
+
+impl fmt::Display for Cardinal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Self::North => "North",
+            Self::South => "South",
+            Self::West => "West",
+            Self::East => "East",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -244,7 +248,7 @@ impl Map {
         }
 
         Map {
-            area: area,
+            area,
         }
     }
 
@@ -276,17 +280,16 @@ impl Map {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 
     fn get_entrance(&self) -> Point {
         for (&k, &v) in self.area.iter() {
-            match v {
-                Space::Entrance => return k,
-                _ => (),
+            if let Space::Entrance = v {
+                return k;
             }
         }
 
@@ -388,7 +391,7 @@ impl Map {
             }
 
             //println!("frontier: {:?}", frontier);
-            if frontier.len() == 0 {
+            if frontier.is_empty() == true {
                 break;
             }
         }
@@ -455,8 +458,8 @@ impl Map {
                             node_to_vertex_map.insert(nodes.clone(), id);
 
                             let v = Vertex {
-                                id: id,
-                                nodes: nodes,
+                                id,
+                                nodes,
                                 distance: u32::max_value(),
                                 pi: Some(graph.vertices[frontier_id].id),
                                 connected: Vec::new(),
@@ -468,7 +471,7 @@ impl Map {
                         // Create an edge based on the saved ID and add it to the current node in the graph.
                         let edge = Edge {
                             vertex_id: id,
-                            distance: distance,
+                            distance,
                         };
                         graph.vertices[frontier_id].connected.push(edge);
                     }
@@ -476,7 +479,7 @@ impl Map {
             }
 
             //println!("Graph frontier: {:?}", frontier);
-            if frontier.len() == 0 {
+            if frontier.is_empty() == true {
                 break;
             }
         }
@@ -499,7 +502,7 @@ impl Node {
             panic!("Invalid character!");
         }
 
-        let idx = (c as u8) - ('a' as u8);
+        let idx = (c as u8) - b'a';
         idx as usize
     }
 
@@ -549,7 +552,7 @@ impl Graph {
         let mut next: HashSet<usize> = HashSet::new();
         next.insert(start_vertex);
 
-        while next.len() > 0 {
+        while next.is_empty() == false {
             // Find the next vertex with minimum distance. Mark it as visited
             // (we're visiting it now) and remove it from the 'next' list.
             let mut min_id = 0;
@@ -648,7 +651,7 @@ pub fn solve(input: &str) -> u32 {
         for e in vertex.connected.iter() {
             println!("         {:?}", e);
         }
-        println!("");
+        println!();
     }*/
 
     graph.dijkstra(0);
@@ -659,15 +662,15 @@ pub fn solve(input: &str) -> u32 {
     for path_idx in 0..path.len() {
         // Check what changed between this index and the previous one (if any) and print it
         if path_idx > 0 {
-            let mut zip_iter = path[path_idx].iter().zip(path[path_idx - 1].iter());
-            while let Some((&curr, &prev)) = zip_iter.next() {
+            let zip_iter = path[path_idx].iter().zip(path[path_idx - 1].iter());
+            for (&curr, &prev) in zip_iter {
                 if curr != prev {
                     print!(", {:?}", curr);
                 }
             }
         }
     }
-    println!("");
+    println!();
     distance
 }
 

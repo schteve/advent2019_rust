@@ -42,8 +42,8 @@ impl Layer {
     fn from_slice(input_data: &[u32], width: usize, height: usize) -> Layer {
         Layer {
             data: input_data.to_vec(),
-            width: width,
-            height: height,
+            width,
+            height,
         }
     }
 
@@ -55,9 +55,7 @@ impl Layer {
         let count = self.data
                         .iter()
                         .filter(|&&d| d == value)
-                        .map(|&x| x)
-                        .collect::<Vec<u32>>()
-                        .len();
+                        .count();
         count as u32
     }
 
@@ -70,10 +68,10 @@ impl Layer {
 
 impl fmt::Display for Layer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "")?;
+        writeln!(f)?;
         for row in self.data.chunks(self.width as usize) {
             writeln!(f, "{}", row
-                            .into_iter()
+                            .iter()
                             .map(|i| i.to_string())
                             .collect::<String>())?;
         }
@@ -94,7 +92,7 @@ impl Image {
                                         .map(|chunk| Layer::from_slice(chunk, image_width, image_height))
                                         .collect();
         Image {
-            layers: layers,
+            layers,
             width: image_width,
             height: image_height,
         }

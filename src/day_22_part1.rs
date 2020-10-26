@@ -136,6 +136,8 @@
     After shuffling your factory order deck of 10007 cards, what is the position of card 2019?
 */
 
+use std::fmt;
+
 fn modulo(n: i64, modulus: i64) -> i64 {
     let mut m = n;
 
@@ -180,18 +182,14 @@ impl Technique {
 
         panic!("Unknown technique: {}", s);
     }
+}
 
-    fn to_string(&self) -> String {
+impl fmt::Display for Technique {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Technique::DealNewStack => {
-                "Deal into new stack".to_owned()
-            },
-            Technique::DealWithIncrement(n) => {
-                "Deal with increment ".to_owned() + &n.to_string()
-            },
-            Technique::Cut(n) => {
-                "Cut ".to_owned() + &n.to_string()
-            },
+            Technique::DealNewStack => write!(f, "Deal into new stack"),
+            Technique::DealWithIncrement(n) => write!(f, "Deal with increment {}", n),
+            Technique::Cut(n) => write!(f, "Cut {}", n),
         }
     }
 }
@@ -235,7 +233,7 @@ impl Deck {
         }
     }
 
-    fn shuffle_many(&mut self, techniques: &Vec<Technique>) {
+    fn shuffle_many(&mut self, techniques: &[Technique]) {
         techniques.iter().for_each(|&t| self.shuffle(t))
     }
 

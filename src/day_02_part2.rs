@@ -71,7 +71,7 @@ fn opcode_mul(program: &mut [u32], pc: &mut u32)  {
 
 #[aoc(day2, part2)]
 pub fn solve(input: &str) -> u32 {
-    let mut program: Vec<u32> = input.trim().split(",").map(|s| s.parse::<u32>().unwrap()).collect();
+    let mut program: Vec<u32> = input.trim().split(',').map(|s| s.parse::<u32>().unwrap()).collect();
     // Position 1 changed to 12 and position 2 changed to 2 per instructions
     program[1] = 12;
     program[2] = 2;

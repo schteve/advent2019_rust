@@ -99,18 +99,16 @@ impl Program {
 
     fn get_mode(code_word: i32, digit: u32) -> i32 {
         let modes = code_word / 100;
-        let mode = (modes % 10i32.pow(digit)) / 10i32.pow(digit - 1);
-        mode
+        (modes % 10i32.pow(digit)) / 10i32.pow(digit - 1)
     }
 
     fn get_param_addr(&self, param_idx: u32) -> u32 {
         let mode = self.get_mode_curr(param_idx);
-        let addr = match mode {
+        match mode {
             0 => self.get_value(self.pc + param_idx) as u32,
             1 => self.pc + param_idx,
             _ => panic!(),
-        };
-        addr
+        }
     }
 
     fn get_value(&self, addr: u32) -> i32 {
@@ -301,7 +299,7 @@ fn max_thruster_signal(code: &[i32], phases: &[i32]) -> u32 {
     let max_signal = phase_permutations
                         .iter()
                         .map(|p| check_signal(&code, &p))
-                        .fold(0, |max, signal| cmp::max(max, signal));
+                        .fold(0, cmp::max);
     max_signal as u32
 }
 
@@ -309,7 +307,7 @@ fn max_thruster_signal(code: &[i32], phases: &[i32]) -> u32 {
 pub fn solve(input: &str) -> u32 {
     let code: Vec<i32> = input
                             .trim()
-                            .split(",")
+                            .split(',')
                             .map(|s| s.parse::<i32>().unwrap())
                             .collect();
 

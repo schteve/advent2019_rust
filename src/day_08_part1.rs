@@ -32,8 +32,8 @@ impl Layer {
     fn from_slice(input_data: &[u32], width: usize, height: usize) -> Layer {
         Layer {
             data: input_data.to_vec(),
-            width: width,
-            height: height,
+            width,
+            height,
         }
     }
 
@@ -44,20 +44,18 @@ impl Layer {
     fn display(&self) {
         for row in self.data.chunks(self.width as usize) {
             println!("{}", row
-                            .into_iter()
+                            .iter()
                             .map(|i| i.to_string())
                             .collect::<String>());
         }
-        println!("");
+        println!();
     }
 
     fn count_digits(&self, value: u32) -> u32 {
         let count = self.data
                         .iter()
                         .filter(|&&d| d == value)
-                        .map(|&x| x)
-                        .collect::<Vec<u32>>()
-                        .len();
+                        .count();
         count as u32
     }
 
@@ -81,7 +79,7 @@ impl Image {
                                         .map(|chunk| Layer::from_slice(chunk, image_width, image_height))
                                         .collect();
         Image {
-            layers: layers,
+            layers,
             width: image_width,
             height: image_height,
         }

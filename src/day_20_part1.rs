@@ -77,6 +77,7 @@
 
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Cardinal {
@@ -87,15 +88,6 @@ enum Cardinal {
 }
 
 impl Cardinal {
-    fn to_string(&self) -> String {
-        match *self {
-            Self::North => "North".to_string(),
-            Self::South => "South".to_string(),
-            Self::West => "West".to_string(),
-            Self::East => "East".to_string(),
-        }
-    }
-
     fn step_from(&self, coord: Point) -> Point {
         let delta = match *self {
             Self::North => (0, -1),
@@ -117,6 +109,18 @@ impl Cardinal {
             Self::West =>  Self::East,
             Self::East =>  Self::West,
         }
+    }
+}
+
+impl fmt::Display for Cardinal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let disp_str = match *self {
+            Self::North => "North",
+            Self::South => "South",
+            Self::West => "West",
+            Self::East => "East",
+        };
+        write!(f, "{}", disp_str)
     }
 }
 
@@ -190,7 +194,7 @@ impl Map {
         }
 
         let mut map = Map {
-            area: area,
+            area,
             portals: HashMap::new(),
         };
         map.detect_portals();
@@ -227,9 +231,9 @@ impl Map {
                     // We are scanning from left to right, top to bottom. So we only need to look to the right and down.
                     // If there's an adjacent letter in any other position, this is part of an existing portal.
                     let portal_piece1;
-                    if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x: x + 1, y: y }) {
+                    if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x: x + 1, y }) {
                         portal_piece1 = *c1;
-                    } else if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x: x, y: y + 1 }) {
+                    } else if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x, y: y + 1 }) {
                         portal_piece1 = *c1;
                     } else {
                         continue; // Not a valid portal
@@ -237,14 +241,14 @@ impl Map {
 
                     // Find the walkable space. Relative to the first piece it is either one left, two right, one up, or two down.
                     let portal_walkable;
-                    if let Some(Space::Empty) = self.area.get(&Point { x: x - 1, y: y }) {
-                        portal_walkable = Point { x: x - 1, y: y };
-                    } else if let Some(Space::Empty) = self.area.get(&Point { x: x + 2, y: y }) {
-                        portal_walkable = Point { x: x + 2, y: y };
-                    } else if let Some(Space::Empty) = self.area.get(&Point { x: x, y: y - 1 }) {
-                        portal_walkable = Point { x: x, y: y - 1 };
-                    } else if let Some(Space::Empty) = self.area.get(&Point { x: x, y: y + 2 }) {
-                        portal_walkable = Point { x: x, y: y + 2 };
+                    if let Some(Space::Empty) = self.area.get(&Point { x: x - 1, y }) {
+                        portal_walkable = Point { x: x - 1, y };
+                    } else if let Some(Space::Empty) = self.area.get(&Point { x: x + 2, y }) {
+                        portal_walkable = Point { x: x + 2, y };
+                    } else if let Some(Space::Empty) = self.area.get(&Point { x, y: y - 1 }) {
+                        portal_walkable = Point { x, y: y - 1 };
+                    } else if let Some(Space::Empty) = self.area.get(&Point { x, y: y + 2 }) {
+                        portal_walkable = Point { x, y: y + 2 };
                     } else {
                         continue; // Not a valid portal
                     }
@@ -286,17 +290,16 @@ impl Map {
                     print!(" ");
                 }
             }
-            println!("");
+            println!();
         }
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 
     fn get_entrance(&self) -> Point {
         for (&k, &v) in self.portals.iter() {
-            match v.value {
-                ['A', 'A'] => return k,
-                _ => (),
+            if let ['A', 'A'] = v.value {
+                return k;
             }
         }
         panic!("No entrance found!");
@@ -353,7 +356,7 @@ impl Map {
             }
 
             //println!("frontier: {:?}", frontier);
-            if frontier.len() == 0 {
+            if frontier.is_empty() == true {
                 break;
             }
         }

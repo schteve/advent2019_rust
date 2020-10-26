@@ -21,14 +21,14 @@ struct Chemical {
 impl Chemical {
     fn from_string(input: &str, name_map: &mut NameMap) -> Self {
         // Parses string in format: "7 A"
-        let mut parts = input.trim().split(" ");
+        let mut parts = input.trim().split(' ');
         let num = parts.next().unwrap().parse::<i64>().unwrap();
         let name = parts.next().unwrap();
         let id = name_map.get_id(name);
 
         Self {
-            id: id,
-            num: num,
+            id,
+            num,
         }
     }
 }
@@ -42,7 +42,7 @@ struct Reaction {
 impl Reaction {
     fn from_string(input: &str, name_map: &mut NameMap) -> Self {
         let pieces: Vec<&str> = input.split("=>").collect();
-        let from_chemicals: Vec<Chemical> = pieces[0].split(",")
+        let from_chemicals: Vec<Chemical> = pieces[0].split(',')
                                                     .map(|s| Chemical::from_string(s, name_map))
                                                     .collect();
         let to_chemical = Chemical::from_string(pieces[1], name_map);
@@ -139,7 +139,7 @@ impl RecipeBook {
                                                             num: -v, // Negate to get the amount needed to produce
                                                         })
                                                     .collect();
-            if chemical_debts.len() == 0 {
+            if chemical_debts.is_empty() == true {
                 // No more chemical debt, return
                 break;
             }

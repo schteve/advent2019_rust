@@ -22,8 +22,7 @@
 */
 
 fn calculate_fuel(mass: u32) -> u32 {
-    let fuel = mass / 3 - 2;
-    fuel
+    mass / 3 - 2
 }
 
 #[aoc(day1, part1)]

@@ -59,7 +59,7 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
     let mut graph: Vec<SpaceObject> = Vec::new();
     for line in input.lines() {
         // println!("line: {}", line);
-        let items: Vec<&str> = line.split(")").collect();
+        let items: Vec<&str> = line.split(')').collect();
         let obj = SpaceObject {
             name: items[1].to_string(),
             parent_name: items[0].to_string(),
@@ -110,12 +110,12 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
     graph
 }
 
-fn find_node_in_graph(graph: &Vec<SpaceObject>, node_name: &str) -> usize {
+fn find_node_in_graph(graph: &[SpaceObject], node_name: &str) -> usize {
     let node_idx = graph.iter().position(|obj| obj.name == node_name).expect("Failed to find node!");
     node_idx
 }
 
-fn get_path_to_root(graph: &Vec<SpaceObject>, from_name: &str) -> Vec<SpaceObject>{
+fn get_path_to_root(graph: &[SpaceObject], from_name: &str) -> Vec<SpaceObject>{
     let mut path = Vec::new();
 
     let mut idx = find_node_in_graph(graph, from_name);
@@ -129,7 +129,7 @@ fn get_path_to_root(graph: &Vec<SpaceObject>, from_name: &str) -> Vec<SpaceObjec
 
 // Basic strategy is to trace a path from each given node to the root and find the intersection point.
 // Then, sum the hops from each node to the intersection point.
-fn count_orbital_transfers(graph: &Vec<SpaceObject>, src_name: &str, dst_name: &str) -> u32 {
+fn count_orbital_transfers(graph: &[SpaceObject], src_name: &str, dst_name: &str) -> u32 {
     let src_path = get_path_to_root(graph, src_name);
     let dst_path = get_path_to_root(graph, dst_name);
 
