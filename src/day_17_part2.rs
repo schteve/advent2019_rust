@@ -581,15 +581,14 @@ impl Camera {
     }
 
     fn give_main_routine(&mut self, main_routine: &[usize]) {
-        let main_routine_str = main_routine.iter()
+        let main_routine_str: String = main_routine.iter()
                                         .map(|x| match x {
-                                                0 => "A".to_string(),
-                                                1 => "B".to_string(),
-                                                2 => "C".to_string(),
-                                                _ => "X".to_string(),
+                                                0 => 'A',
+                                                1 => 'B',
+                                                2 => 'C',
+                                                _ => 'X',
                                             })
-                                        .collect::<Vec<String>>()
-                                        .join(",");
+                                        .collect();
         //println!("Main routine: {}", main_routine_str);
 
         self.give_string(&main_routine_str);
@@ -630,8 +629,8 @@ impl Camera {
     }
 
     fn enable_video(&mut self, yes: bool) {
-        let yes_str = if yes == true { "y".to_string() } else { "n".to_string() };
-        self.give_string(&yes_str);
+        let yes_str = if yes == true { "y" } else { "n" };
+        self.give_string(yes_str);
     }
 
     fn feed(&mut self) -> i64 {

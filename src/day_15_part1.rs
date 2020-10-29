@@ -523,7 +523,7 @@ impl Drone {
         if self.controller.output.is_empty() == false {
             let result = self.controller.output.remove(0);
             let status = Status::from_value(result);
-            // println!("Move {}: {}", direction.to_string(), status.to_string());
+            // println!("Move {}: {}", direction, status);
 
             match status {
                 Status::Wall => {
