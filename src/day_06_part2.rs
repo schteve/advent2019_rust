@@ -165,8 +165,8 @@ mod test {
 
     #[test]
     fn test_count_orbital_transfers() {
-        let input =
-"COM)B
+        let input = "\
+COM)B
 B)C
 C)D
 D)E

@@ -136,8 +136,8 @@ mod test {
 
     #[test]
     fn test_count_orbits() {
-        let input =
-"COM)B
+        let input = "\
+COM)B
 B)C
 C)D
 D)E
