@@ -782,23 +782,24 @@ mod test {
 
     #[test]
     fn test_find_3_sub_routines() {
-        let path: Vec<Segment> = vec![
-            Segment { turn: Turn::Right, distance: 8 },
-            Segment { turn: Turn::Right, distance: 8 },
-            Segment { turn: Turn::Right, distance: 4 },
-            Segment { turn: Turn::Right, distance: 4 },
-            Segment { turn: Turn::Right, distance: 8 },
-            Segment { turn: Turn::Left,  distance: 6 },
-            Segment { turn: Turn::Left,  distance: 2 },
-            Segment { turn: Turn::Right, distance: 4 },
-            Segment { turn: Turn::Right, distance: 4 },
-            Segment { turn: Turn::Right, distance: 8 },
-            Segment { turn: Turn::Right, distance: 8 },
-            Segment { turn: Turn::Right, distance: 8 },
-            Segment { turn: Turn::Left,  distance: 6 },
-            Segment { turn: Turn::Left,  distance: 2 },
-            ];
-        let (main_routine, sub_routines) = find_3_sub_routines(&path);
+        let path = [
+            (Turn::Right, 8),
+            (Turn::Right, 8),
+            (Turn::Right, 4),
+            (Turn::Right, 4),
+            (Turn::Right, 8),
+            (Turn::Left,  6),
+            (Turn::Left,  2),
+            (Turn::Right, 4),
+            (Turn::Right, 4),
+            (Turn::Right, 8),
+            (Turn::Right, 8),
+            (Turn::Right, 8),
+            (Turn::Left,  6),
+            (Turn::Left,  2),
+        ];
+        let path_segments: Vec<Segment> = path.iter().map(|&(turn, distance)| Segment { turn, distance}).collect();
+        let (main_routine, sub_routines) = find_3_sub_routines(&path_segments);
         assert_eq!(main_routine, [0, 1, 2, 1, 0, 2]);
         assert_eq!(sub_routines[0], "R8R8");
         assert!((sub_routines[1] == "R4R4R8") || (sub_routines[1] == "R4R4")); // Note: there are multiple valid answers, the example is just one!

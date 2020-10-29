@@ -479,33 +479,38 @@ mod test {
             }
         }
 
-        tractor_beam.area.insert(Point { x: 0, y: 0 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 1, y: 1 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 2, y: 2 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 3, y: 2 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 3, y: 3 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 4, y: 3 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 5, y: 3 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 4, y: 4 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 5, y: 4 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 6, y: 4 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 5, y: 5 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 6, y: 5 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 7, y: 5 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 8, y: 5 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 6, y: 6 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 7, y: 6 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 8, y: 6 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 9, y: 6 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 6, y: 7 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 7, y: 7 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 8, y: 7 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 9, y: 7 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 7, y: 8 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 8, y: 8 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 9, y: 8 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 8, y: 9 }, Space::Pulled);
-        tractor_beam.area.insert(Point { x: 9, y: 9 }, Space::Pulled);
+        let pulled_points = [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 2),
+            (3, 3),
+            (4, 3),
+            (5, 3),
+            (4, 4),
+            (5, 4),
+            (6, 4),
+            (5, 5),
+            (6, 5),
+            (7, 5),
+            (8, 5),
+            (6, 6),
+            (7, 6),
+            (8, 6),
+            (9, 6),
+            (6, 7),
+            (7, 7),
+            (8, 7),
+            (9, 7),
+            (7, 8),
+            (8, 8),
+            (9, 8),
+            (8, 9),
+            (9, 9),
+        ];
+        for &(x, y) in &pulled_points {
+            tractor_beam.area.insert(Point { x, y }, Space::Pulled);
+        }
 
         assert_eq!(tractor_beam.count_points_in_beam(), 27);
     }

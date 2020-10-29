@@ -513,17 +513,22 @@ mod test {
         let sim_check_5 = BugSim::from_string(&input);
 
         let mut sim_check = BugSim { state: HashMap::new() };
-        sim_check.state.insert(-5, *sim_check_n5.state.get(&0).unwrap());
-        sim_check.state.insert(-4, *sim_check_n4.state.get(&0).unwrap());
-        sim_check.state.insert(-3, *sim_check_n3.state.get(&0).unwrap());
-        sim_check.state.insert(-2, *sim_check_n2.state.get(&0).unwrap());
-        sim_check.state.insert(-1, *sim_check_n1.state.get(&0).unwrap());
-        sim_check.state.insert(0,  *sim_check_0.state.get(&0).unwrap());
-        sim_check.state.insert(1,  *sim_check_1.state.get(&0).unwrap());
-        sim_check.state.insert(2,  *sim_check_2.state.get(&0).unwrap());
-        sim_check.state.insert(3,  *sim_check_3.state.get(&0).unwrap());
-        sim_check.state.insert(4,  *sim_check_4.state.get(&0).unwrap());
-        sim_check.state.insert(5,  *sim_check_5.state.get(&0).unwrap());
+        let layers = [
+            (-5, sim_check_n5),
+            (-4, sim_check_n4),
+            (-3, sim_check_n3),
+            (-2, sim_check_n2),
+            (-1, sim_check_n1),
+            (0, sim_check_0),
+            (1, sim_check_1),
+            (2, sim_check_2),
+            (3, sim_check_3),
+            (4, sim_check_4),
+            (5, sim_check_5),
+        ];
+        for (i, l) in &layers {
+            sim_check.state.insert(*i, *l.state.get(&0).unwrap());
+        }
 
         sim.step(10);
         assert_eq!(sim, sim_check);
