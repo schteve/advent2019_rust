@@ -100,19 +100,19 @@ enum Technique {
 impl Technique {
     fn from_string(s: &str) -> Self {
         if s == "deal into new stack" {
-            return Technique::DealNewStack;
+            return Self::DealNewStack;
         } else if s.starts_with("deal with increment ") == true {
             for sub in s.split("deal with increment ") {
                 if sub != "" {
                     let value = sub.parse::<i64>().unwrap();
-                    return Technique::DealWithIncrement(value);
+                    return Self::DealWithIncrement(value);
                 }
             }
         } else if s.starts_with("cut ") == true {
             for sub in s.split("cut ") {
                 if sub != "" {
                     let value = sub.parse::<i64>().unwrap();
-                    return Technique::Cut(value);
+                    return Self::Cut(value);
                 }
             }
         }
@@ -180,9 +180,9 @@ impl Technique {
 impl fmt::Display for Technique {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Technique::DealNewStack => write!(f, "Deal into new stack"),
-            Technique::DealWithIncrement(n) => write!(f, "Deal with increment {}", n),
-            Technique::Cut(n) => write!(f, "Cut {}", n),
+            Self::DealNewStack => write!(f, "Deal into new stack"),
+            Self::DealWithIncrement(n) => write!(f, "Deal with increment {}", n),
+            Self::Cut(n) => write!(f, "Cut {}", n),
         }
     }
 }

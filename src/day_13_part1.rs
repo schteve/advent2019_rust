@@ -306,34 +306,34 @@ enum Tile {
 }
 
 impl Tile {
-    fn from_value(value: i64) -> Tile {
+    fn from_value(value: i64) -> Self {
         match value {
-            0 => Tile::Empty,
-            1 => Tile::Wall,
-            2 => Tile::Block,
-            3 => Tile::Paddle,
-            4 => Tile::Ball,
+            0 => Self::Empty,
+            1 => Self::Wall,
+            2 => Self::Block,
+            3 => Self::Paddle,
+            4 => Self::Ball,
             _ => panic!("Invalid Tile value: {}", value),
         }
     }
 
     fn value(&self) -> i64 {
         match *self {
-            Tile::Empty => 0,
-            Tile::Wall => 1,
-            Tile::Block => 2,
-            Tile::Paddle => 3,
-            Tile::Ball => 4,
+            Self::Empty => 0,
+            Self::Wall => 1,
+            Self::Block => 2,
+            Self::Paddle => 3,
+            Self::Ball => 4,
         }
     }
 
     fn char(&self) -> char {
         match *self {
-            Tile::Empty => ' ',
-            Tile::Wall => '|',
-            Tile::Block => 'X',
-            Tile::Paddle => '-',
-            Tile::Ball => '*',
+            Self::Empty => ' ',
+            Self::Wall => '|',
+            Self::Block => 'X',
+            Self::Paddle => '-',
+            Self::Ball => '*',
         }
     }
 }

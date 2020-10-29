@@ -359,40 +359,40 @@ enum Direction {
 }
 
 impl Direction {
-    fn from_value(value: i64) -> Direction {
+    fn from_value(value: i64) -> Self {
         match value {
-            1 => Direction::North,
-            2 => Direction::South,
-            3 => Direction::West,
-            4 => Direction::East,
+            1 => Self::North,
+            2 => Self::South,
+            3 => Self::West,
+            4 => Self::East,
             _ => panic!("Invalid Direction value {}", value),
         }
     }
 
     fn value(&self) -> i64 {
         match *self {
-            Direction::North => 1,
-            Direction::South => 2,
-            Direction::West => 3,
-            Direction::East => 4,
+            Self::North => 1,
+            Self::South => 2,
+            Self::West => 3,
+            Self::East => 4,
         }
     }
 
     fn step_from(&self, from: (i32, i32)) -> (i32, i32) {
         match *self {
-            Direction::North => (from.0, from.1 - 1),
-            Direction::South => (from.0, from.1 + 1),
-            Direction::West =>  (from.0 - 1, from.1),
-            Direction::East =>  (from.0 + 1, from.1),
+            Self::North => (from.0, from.1 - 1),
+            Self::South => (from.0, from.1 + 1),
+            Self::West =>  (from.0 - 1, from.1),
+            Self::East =>  (from.0 + 1, from.1),
         }
     }
 
-    fn undo(&self) -> Direction {
+    fn undo(&self) -> Self {
         match *self {
-            Direction::North => Direction::South,
-            Direction::South => Direction::North,
-            Direction::West =>  Direction::East,
-            Direction::East =>  Direction::West,
+            Self::North => Self::South,
+            Self::South => Self::North,
+            Self::West =>  Self::East,
+            Self::East =>  Self::West,
         }
     }
 }
@@ -400,10 +400,10 @@ impl Direction {
 impl fmt::Display for Direction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let disp_str = match *self {
-            Direction::North => "North",
-            Direction::South => "South",
-            Direction::West => "West",
-            Direction::East => "East",
+            Self::North => "North",
+            Self::South => "South",
+            Self::West => "West",
+            Self::East => "East",
         };
         write!(f, "{}", disp_str)
     }
@@ -416,20 +416,20 @@ enum Status {
 }
 
 impl Status {
-    fn from_value(value: i64) -> Status {
+    fn from_value(value: i64) -> Self {
         match value {
-            0 => Status::Wall,
-            1 => Status::Moved,
-            2 => Status::Oxygen,
+            0 => Self::Wall,
+            1 => Self::Moved,
+            2 => Self::Oxygen,
             _ => panic!("Invalid Status value {}", value),
         }
     }
 
     fn value(&self) -> i64 {
         match *self {
-            Status::Wall => 0,
-            Status::Moved => 1,
-            Status::Oxygen => 2,
+            Self::Wall => 0,
+            Self::Moved => 1,
+            Self::Oxygen => 2,
         }
     }
 }
@@ -437,9 +437,9 @@ impl Status {
 impl fmt::Display for Status {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let disp_str = match *self {
-            Status::Wall => "Wall",
-            Status::Moved => "Moved",
-            Status::Oxygen => "Oxygen",
+            Self::Wall => "Wall",
+            Self::Moved => "Moved",
+            Self::Oxygen => "Oxygen",
         };
         write!(f, "{}", disp_str)
     }
@@ -455,10 +455,10 @@ enum Space {
 impl Space {
     fn char(&self) -> char {
         match *self {
-            Space::Unknown => '?',
-            Space::Empty => ' ',
-            Space::Wall => '#',
-            Space::Oxygen => 'O',
+            Self::Unknown => '?',
+            Self::Empty => ' ',
+            Self::Wall => '#',
+            Self::Oxygen => 'O',
         }
     }
 }

@@ -293,25 +293,25 @@ enum Color {
 }
 
 impl Color {
-    fn from_value(value: i64) -> Color {
+    fn from_value(value: i64) -> Self {
         match value {
-            0 => Color::Black,
-            1 => Color::White,
+            0 => Self::Black,
+            1 => Self::White,
             _ => panic!(),
         }
     }
 
     fn value(&self) -> i64 {
         match *self {
-            Color::Black => 0,
-            Color::White => 1,
+            Self::Black => 0,
+            Self::White => 1,
         }
     }
 
     fn char(&self) -> char {
         match *self {
-            Color::Black => '.',
-            Color::White => '#',
+            Self::Black => '.',
+            Self::White => '#',
         }
     }
 }
@@ -329,18 +329,18 @@ enum RelDirection {
 }
 
 impl RelDirection {
-    fn from_value(value: i64) -> RelDirection {
+    fn from_value(value: i64) -> Self {
         match value {
-            0 => RelDirection::Left,
-            1 => RelDirection::Right,
+            0 => Self::Left,
+            1 => Self::Right,
             _ => panic!(),
         }
     }
 
     fn value(&self) -> i64 {
         match *self {
-            RelDirection::Left => 0,
-            RelDirection::Right => 1,
+            Self::Left => 0,
+            Self::Right => 1,
         }
     }
 }
