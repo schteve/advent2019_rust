@@ -106,8 +106,8 @@ impl Cardinal {
         match *self {
             Self::North => Self::South,
             Self::South => Self::North,
-            Self::West =>  Self::East,
-            Self::East =>  Self::West,
+            Self::West => Self::East,
+            Self::East => Self::West,
         }
     }
 }
@@ -173,10 +173,7 @@ impl Map {
     fn from_string(input: &str) -> Map {
         let mut area = HashMap::new();
 
-        let mut p = Point {
-            x: 0,
-            y: 0,
-        };
+        let mut p = Point { x: 0, y: 0 };
         for line in input.lines() {
             for c in line.chars() {
                 let space = Space::from_value(c);
@@ -223,8 +220,8 @@ impl Map {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(Space::PortalPiece(c0)) = self.area.get(&Point { x, y }) {
                     let portal_piece0 = *c0;
 
@@ -233,7 +230,9 @@ impl Map {
                     let portal_piece1;
                     if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x: x + 1, y }) {
                         portal_piece1 = *c1;
-                    } else if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x, y: y + 1 }) {
+                    } else if let Some(Space::PortalPiece(c1)) =
+                        self.area.get(&Point { x, y: y + 1 })
+                    {
                         portal_piece1 = *c1;
                     } else {
                         continue; // Not a valid portal
@@ -282,8 +281,8 @@ impl Map {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.area.get(&Point { x, y }) {
                     print!("{}", t.char());
                 } else {
@@ -319,10 +318,12 @@ impl Map {
         loop {
             steps += 1;
             for location in frontier.drain(..).collect::<Vec<Point>>() {
-                let candidates = [Cardinal::North,
-                                  Cardinal::South,
-                                  Cardinal::West,
-                                  Cardinal::East];
+                let candidates = [
+                    Cardinal::North,
+                    Cardinal::South,
+                    Cardinal::West,
+                    Cardinal::East,
+                ];
                 for direction in candidates.iter() {
                     let step_in_direction = direction.step_from(location);
                     //println!("Step: {:?}", step_in_direction);
@@ -406,7 +407,7 @@ FG..#########.....#
         let steps = map.a_to_z();
         assert_eq!(steps, 23);
 
-let input = "
+        let input = "
                    A
                    A
   #################.#############

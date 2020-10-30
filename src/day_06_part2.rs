@@ -70,9 +70,12 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
     }
 
     // Traverse the vector and update parent index
-    for i in 0..graph.len() { // Can't directly iterate over objects because the borrow checker complains
+    for i in 0..graph.len() {
+        // Can't directly iterate over objects because the borrow checker complains
         if graph[i].parent_name != "COM" {
-            let parent_idx = graph.iter().position(|obj| obj.name == graph[i].parent_name);
+            let parent_idx = graph
+                .iter()
+                .position(|obj| obj.name == graph[i].parent_name);
             graph[i].parent_idx = parent_idx;
         }
     }
@@ -93,12 +96,12 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
                         // Node doesn't know its orbit count, follow its parent
                         curr_idx = p_idx;
                         count += 1;
-                    },
+                    }
                     None => {
                         // Node points to COM -- its orbit count is effectively 1
                         count += 1;
                         break;
-                    },
+                    }
                 }
             }
         }
@@ -111,11 +114,14 @@ fn build_graph(input: &str) -> Vec<SpaceObject> {
 }
 
 fn find_node_in_graph(graph: &[SpaceObject], node_name: &str) -> usize {
-    let node_idx = graph.iter().position(|obj| obj.name == node_name).expect("Failed to find node!");
+    let node_idx = graph
+        .iter()
+        .position(|obj| obj.name == node_name)
+        .expect("Failed to find node!");
     node_idx
 }
 
-fn get_path_to_root(graph: &[SpaceObject], from_name: &str) -> Vec<SpaceObject>{
+fn get_path_to_root(graph: &[SpaceObject], from_name: &str) -> Vec<SpaceObject> {
     let mut path = Vec::new();
 
     let mut idx = find_node_in_graph(graph, from_name);
@@ -135,17 +141,13 @@ fn count_orbital_transfers(graph: &[SpaceObject], src_name: &str, dst_name: &str
 
     // Find intersection
     let src_to_intersection = src_path
-                                .iter()
-                                .position(|src_obj| dst_path
-                                                        .iter()
-                                                        .any(|dst_obj| src_obj.name == dst_obj.name))
-                                .unwrap();
+        .iter()
+        .position(|src_obj| dst_path.iter().any(|dst_obj| src_obj.name == dst_obj.name))
+        .unwrap();
     let intersection_to_dst = dst_path
-                                .iter()
-                                .position(|dst_obj| src_path
-                                                        .iter()
-                                                        .any(|src_obj| src_obj.name == dst_obj.name))
-                                .unwrap();
+        .iter()
+        .position(|dst_obj| src_path.iter().any(|src_obj| src_obj.name == dst_obj.name))
+        .unwrap();
 
     let total_transfers = src_to_intersection + intersection_to_dst;
     total_transfers as u32

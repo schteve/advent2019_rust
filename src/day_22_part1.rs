@@ -209,7 +209,7 @@ impl Deck {
         match technique {
             Technique::DealNewStack => {
                 self.cards.reverse();
-            },
+            }
             Technique::DealWithIncrement(n) => {
                 let mut idx: i64 = 0;
                 let mut new_cards = vec![0; self.cards.len()];
@@ -221,7 +221,7 @@ impl Deck {
                 }
 
                 self.cards = new_cards;
-            },
+            }
             Technique::Cut(n) => {
                 let n = modulo(n, self.cards.len() as i64);
                 if n >= 0 {
@@ -229,7 +229,7 @@ impl Deck {
                 } else {
                     self.cards.rotate_right(-n as usize);
                 }
-            },
+            }
         }
     }
 
@@ -244,9 +244,10 @@ impl Deck {
 
 #[aoc(day22, part1)]
 pub fn solve(input: &str) -> usize {
-    let techniques = input.lines()
-                          .map(|line| Technique::from_string(line.trim()))
-                          .collect::<Vec<Technique>>();
+    let techniques = input
+        .lines()
+        .map(|line| Technique::from_string(line.trim()))
+        .collect::<Vec<Technique>>();
     let mut deck = Deck::new(10007);
     deck.shuffle_many(&techniques);
 
@@ -289,37 +290,45 @@ mod test {
     #[test]
     fn test_shuffle_many() {
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::DealWithIncrement(7),
-                              Technique::DealNewStack,
-                              Technique::DealNewStack];
+        let techniques = vec![
+            Technique::DealWithIncrement(7),
+            Technique::DealNewStack,
+            Technique::DealNewStack,
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [0, 3, 6, 9, 2, 5, 8, 1, 4, 7]);
 
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::Cut(6),
-                              Technique::DealWithIncrement(7),
-                              Technique::DealNewStack];
+        let techniques = vec![
+            Technique::Cut(6),
+            Technique::DealWithIncrement(7),
+            Technique::DealNewStack,
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [3, 0, 7, 4, 1, 8, 5, 2, 9, 6]);
 
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::DealWithIncrement(7),
-                              Technique::DealWithIncrement(9),
-                              Technique::Cut(-2)];
+        let techniques = vec![
+            Technique::DealWithIncrement(7),
+            Technique::DealWithIncrement(9),
+            Technique::Cut(-2),
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [6, 3, 0, 7, 4, 1, 8, 5, 2, 9]);
 
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::DealNewStack,
-                              Technique::Cut(-2),
-                              Technique::DealWithIncrement(7),
-                              Technique::Cut(8),
-                              Technique::Cut(-4),
-                              Technique::DealWithIncrement(7),
-                              Technique::Cut(3),
-                              Technique::DealWithIncrement(9),
-                              Technique::DealWithIncrement(3),
-                              Technique::Cut(-1)];
+        let techniques = vec![
+            Technique::DealNewStack,
+            Technique::Cut(-2),
+            Technique::DealWithIncrement(7),
+            Technique::Cut(8),
+            Technique::Cut(-4),
+            Technique::DealWithIncrement(7),
+            Technique::Cut(3),
+            Technique::DealWithIncrement(9),
+            Technique::DealWithIncrement(3),
+            Technique::Cut(-1),
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [9, 2, 5, 8, 1, 4, 7, 0, 3, 6]);
     }

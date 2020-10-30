@@ -64,7 +64,7 @@ fn get_points_from_path(path: Vec<&str>) -> HashSet<Point> {
                 'L' => current_point.x -= 1,
                 'U' => current_point.y += 1,
                 'D' => current_point.y -= 1,
-                _   => panic!("Bad format"),
+                _ => panic!("Bad format"),
             }
 
             points.insert(current_point);
@@ -75,10 +75,11 @@ fn get_points_from_path(path: Vec<&str>) -> HashSet<Point> {
 }
 
 fn intersection(points1: &HashSet<Point>, points2: &HashSet<Point>) -> Vec<Point> {
-    let intersection: Vec<Point> = points1.iter()
-                                        .filter(|&&p1| points2.contains(&p1))
-                                        .copied()
-                                        .collect();
+    let intersection: Vec<Point> = points1
+        .iter()
+        .filter(|&&p1| points2.contains(&p1))
+        .copied()
+        .collect();
     // println!("Intersection = {:?}", intersection);
     intersection
 }
@@ -94,10 +95,11 @@ fn best_intersection(path1: Vec<&str>, path2: Vec<&str>) -> u32 {
 
     let intersect_points = intersection(&path1_points, &path2_points);
 
-    let closest_distance = intersect_points.iter()
-                                        .map(|&p| manhattan_distance(p))
-                                        .min()
-                                        .unwrap();
+    let closest_distance = intersect_points
+        .iter()
+        .map(|&p| manhattan_distance(p))
+        .min()
+        .unwrap();
     closest_distance
 }
 
@@ -122,12 +124,20 @@ mod test {
         let path1_b = "U7,R6,D4,L4".split(',').collect::<Vec<&str>>();
         assert_eq!(best_intersection(path1_a, path1_b), 6);
 
-        let path2_a = "R75,D30,R83,U83,L12,D49,R71,U7,L72".split(',').collect::<Vec<&str>>();
-        let path2_b = "U62,R66,U55,R34,D71,R55,D58,R83".split(',').collect::<Vec<&str>>();
+        let path2_a = "R75,D30,R83,U83,L12,D49,R71,U7,L72"
+            .split(',')
+            .collect::<Vec<&str>>();
+        let path2_b = "U62,R66,U55,R34,D71,R55,D58,R83"
+            .split(',')
+            .collect::<Vec<&str>>();
         assert_eq!(best_intersection(path2_a, path2_b), 159);
 
-        let path3_a = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51".split(',').collect::<Vec<&str>>();
-        let path3_b = "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7".split(',').collect::<Vec<&str>>();
+        let path3_a = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"
+            .split(',')
+            .collect::<Vec<&str>>();
+        let path3_b = "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"
+            .split(',')
+            .collect::<Vec<&str>>();
         assert_eq!(best_intersection(path3_a, path3_b), 135);
     }
 }

@@ -73,16 +73,19 @@ impl Sim {
     fn from_positions(positions: Vec<(i32, i32, i32)>) -> Sim {
         Sim {
             objects: SpaceObjects {
-                x: positions.iter()
-                        .map(|&p| Component::from_position(p.0))
-                        .collect(),
-                y: positions.iter()
-                        .map(|&p| Component::from_position(p.1))
-                        .collect(),
-                z: positions.iter()
-                        .map(|&p| Component::from_position(p.2))
-                        .collect(),
-            }
+                x: positions
+                    .iter()
+                    .map(|&p| Component::from_position(p.0))
+                    .collect(),
+                y: positions
+                    .iter()
+                    .map(|&p| Component::from_position(p.1))
+                    .collect(),
+                z: positions
+                    .iter()
+                    .map(|&p| Component::from_position(p.2))
+                    .collect(),
+            },
         }
     }
 
@@ -97,13 +100,14 @@ impl Sim {
     fn single_step_component(objects_n: &mut Vec<Component>) {
         for i in 0..objects_n.len() {
             for j in 0..objects_n.len() {
-                let gravity = Sim::get_gravity(objects_n[i].position,
-                                               objects_n[j].position);
+                let gravity = Sim::get_gravity(objects_n[i].position, objects_n[j].position);
                 objects_n[i].velocity += gravity;
             }
         }
 
-        objects_n.iter_mut().for_each(|obj| obj.position += obj.velocity);
+        objects_n
+            .iter_mut()
+            .for_each(|obj| obj.position += obj.velocity);
     }
 
     fn single_step(&mut self) {
@@ -143,12 +147,15 @@ impl Sim {
 
     fn display(&self) {
         for i in 0..self.objects.x.len() {
-            println!("pos: ({}, {}, {}), vel: ({}, {}, {})", self.objects.x[i].position,
-                                                             self.objects.y[i].position,
-                                                             self.objects.z[i].position,
-                                                             self.objects.x[i].velocity,
-                                                             self.objects.y[i].velocity,
-                                                             self.objects.z[i].velocity);
+            println!(
+                "pos: ({}, {}, {}), vel: ({}, {}, {})",
+                self.objects.x[i].position,
+                self.objects.y[i].position,
+                self.objects.z[i].position,
+                self.objects.x[i].velocity,
+                self.objects.y[i].velocity,
+                self.objects.z[i].velocity
+            );
         }
         println!();
     }
@@ -157,11 +164,16 @@ impl Sim {
 #[aoc(day12, part2)]
 pub fn solve(input: &str) -> u64 {
     let re = Regex::new(r"<x=([-\d]+), y=([-\d]+), z=([-\d]+)>").unwrap();
-    let positions: Vec<(i32, i32, i32)> = re.captures_iter(input)
-                                            .map(|cap| (cap[1].parse::<i32>().unwrap(),
-                                                        cap[2].parse::<i32>().unwrap(),
-                                                        cap[3].parse::<i32>().unwrap()))
-                                            .collect();
+    let positions: Vec<(i32, i32, i32)> = re
+        .captures_iter(input)
+        .map(|cap| {
+            (
+                cap[1].parse::<i32>().unwrap(),
+                cap[2].parse::<i32>().unwrap(),
+                cap[3].parse::<i32>().unwrap(),
+            )
+        })
+        .collect();
     let mut sim = Sim::from_positions(positions);
 
     sim.display();

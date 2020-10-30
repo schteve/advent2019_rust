@@ -189,9 +189,7 @@ impl BugSim {
         let mut state_map = HashMap::new();
         state_map.insert(0, state);
 
-        Self {
-            state: state_map,
-        }
+        Self { state: state_map }
     }
 
     fn get_tile(&self, depth: i32, row: i32, col: i32) -> Option<bool> {
@@ -291,9 +289,10 @@ impl BugSim {
             tiles_to_check.push((depth, row, col + 1));
         }
 
-        let count = tiles_to_check.iter()
-                                  .filter(|(d, r, c)| self.get_tile(*d, *r, *c) == Some(true))
-                                  .count();
+        let count = tiles_to_check
+            .iter()
+            .filter(|(d, r, c)| self.get_tile(*d, *r, *c) == Some(true))
+            .count();
         count as i32
     }
 
@@ -512,7 +511,9 @@ mod test {
 ";
         let sim_check_5 = BugSim::from_string(&input);
 
-        let mut sim_check = BugSim { state: HashMap::new() };
+        let mut sim_check = BugSim {
+            state: HashMap::new(),
+        };
         let layers = [
             (-5, sim_check_n5),
             (-4, sim_check_n4),

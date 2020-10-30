@@ -54,7 +54,7 @@ struct Program {
     mem: HashMap<usize, i64>,
     pc: usize,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     relative_base_offset: i64,
 
     input: Vec<i64>,
@@ -99,17 +99,17 @@ impl Program {
         let opcode = self.get_opcode_curr();
         // println!("Opcode: {}", opcode);
         match opcode {
-            1  => self.opcode_add(),
-            2  => self.opcode_mul(),
-            3  => self.opcode_in(),
-            4  => self.opcode_out(),
-            5  => self.opcode_jmp(),
-            6  => self.opcode_jmpn(),
-            7  => self.opcode_lt(),
-            8  => self.opcode_eq(),
-            9  => self.opcode_rel(),
+            1 => self.opcode_add(),
+            2 => self.opcode_mul(),
+            3 => self.opcode_in(),
+            4 => self.opcode_out(),
+            5 => self.opcode_jmp(),
+            6 => self.opcode_jmpn(),
+            7 => self.opcode_lt(),
+            8 => self.opcode_eq(),
+            9 => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 
@@ -135,7 +135,9 @@ impl Program {
         match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
-            2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
+            2 => {
+                (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize
+            }
             _ => panic!("Invalid param address mode: {}", mode),
         }
     }
@@ -143,15 +145,11 @@ impl Program {
     fn get_value(&self, addr: usize) -> i64 {
         let code_len = self.code.len();
         let value = match addr {
-            a if a < code_len => {
-                self.code[addr]
+            a if a < code_len => self.code[addr],
+            a if a >= code_len => match self.mem.get(&addr) {
+                Some(value) => *value,
+                None => 0i64,
             },
-            a if a >= code_len => {
-                match self.mem.get(&addr) {
-                    Some(value) => *value,
-                    None => 0i64,
-                }
-            }
             _ => panic!("Invalid address: {}", addr),
         };
         value
@@ -162,10 +160,10 @@ impl Program {
         match addr {
             a if a < code_len => {
                 self.code[addr] = value;
-            },
+            }
             a if a >= code_len => {
                 self.mem.insert(addr, value);
-            },
+            }
             _ => panic!("Invalid address: {}", addr),
         }
     }
@@ -359,7 +357,7 @@ impl Space {
 
 struct TractorBeam {
     program: Program,
-    area: HashMap<Point, Space>
+    area: HashMap<Point, Space>,
 }
 
 impl TractorBeam {
@@ -441,7 +439,8 @@ impl TractorBeam {
                 }
                 x += 1;
                 row_size += 1;
-            } else { // Space::Stationary
+            } else {
+                // Space::Stationary
                 let mut next_row = false;
                 if row_size == 0 {
                     // Haven't found any pulled spaces on this row. Move to the right and try again.
@@ -487,8 +486,8 @@ impl TractorBeam {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.area.get(&Point { x, y }) {
                     print!("{}", t.char());
                 } else {
@@ -505,10 +504,10 @@ impl TractorBeam {
 #[aoc(day19, part2)]
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i64>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i64>().unwrap())
+        .collect();
     let program = Program::new(&code, &[]);
     let mut tractor_beam = TractorBeam::new(program);
 
@@ -526,12 +525,12 @@ mod test {
     #[test]
     fn test_scan_0_0() {
         let input = fs::read_to_string("input/2019/day19.txt")
-                    .expect("Something went wrong reading the file");
+            .expect("Something went wrong reading the file");
         let code: Vec<i64> = input
-                                .trim()
-                                .split(',')
-                                .map(|s| s.parse::<i64>().unwrap())
-                                .collect();
+            .trim()
+            .split(',')
+            .map(|s| s.parse::<i64>().unwrap())
+            .collect();
         let program = Program::new(&code, &[]);
         let mut tractor_beam = TractorBeam::new(program);
         let space = tractor_beam.check_point(Point { x: 0, y: 0 });

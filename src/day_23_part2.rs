@@ -19,7 +19,7 @@ struct Program {
     mem: HashMap<usize, i64>,
     pc: usize,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     relative_base_offset: i64,
 
     input: Vec<i64>,
@@ -64,17 +64,17 @@ impl Program {
         let opcode = self.get_opcode_curr();
         // println!("Opcode: {}", opcode);
         match opcode {
-            1  => self.opcode_add(),
-            2  => self.opcode_mul(),
-            3  => self.opcode_in(),
-            4  => self.opcode_out(),
-            5  => self.opcode_jmp(),
-            6  => self.opcode_jmpn(),
-            7  => self.opcode_lt(),
-            8  => self.opcode_eq(),
-            9  => self.opcode_rel(),
+            1 => self.opcode_add(),
+            2 => self.opcode_mul(),
+            3 => self.opcode_in(),
+            4 => self.opcode_out(),
+            5 => self.opcode_jmp(),
+            6 => self.opcode_jmpn(),
+            7 => self.opcode_lt(),
+            8 => self.opcode_eq(),
+            9 => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 
@@ -100,7 +100,9 @@ impl Program {
         match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
-            2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
+            2 => {
+                (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize
+            }
             _ => panic!("Invalid param address mode: {}", mode),
         }
     }
@@ -108,15 +110,11 @@ impl Program {
     fn get_value(&self, addr: usize) -> i64 {
         let code_len = self.code.len();
         let value = match addr {
-            a if a < code_len => {
-                self.code[addr]
+            a if a < code_len => self.code[addr],
+            a if a >= code_len => match self.mem.get(&addr) {
+                Some(value) => *value,
+                None => 0i64,
             },
-            a if a >= code_len => {
-                match self.mem.get(&addr) {
-                    Some(value) => *value,
-                    None => 0i64,
-                }
-            }
             _ => panic!("Invalid address: {}", addr),
         };
         value
@@ -127,10 +125,10 @@ impl Program {
         match addr {
             a if a < code_len => {
                 self.code[addr] = value;
-            },
+            }
             a if a >= code_len => {
                 self.mem.insert(addr, value);
-            },
+            }
             _ => panic!("Invalid address: {}", addr),
         }
     }
@@ -430,14 +428,17 @@ impl Router {
 #[aoc(day23, part2)]
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i64>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i64>().unwrap())
+        .collect();
     let program = Program::new(&code, &[]);
     let mut router = Router::new(program);
     let result = router.run();
-    println!("First packet sent repeatedly by NAT has Y value: {}", result);
+    println!(
+        "First packet sent repeatedly by NAT has Y value: {}",
+        result
+    );
     result
 }
 
@@ -447,7 +448,5 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_() {
-
-    }
+    fn test_() {}
 }

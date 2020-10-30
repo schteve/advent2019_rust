@@ -215,21 +215,22 @@ struct Sim {
 impl Sim {
     fn from_positions(positions: Vec<(i32, i32, i32)>) -> Sim {
         Sim {
-            objects: positions.iter()
-                        .map(|&p| SpaceObject::from_position(p))
-                        .collect(),
+            objects: positions
+                .iter()
+                .map(|&p| SpaceObject::from_position(p))
+                .collect(),
         }
     }
 
     fn single_step(&mut self) {
         for i in 0..self.objects.len() {
             for j in 0..self.objects.len() {
-                let gravity_x = Sim::get_gravity(self.objects[i].position.0,
-                                                 self.objects[j].position.0);
-                let gravity_y = Sim::get_gravity(self.objects[i].position.1,
-                                                 self.objects[j].position.1);
-                let gravity_z = Sim::get_gravity(self.objects[i].position.2,
-                                                 self.objects[j].position.2);
+                let gravity_x =
+                    Sim::get_gravity(self.objects[i].position.0, self.objects[j].position.0);
+                let gravity_y =
+                    Sim::get_gravity(self.objects[i].position.1, self.objects[j].position.1);
+                let gravity_z =
+                    Sim::get_gravity(self.objects[i].position.2, self.objects[j].position.2);
 
                 let new_vel_x = self.objects[i].velocity.0 + gravity_x;
                 let new_vel_y = self.objects[i].velocity.1 + gravity_y;
@@ -253,9 +254,7 @@ impl Sim {
     }
 
     fn total_energy(&self) -> i32 {
-        self.objects.iter()
-                    .map(|obj| obj.energy())
-                    .sum()
+        self.objects.iter().map(|obj| obj.energy()).sum()
     }
 
     fn display(&self) {
@@ -278,11 +277,16 @@ impl Sim {
 #[aoc(day12, part1)]
 pub fn solve(input: &str) -> i32 {
     let re = Regex::new(r"<x=([-\d]+), y=([-\d]+), z=([-\d]+)>").unwrap();
-    let positions: Vec<(i32, i32, i32)> = re.captures_iter(input)
-                                            .map(|cap| (cap[1].parse::<i32>().unwrap(),
-                                                        cap[2].parse::<i32>().unwrap(),
-                                                        cap[3].parse::<i32>().unwrap()))
-                                            .collect();
+    let positions: Vec<(i32, i32, i32)> = re
+        .captures_iter(input)
+        .map(|cap| {
+            (
+                cap[1].parse::<i32>().unwrap(),
+                cap[2].parse::<i32>().unwrap(),
+                cap[3].parse::<i32>().unwrap(),
+            )
+        })
+        .collect();
     let mut sim = Sim::from_positions(positions);
 
     sim.step(1000);

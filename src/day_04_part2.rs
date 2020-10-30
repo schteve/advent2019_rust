@@ -43,7 +43,8 @@ fn is_password_valid(password: u32) -> bool {
     }
 
     // print!("{} - ", password);
-    if digits_repeat_twice == false && digits_repeat_count != 2 { // Check run count here to catch the final run
+    if digits_repeat_twice == false && digits_repeat_count != 2 {
+        // Check run count here to catch the final run
         // println!("no, digits don't repeat exactly 2 times");
         return false;
     } else if digits_never_decrease == false {
@@ -56,17 +57,20 @@ fn is_password_valid(password: u32) -> bool {
 }
 
 fn count_passwords(start: u32, end: u32) -> u32 {
-    let count = (start..end).map(is_password_valid)
-                            .filter(|&is_valid| is_valid == true)
-                            .count();
+    let count = (start..end)
+        .map(is_password_valid)
+        .filter(|&is_valid| is_valid == true)
+        .count();
     count as u32
 }
 
 #[aoc(day4, part2)]
 pub fn solve(input: &str) -> u32 {
-    let range: Vec<u32> = input.trim().split('-')
-                                .map(|s| s.parse::<u32>().unwrap())
-                                .collect();
+    let range: Vec<u32> = input
+        .trim()
+        .split('-')
+        .map(|s| s.parse::<u32>().unwrap())
+        .collect();
     let count = count_passwords(range[0], range[1]);
     println!("Passwords: {}", count);
     count

@@ -122,55 +122,44 @@ impl Technique {
 
     fn combine_or_swap(x: Self, y: Self, modulus: i64) -> Vec<Self> {
         match x {
-            Self::DealNewStack => {
-                match y {
-                    Self::DealNewStack => {
-                        vec![]
-                    },
-                    Self::DealWithIncrement(y_val) => {
-                        let n = modulo(-y_val, modulus);
-                        vec![Self::DealWithIncrement(n),
-                             Self::Cut(y_val)]
-                    },
-                    Self::Cut(y_val) => {
-                        let n = modulo(-y_val, modulus);
-                        vec![Self::Cut(n),
-                             Self::DealNewStack]
-                    },
+            Self::DealNewStack => match y {
+                Self::DealNewStack => vec![],
+                Self::DealWithIncrement(y_val) => {
+                    let n = modulo(-y_val, modulus);
+                    vec![Self::DealWithIncrement(n), Self::Cut(y_val)]
+                }
+                Self::Cut(y_val) => {
+                    let n = modulo(-y_val, modulus);
+                    vec![Self::Cut(n), Self::DealNewStack]
                 }
             },
             Self::DealWithIncrement(x_val) => {
                 match y {
                     Self::DealNewStack => {
                         let n = modulo(-x_val, modulus);
-                        vec![Self::DealWithIncrement(n),
-                             Self::Cut(1)]
-                    },
+                        vec![Self::DealWithIncrement(n), Self::Cut(1)]
+                    }
                     Self::DealWithIncrement(y_val) => {
                         let n = modulo_mult(x_val, y_val, modulus);
                         vec![Self::DealWithIncrement(n)]
-                    },
+                    }
                     Self::Cut(_y_val) => {
                         unimplemented!() // Didn't figure out a good solution for this, but it's not needed since we always pull DealWithIncrement in front of Cut
-                    },
+                    }
                 }
-            },
-            Self::Cut(x_val) => {
-                match y {
-                    Self::DealNewStack => {
-                        let n = modulo(-x_val, modulus);
-                        vec![Self::DealNewStack,
-                             Self::Cut(n)]
-                    },
-                    Self::DealWithIncrement(y_val) => {
-                        let n = modulo_mult(x_val, y_val, modulus);
-                        vec![Self::DealWithIncrement(y_val),
-                             Self::Cut(n)]
-                    },
-                    Self::Cut(y_val) => {
-                        let n = modulo(x_val + y_val, modulus);
-                        vec![Self::Cut(n)]
-                    },
+            }
+            Self::Cut(x_val) => match y {
+                Self::DealNewStack => {
+                    let n = modulo(-x_val, modulus);
+                    vec![Self::DealNewStack, Self::Cut(n)]
+                }
+                Self::DealWithIncrement(y_val) => {
+                    let n = modulo_mult(x_val, y_val, modulus);
+                    vec![Self::DealWithIncrement(y_val), Self::Cut(n)]
+                }
+                Self::Cut(y_val) => {
+                    let n = modulo(x_val + y_val, modulus);
+                    vec![Self::Cut(n)]
                 }
             },
         }
@@ -203,7 +192,7 @@ impl Deck {
         match technique {
             Technique::DealNewStack => {
                 self.cards.reverse();
-            },
+            }
             Technique::DealWithIncrement(n) => {
                 let mut idx: i64 = 0;
                 let mut new_cards = vec![0; self.cards.len()];
@@ -215,7 +204,7 @@ impl Deck {
                 }
 
                 self.cards = new_cards;
-            },
+            }
             Technique::Cut(n) => {
                 let n = modulo(n, self.cards.len() as i64);
                 if n >= 0 {
@@ -223,7 +212,7 @@ impl Deck {
                 } else {
                     self.cards.rotate_right(-n as usize);
                 }
-            },
+            }
         }
     }
 
@@ -250,16 +239,17 @@ fn reduce(techniques: &[Technique], modulus: i64) -> Vec<Technique> {
             // Next line is for moving DealWithIncrement to the front.
             // Last line is for moving Cut to the back.
             match (current_vec[i], current_vec[i + 1]) {
-                (Technique::DealNewStack, Technique::DealNewStack) |
-                (Technique::DealWithIncrement(_), Technique::DealWithIncrement(_)) |
-                (Technique::Cut(_), Technique::Cut(_)) |
-                (_, Technique::DealWithIncrement(_)) |
-                (Technique::Cut(_), _) => {
-                    let result = Technique::combine_or_swap(current_vec[i], current_vec[i + 1], modulus);
+                (Technique::DealNewStack, Technique::DealNewStack)
+                | (Technique::DealWithIncrement(_), Technique::DealWithIncrement(_))
+                | (Technique::Cut(_), Technique::Cut(_))
+                | (_, Technique::DealWithIncrement(_))
+                | (Technique::Cut(_), _) => {
+                    let result =
+                        Technique::combine_or_swap(current_vec[i], current_vec[i + 1], modulus);
                     next_vec.extend(result);
                     i += 2; // Consume both items
                     fresh_data = true; // Set flag so that this pass is executed again (some data in the vec changed)
-                },
+                }
 
                 _ => {
                     // Nothing to do
@@ -308,16 +298,17 @@ fn get_card_at_position(techniques: &[Technique], modulus: i64, position: usize)
             // use modular division. Note that we are trying to find the card that ends up in a position, but
             // since there is a Cut after the Deal we need to adjust the position we are actually looking for.
             modulo_div(x, position as i64 + c, modulus)
-        },
+        }
         _ => panic!("Reduced vec not in expected form"), // Expect to be in the form: DealWithIncrement, Cut
     }
 }
 
 #[aoc(day22, part2)]
 pub fn solve(input: &str) -> i64 {
-    let techniques = input.lines()
-                          .map(|line| Technique::from_string(line.trim()))
-                          .collect::<Vec<Technique>>();
+    let techniques = input
+        .lines()
+        .map(|line| Technique::from_string(line.trim()))
+        .collect::<Vec<Technique>>();
 
     let deck_size = 119315717514047;
     let shuffle_count = 101741582076661;
@@ -344,7 +335,11 @@ mod test {
         let result = modulo_mult(0x0FFFFFFF_FFFFFFFF, 5, 10_113_958_159);
         assert_eq!(result, 541975605);
 
-        let result = modulo_mult(0x0FFFFFFF_FFFFFFFF, 0x0FFFFFFF_FFFFFFFF, 119_315_717_514_047);
+        let result = modulo_mult(
+            0x0FFFFFFF_FFFFFFFF,
+            0x0FFFFFFF_FFFFFFFF,
+            119_315_717_514_047,
+        );
         assert_eq!(result, 32154407593923);
     }
 
@@ -378,37 +373,45 @@ mod test {
     #[test]
     fn test_shuffle_many() {
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::DealWithIncrement(7),
-                              Technique::DealNewStack,
-                              Technique::DealNewStack];
+        let techniques = vec![
+            Technique::DealWithIncrement(7),
+            Technique::DealNewStack,
+            Technique::DealNewStack,
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [0, 3, 6, 9, 2, 5, 8, 1, 4, 7]);
 
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::Cut(6),
-                              Technique::DealWithIncrement(7),
-                              Technique::DealNewStack];
+        let techniques = vec![
+            Technique::Cut(6),
+            Technique::DealWithIncrement(7),
+            Technique::DealNewStack,
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [3, 0, 7, 4, 1, 8, 5, 2, 9, 6]);
 
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::DealWithIncrement(7),
-                              Technique::DealWithIncrement(9),
-                              Technique::Cut(-2)];
+        let techniques = vec![
+            Technique::DealWithIncrement(7),
+            Technique::DealWithIncrement(9),
+            Technique::Cut(-2),
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [6, 3, 0, 7, 4, 1, 8, 5, 2, 9]);
 
         let mut deck = Deck::new(10);
-        let techniques = vec![Technique::DealNewStack,
-                              Technique::Cut(-2),
-                              Technique::DealWithIncrement(7),
-                              Technique::Cut(8),
-                              Technique::Cut(-4),
-                              Technique::DealWithIncrement(7),
-                              Technique::Cut(3),
-                              Technique::DealWithIncrement(9),
-                              Technique::DealWithIncrement(3),
-                              Technique::Cut(-1)];
+        let techniques = vec![
+            Technique::DealNewStack,
+            Technique::Cut(-2),
+            Technique::DealWithIncrement(7),
+            Technique::Cut(8),
+            Technique::Cut(-4),
+            Technique::DealWithIncrement(7),
+            Technique::Cut(3),
+            Technique::DealWithIncrement(9),
+            Technique::DealWithIncrement(3),
+            Technique::Cut(-1),
+        ];
         deck.shuffle_many(&techniques);
         assert_eq!(deck.cards, [9, 2, 5, 8, 1, 4, 7, 0, 3, 6]);
     }
@@ -427,33 +430,48 @@ mod test {
 
     #[test]
     fn test_combine_or_swap() {
-        for &deck_size in [3, 5, 7, 11, 13, 17, 19, 23, 29, 31].iter() { // Prime deck sizes mean every x and y value less than deck_size is valid
+        for &deck_size in [3, 5, 7, 11, 13, 17, 19, 23, 29, 31].iter() {
+            // Prime deck sizes mean every x and y value less than deck_size is valid
             // DealNewStack + DealNewStack
-            let (deck1, deck2) = both_ways_combine(Technique::DealNewStack, Technique::DealNewStack, deck_size);
+            let (deck1, deck2) =
+                both_ways_combine(Technique::DealNewStack, Technique::DealNewStack, deck_size);
             assert_eq!(deck1, deck2);
 
             // DealNewStack + DealWithIncrement
             for x in 1..deck_size {
-                let (deck1, deck2) = both_ways_combine(Technique::DealNewStack, Technique::DealWithIncrement(x), deck_size);
+                let (deck1, deck2) = both_ways_combine(
+                    Technique::DealNewStack,
+                    Technique::DealWithIncrement(x),
+                    deck_size,
+                );
                 assert_eq!(deck1, deck2);
             }
 
             // DealNewStack + Cut
             for x in 1..deck_size {
-                let (deck1, deck2) = both_ways_combine(Technique::DealNewStack, Technique::Cut(x), deck_size);
+                let (deck1, deck2) =
+                    both_ways_combine(Technique::DealNewStack, Technique::Cut(x), deck_size);
                 assert_eq!(deck1, deck2);
             }
 
             // DealWithIncrement + DealNewStack
             for x in 1..deck_size {
-                let (deck1, deck2) = both_ways_combine(Technique::DealWithIncrement(x), Technique::DealNewStack, deck_size);
+                let (deck1, deck2) = both_ways_combine(
+                    Technique::DealWithIncrement(x),
+                    Technique::DealNewStack,
+                    deck_size,
+                );
                 assert_eq!(deck1, deck2);
             }
 
             // DealWithIncrement + DealWithIncrement
             for x in 1..deck_size {
                 for y in 1..deck_size {
-                    let (deck1, deck2) = both_ways_combine(Technique::DealWithIncrement(x), Technique::DealWithIncrement(y), deck_size);
+                    let (deck1, deck2) = both_ways_combine(
+                        Technique::DealWithIncrement(x),
+                        Technique::DealWithIncrement(y),
+                        deck_size,
+                    );
                     assert_eq!(deck1, deck2);
                 }
             }
@@ -469,14 +487,19 @@ mod test {
 
             // Cut + DealNewStack
             for x in 1..deck_size {
-                let (deck1, deck2) = both_ways_combine(Technique::Cut(x), Technique::DealNewStack, deck_size);
+                let (deck1, deck2) =
+                    both_ways_combine(Technique::Cut(x), Technique::DealNewStack, deck_size);
                 assert_eq!(deck1, deck2);
             }
 
             // Cut + DealWithIncrement
             for x in 1..deck_size {
                 for y in 1..deck_size {
-                    let (deck1, deck2) = both_ways_combine(Technique::Cut(x), Technique::DealWithIncrement(y), deck_size);
+                    let (deck1, deck2) = both_ways_combine(
+                        Technique::Cut(x),
+                        Technique::DealWithIncrement(y),
+                        deck_size,
+                    );
                     assert_eq!(deck1, deck2);
                 }
             }
@@ -484,7 +507,8 @@ mod test {
             // Cut + Cut
             for x in 1..deck_size {
                 for y in 1..deck_size {
-                    let (deck1, deck2) = both_ways_combine(Technique::Cut(x), Technique::Cut(y), deck_size);
+                    let (deck1, deck2) =
+                        both_ways_combine(Technique::Cut(x), Technique::Cut(y), deck_size);
                     assert_eq!(deck1, deck2);
                 }
             }
@@ -505,50 +529,59 @@ mod test {
     #[test]
     fn test_reduce() {
         // Check DealNewStack
-        let techniques = vec![Technique::DealNewStack,
-                              Technique::DealNewStack,
-                              Technique::DealNewStack];
+        let techniques = vec![
+            Technique::DealNewStack,
+            Technique::DealNewStack,
+            Technique::DealNewStack,
+        ];
         let (deck1, deck2) = both_ways_reduce(&techniques, 10007);
         assert_eq!(deck1, deck2);
 
         // Check DealWithIncrement
-        let techniques = vec![Technique::DealWithIncrement(1),
-                              Technique::DealWithIncrement(2),
-                              Technique::DealWithIncrement(3),
-                              Technique::DealWithIncrement(4)];
+        let techniques = vec![
+            Technique::DealWithIncrement(1),
+            Technique::DealWithIncrement(2),
+            Technique::DealWithIncrement(3),
+            Technique::DealWithIncrement(4),
+        ];
         let (deck1, deck2) = both_ways_reduce(&techniques, 10007);
         assert_eq!(deck1, deck2);
 
         // Check Cut
-        let techniques = vec![Technique::Cut(1000),
-                              Technique::Cut(2000),
-                              Technique::Cut(3000),
-                              Technique::Cut(4000)];
+        let techniques = vec![
+            Technique::Cut(1000),
+            Technique::Cut(2000),
+            Technique::Cut(3000),
+            Technique::Cut(4000),
+        ];
         let (deck1, deck2) = both_ways_reduce(&techniques, 10007);
         assert_eq!(deck1, deck2);
 
         // Check multiple
-        let techniques = vec![Technique::Cut(1000),
-                              Technique::DealNewStack,
-                              Technique::DealNewStack,
-                              Technique::Cut(2000),
-                              Technique::Cut(3000),
-                              Technique::Cut(4000),
-                              Technique::DealWithIncrement(1),
-                              Technique::DealWithIncrement(2),
-                              Technique::DealWithIncrement(3),
-                              Technique::DealWithIncrement(4),
-                              Technique::DealNewStack];
+        let techniques = vec![
+            Technique::Cut(1000),
+            Technique::DealNewStack,
+            Technique::DealNewStack,
+            Technique::Cut(2000),
+            Technique::Cut(3000),
+            Technique::Cut(4000),
+            Technique::DealWithIncrement(1),
+            Technique::DealWithIncrement(2),
+            Technique::DealWithIncrement(3),
+            Technique::DealWithIncrement(4),
+            Technique::DealNewStack,
+        ];
         let (deck1, deck2) = both_ways_reduce(&techniques, 10007);
         assert_eq!(deck1, deck2);
 
         // Check that puzzle input reduces correctly
         let input = fs::read_to_string("input/2019/day22.txt")
-                    .expect("Something went wrong reading the file");
+            .expect("Something went wrong reading the file");
 
-        let techniques = input.lines()
-                            .map(|line| Technique::from_string(line.trim()))
-                            .collect::<Vec<Technique>>();
+        let techniques = input
+            .lines()
+            .map(|line| Technique::from_string(line.trim()))
+            .collect::<Vec<Technique>>();
 
         let mut deck1 = Deck::new(10007);
         deck1.shuffle_many(&techniques);
@@ -563,17 +596,41 @@ mod test {
     #[test]
     fn test_expand() {
         // Check that a single vector expands correctly (vec_a expanded by x should match vec_a repeated x times and then reduced)
-        for &modulus in [10007, 999983, 1_190_494_771, 10_113_958_159, 119315717514047].iter() {
-            let vec_a = vec![Technique::Cut(1000),
-                                Technique::DealNewStack,
-                                Technique::DealWithIncrement(5)];
+        for &modulus in [
+            10007,
+            999983,
+            1_190_494_771,
+            10_113_958_159,
+            119315717514047,
+        ]
+        .iter()
+        {
+            let vec_a = vec![
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+            ];
             let result_a = expand(&vec_a, modulus, 6);
-            let vec_b = vec![Technique::Cut(1000), Technique::DealNewStack, Technique::DealWithIncrement(5),
-                             Technique::Cut(1000), Technique::DealNewStack, Technique::DealWithIncrement(5),
-                             Technique::Cut(1000), Technique::DealNewStack, Technique::DealWithIncrement(5),
-                             Technique::Cut(1000), Technique::DealNewStack, Technique::DealWithIncrement(5),
-                             Technique::Cut(1000), Technique::DealNewStack, Technique::DealWithIncrement(5),
-                             Technique::Cut(1000), Technique::DealNewStack, Technique::DealWithIncrement(5)];
+            let vec_b = vec![
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+                Technique::Cut(1000),
+                Technique::DealNewStack,
+                Technique::DealWithIncrement(5),
+            ];
             let result_b = reduce(&vec_b, modulus);
             assert_eq!(result_a, result_b);
         }

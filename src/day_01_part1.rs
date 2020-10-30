@@ -29,9 +29,7 @@ fn calculate_fuel(mass: u32) -> u32 {
 pub fn solve(input: &str) -> u32 {
     let modules: Vec<u32> = input.lines().map(|s| s.parse::<u32>().unwrap()).collect();
 
-    let total = modules.iter()
-        .map(|&mass| calculate_fuel(mass))
-        .sum();
+    let total = modules.iter().map(|&mass| calculate_fuel(mass)).sum();
 
     println!("Total fuel: {}", total);
     total

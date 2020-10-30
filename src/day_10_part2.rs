@@ -69,11 +69,8 @@ struct AsteroidMap {
 
 impl AsteroidMap {
     fn from_string(input: &str) -> AsteroidMap {
-        let input_vec2d: Vec<Vec<char>> = input
-                                        .trim()
-                                        .lines()
-                                        .map(|s| s.chars().collect())
-                                        .collect();
+        let input_vec2d: Vec<Vec<char>> =
+            input.trim().lines().map(|s| s.chars().collect()).collect();
         AsteroidMap::from_vec2d(input_vec2d)
     }
 
@@ -87,9 +84,7 @@ impl AsteroidMap {
             }
         }
 
-        AsteroidMap {
-            data,
-        }
+        AsteroidMap { data }
     }
 
     fn is_visible(&self, point_a: (i32, i32), point_b: (i32, i32)) -> bool {
@@ -131,9 +126,11 @@ impl AsteroidMap {
     }
 
     fn best_station(&self) -> (i32, i32) {
-        let best_asteroid = *self.data.iter()
-                                    .max_by_key(|&&asteroid| self.count_visible(asteroid))
-                                    .unwrap();
+        let best_asteroid = *self
+            .data
+            .iter()
+            .max_by_key(|&&asteroid| self.count_visible(asteroid))
+            .unwrap();
         best_asteroid
     }
 
@@ -147,7 +144,11 @@ impl AsteroidMap {
             }
 
             // Take all visible asteroids and sort them in angular order
-            visible.sort_by(|&a, &b| angle_between_points(from_location, a).partial_cmp(&angle_between_points(from_location, b)).unwrap());
+            visible.sort_by(|&a, &b| {
+                angle_between_points(from_location, a)
+                    .partial_cmp(&angle_between_points(from_location, b))
+                    .unwrap()
+            });
             // visible.iter().for_each(|&p| println!("{:?}: {}", p, angle_between_points(from_location, p)));
 
             // Remove asteroids one by one
@@ -192,8 +193,7 @@ mod test {
 
     #[test]
     fn test_is_visible() {
-        let input_str =
-"
+        let input_str = "
 #.........
 ...#......
 ...#......
@@ -273,8 +273,7 @@ mod test {
 
     #[test]
     fn test_get_visible() {
-        let input_str =
-"
+        let input_str = "
 #.........
 ...#......
 ...#..#...
@@ -288,14 +287,15 @@ mod test {
 ";
         let asteroids = AsteroidMap::from_string(&input_str);
         let visible_list = asteroids.get_visible((0, 0));
-        let test_list = vec![(3, 1), // A
-                             (3, 2), // B
-                             (3, 3), // C
-                             (2, 3), // D
-                             (1, 3), // E
-                             (2, 4), // F
-                             (4, 3), // G
-                             ];
+        let test_list = vec![
+            (3, 1), // A
+            (3, 2), // B
+            (3, 3), // C
+            (2, 3), // D
+            (1, 3), // E
+            (2, 4), // F
+            (4, 3), // G
+        ];
         for item in &visible_list {
             assert!(test_list.contains(&item));
         }
@@ -306,8 +306,7 @@ mod test {
 
     #[test]
     fn test_count_visible() {
-        let input_str =
-"
+        let input_str = "
 .#..#
 .....
 #####
@@ -329,8 +328,7 @@ mod test {
 
     #[test]
     fn test_best_station() {
-        let input_str =
-"
+        let input_str = "
 .#..#
 .....
 #####
@@ -342,8 +340,7 @@ mod test {
         assert_eq!(best_station, (3, 4));
         assert_eq!(asteroids.count_visible(best_station), 8);
 
-        let input_str =
-"
+        let input_str = "
 ......#.#.
 #..#.#....
 ..#######.
@@ -360,8 +357,7 @@ mod test {
         assert_eq!(best_station, (5, 8));
         assert_eq!(asteroids.count_visible(best_station), 33);
 
-        let input_str =
-"
+        let input_str = "
 #.#...#.#.
 .###....#.
 .#....#...
@@ -378,8 +374,7 @@ mod test {
         assert_eq!(best_station, (1, 2));
         assert_eq!(asteroids.count_visible(best_station), 35);
 
-        let input_str =
-"
+        let input_str = "
 .#..#..###
 ####.###.#
 ....###.#.
@@ -396,8 +391,7 @@ mod test {
         assert_eq!(best_station, (6, 3));
         assert_eq!(asteroids.count_visible(best_station), 41);
 
-        let input_str =
-"
+        let input_str = "
 .#..##.###...#######
 ##.############..##.
 .#.######.########.#
@@ -462,8 +456,7 @@ mod test {
 
     #[test]
     fn test_vaporize() {
-        let input_str =
-"
+        let input_str = "
 .#....#####...#..
 ##...##.#####..##
 ##...#...#.#####.
@@ -471,26 +464,26 @@ mod test {
 ..#.#.....#....##
 ";
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 0),  (8,  1)); // 1
+        assert_eq!(asteroids.vaporize((8, 3), 0), (8, 1)); // 1
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 1),  (9,  0)); // 2
+        assert_eq!(asteroids.vaporize((8, 3), 1), (9, 0)); // 2
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 2),  (9,  1)); // 3
+        assert_eq!(asteroids.vaporize((8, 3), 2), (9, 1)); // 3
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 3),  (10, 0)); // 4
+        assert_eq!(asteroids.vaporize((8, 3), 3), (10, 0)); // 4
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 4),  (9,  2)); // 5
+        assert_eq!(asteroids.vaporize((8, 3), 4), (9, 2)); // 5
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 5),  (11, 1)); // 6
+        assert_eq!(asteroids.vaporize((8, 3), 5), (11, 1)); // 6
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 6),  (12, 1)); // 7
+        assert_eq!(asteroids.vaporize((8, 3), 6), (12, 1)); // 7
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 7),  (11, 2)); // 8
+        assert_eq!(asteroids.vaporize((8, 3), 7), (11, 2)); // 8
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 8),  (15, 1)); // 9
+        assert_eq!(asteroids.vaporize((8, 3), 8), (15, 1)); // 9
 
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 9),  (12, 2)); // 1
+        assert_eq!(asteroids.vaporize((8, 3), 9), (12, 2)); // 1
         let mut asteroids = AsteroidMap::from_string(&input_str);
         assert_eq!(asteroids.vaporize((8, 3), 10), (13, 2)); // 2
         let mut asteroids = AsteroidMap::from_string(&input_str);
@@ -506,35 +499,35 @@ mod test {
         let mut asteroids = AsteroidMap::from_string(&input_str);
         assert_eq!(asteroids.vaporize((8, 3), 16), (10, 4)); // 8
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 17), (4,  4)); // 9
+        assert_eq!(asteroids.vaporize((8, 3), 17), (4, 4)); // 9
 
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 18), (2,  4)); // 1
+        assert_eq!(asteroids.vaporize((8, 3), 18), (2, 4)); // 1
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 19), (2,  3)); // 2
+        assert_eq!(asteroids.vaporize((8, 3), 19), (2, 3)); // 2
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 20), (0,  2)); // 3
+        assert_eq!(asteroids.vaporize((8, 3), 20), (0, 2)); // 3
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 21), (1,  2)); // 4
+        assert_eq!(asteroids.vaporize((8, 3), 21), (1, 2)); // 4
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 22), (0,  1)); // 5
+        assert_eq!(asteroids.vaporize((8, 3), 22), (0, 1)); // 5
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 23), (1,  1)); // 6
+        assert_eq!(asteroids.vaporize((8, 3), 23), (1, 1)); // 6
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 24), (5,  2)); // 7
+        assert_eq!(asteroids.vaporize((8, 3), 24), (5, 2)); // 7
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 25), (1,  0)); // 8
+        assert_eq!(asteroids.vaporize((8, 3), 25), (1, 0)); // 8
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 26), (5,  1)); // 9
+        assert_eq!(asteroids.vaporize((8, 3), 26), (5, 1)); // 9
 
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 27), (6,  1)); // 1
+        assert_eq!(asteroids.vaporize((8, 3), 27), (6, 1)); // 1
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 28), (6,  0)); // 2
+        assert_eq!(asteroids.vaporize((8, 3), 28), (6, 0)); // 2
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 29), (7,  0)); // 3
+        assert_eq!(asteroids.vaporize((8, 3), 29), (7, 0)); // 3
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((8, 3), 30), (8,  0)); // 4
+        assert_eq!(asteroids.vaporize((8, 3), 30), (8, 0)); // 4
         let mut asteroids = AsteroidMap::from_string(&input_str);
         assert_eq!(asteroids.vaporize((8, 3), 31), (10, 1)); // 5
         let mut asteroids = AsteroidMap::from_string(&input_str);
@@ -546,8 +539,7 @@ mod test {
         let mut asteroids = AsteroidMap::from_string(&input_str);
         assert_eq!(asteroids.vaporize((8, 3), 35), (14, 3)); // 9
 
-        let input_str =
-"
+        let input_str = "
 .#..##.###...#######
 ##.############..##.
 .#.######.########.#
@@ -570,26 +562,26 @@ mod test {
 ###.##.####.##.#..##
 ";
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 0),   (11, 12)); // 1st
+        assert_eq!(asteroids.vaporize((11, 13), 0), (11, 12)); // 1st
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 1),   (12, 1));  // 2nd
+        assert_eq!(asteroids.vaporize((11, 13), 1), (12, 1)); // 2nd
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 2),   (12, 2));  // 3rd
+        assert_eq!(asteroids.vaporize((11, 13), 2), (12, 2)); // 3rd
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 9),   (12, 8));  // 10th
+        assert_eq!(asteroids.vaporize((11, 13), 9), (12, 8)); // 10th
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 19),  (16, 0));  // 20th
+        assert_eq!(asteroids.vaporize((11, 13), 19), (16, 0)); // 20th
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 49),  (16, 9));  // 50th
+        assert_eq!(asteroids.vaporize((11, 13), 49), (16, 9)); // 50th
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 99),  (10, 16)); // 100th
+        assert_eq!(asteroids.vaporize((11, 13), 99), (10, 16)); // 100th
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 198), (9,  6));  // 199th
+        assert_eq!(asteroids.vaporize((11, 13), 198), (9, 6)); // 199th
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 199), (8,  2));  // 200th
+        assert_eq!(asteroids.vaporize((11, 13), 199), (8, 2)); // 200th
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 200), (10, 9));  // 201st
+        assert_eq!(asteroids.vaporize((11, 13), 200), (10, 9)); // 201st
         let mut asteroids = AsteroidMap::from_string(&input_str);
-        assert_eq!(asteroids.vaporize((11, 13), 298), (11, 1));  // 299th
+        assert_eq!(asteroids.vaporize((11, 13), 298), (11, 1)); // 299th
     }
 }

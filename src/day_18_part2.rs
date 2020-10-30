@@ -162,8 +162,8 @@ impl Cardinal {
         match *self {
             Self::North => Self::South,
             Self::South => Self::North,
-            Self::West =>  Self::East,
-            Self::East =>  Self::West,
+            Self::West => Self::East,
+            Self::East => Self::West,
         }
     }
 }
@@ -229,10 +229,7 @@ impl Map {
     fn from_string(input: &str) -> Map {
         let mut area = HashMap::new();
 
-        let mut p = Point {
-            x: 0,
-            y: 0,
-        };
+        let mut p = Point { x: 0, y: 0 };
         for line in input.lines() {
             for c in line.chars() {
                 let space = Space::from_value(c);
@@ -247,9 +244,7 @@ impl Map {
             p.y += 1;
         }
 
-        Map {
-            area,
-        }
+        Map { area }
     }
 
     fn display(&self) {
@@ -272,8 +267,8 @@ impl Map {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.area.get(&Point { x, y }) {
                     print!("{}", t.char());
                 } else {
@@ -306,27 +301,28 @@ impl Map {
 
         // Put the list of entrances in order from top to bottom, left to right.
         // This makes the path results predictable and testable but is not strictly required.
-        entrances.sort_by(
-            |a, b| {
-                let primary = a.y.cmp(&b.y);
-                match primary {
-                    Ordering::Equal => a.x.cmp(&b.x),
-                    _ => primary,
-                }
-            });
+        entrances.sort_by(|a, b| {
+            let primary = a.y.cmp(&b.y);
+            match primary {
+                Ordering::Equal => a.x.cmp(&b.x),
+                _ => primary,
+            }
+        });
         entrances
     }
 
     fn split_entrance(&mut self, entrance: &Point) {
-        let offsets = vec![(( 0,  0), Space::Wall),
-                           ((-1, -1), Space::Entrance),
-                           ((-1,  0), Space::Wall),
-                           ((-1,  1), Space::Entrance),
-                           (( 0,  1), Space::Wall),
-                           (( 1,  1), Space::Entrance),
-                           (( 1,  0), Space::Wall),
-                           (( 1, -1), Space::Entrance),
-                           (( 0, -1), Space::Wall)];
+        let offsets = vec![
+            ((0, 0), Space::Wall),
+            ((-1, -1), Space::Entrance),
+            ((-1, 0), Space::Wall),
+            ((-1, 1), Space::Entrance),
+            ((0, 1), Space::Wall),
+            ((1, 1), Space::Entrance),
+            ((1, 0), Space::Wall),
+            ((1, -1), Space::Entrance),
+            ((0, -1), Space::Wall),
+        ];
 
         for ((x, y), s) in offsets {
             let p = Point {
@@ -349,10 +345,12 @@ impl Map {
         loop {
             counter += 1;
             for location in frontier.drain(..).collect::<Vec<Point>>() {
-                let candidates = [Cardinal::North,
-                                  Cardinal::South,
-                                  Cardinal::West,
-                                  Cardinal::East];
+                let candidates = [
+                    Cardinal::North,
+                    Cardinal::South,
+                    Cardinal::West,
+                    Cardinal::East,
+                ];
                 for direction in candidates.iter() {
                     let step_in_direction = direction.step_from(location);
                     //println!("Step: {:?}", step_in_direction);
@@ -361,7 +359,7 @@ impl Map {
                             Some(Space::Empty) | Some(Space::Entrance) => {
                                 frontier.push(step_in_direction);
                                 walked.insert(step_in_direction);
-                            },
+                            }
                             Some(Space::Key(c)) => {
                                 if start_node.has_key(*c) == false {
                                     //println!("Key: {}", c);
@@ -376,7 +374,7 @@ impl Map {
                                     frontier.push(step_in_direction);
                                     walked.insert(step_in_direction);
                                 }
-                            },
+                            }
                             Some(Space::Door(c)) => {
                                 if start_node.has_key(*c) == true {
                                     //println!("Door: {}", c);
@@ -432,7 +430,8 @@ impl Map {
         loop {
             for frontier_id in frontier.drain(..).collect::<Vec<usize>>() {
                 for node_idx in 0..graph.vertices[frontier_id].nodes.len() {
-                    let connected_nodes = self.find_keys(&graph.vertices[frontier_id].nodes[node_idx]);
+                    let connected_nodes =
+                        self.find_keys(&graph.vertices[frontier_id].nodes[node_idx]);
                     /*println!("Nodes:");
                     for (node, distance) in &connected_nodes {
                         println!("   {:?} @ {}", node, distance);
@@ -614,11 +613,19 @@ impl Graph {
 
         let mut path: Vec<Vec<Space>> = Vec::new();
         let mut current_vertex_id = shortest_end_vertex_id;
-        let spaces: Vec<Space> = self.vertices[current_vertex_id].nodes.iter().map(|n| n.space).collect();
+        let spaces: Vec<Space> = self.vertices[current_vertex_id]
+            .nodes
+            .iter()
+            .map(|n| n.space)
+            .collect();
         path.push(spaces);
         while let Some(parent_id) = self.vertices[current_vertex_id].pi {
             current_vertex_id = parent_id;
-            let spaces: Vec<Space> = self.vertices[current_vertex_id].nodes.iter().map(|n| n.space).collect();
+            let spaces: Vec<Space> = self.vertices[current_vertex_id]
+                .nodes
+                .iter()
+                .map(|n| n.space)
+                .collect();
             path.push(spaces);
         }
         path.reverse();
@@ -696,11 +703,41 @@ mod test {
         graph.dijkstra(0);
         let (distance, path) = graph.get_shortest_path();
         assert_eq!(distance, 8);
-        assert_eq!(path, [[Space::Entrance, Space::Entrance, Space::Entrance, Space::Entrance],
-                          [Space::Key('a'), Space::Entrance, Space::Entrance, Space::Entrance],
-                          [Space::Key('a'), Space::Entrance, Space::Entrance, Space::Key('b')],
-                          [Space::Key('a'), Space::Entrance, Space::Key('c'), Space::Key('b')],
-                          [Space::Key('a'), Space::Key('d'), Space::Key('c'), Space::Key('b')]]);
+        assert_eq!(
+            path,
+            [
+                [
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('a'),
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('a'),
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Key('b')
+                ],
+                [
+                    Space::Key('a'),
+                    Space::Entrance,
+                    Space::Key('c'),
+                    Space::Key('b')
+                ],
+                [
+                    Space::Key('a'),
+                    Space::Key('d'),
+                    Space::Key('c'),
+                    Space::Key('b')
+                ]
+            ]
+        );
 
         let input = "
 ###############
@@ -736,20 +773,89 @@ mod test {
         graph.dijkstra(0);
         let (distance, path) = graph.get_shortest_path();
         assert_eq!(distance, 32);
-        assert_eq!(path, [[Space::Entrance, Space::Entrance, Space::Entrance, Space::Entrance],
-                          [Space::Key('a'), Space::Entrance, Space::Entrance, Space::Entrance],
-                          [Space::Key('a'), Space::Entrance, Space::Key('b'), Space::Entrance],
-                          [Space::Key('c'), Space::Entrance, Space::Key('b'), Space::Entrance],
-                          [Space::Key('c'), Space::Entrance, Space::Key('d'), Space::Entrance],
-                          [Space::Key('e'), Space::Entrance, Space::Key('d'), Space::Entrance],
-                          [Space::Key('e'), Space::Entrance, Space::Key('f'), Space::Entrance],
-                          [Space::Key('e'), Space::Entrance, Space::Key('f'), Space::Key('g')],
-                          [Space::Key('e'), Space::Key('h'), Space::Key('f'), Space::Key('g')],
-                          [Space::Key('e'), Space::Key('h'), Space::Key('f'), Space::Key('i')],
-                          [Space::Key('e'), Space::Key('j'), Space::Key('f'), Space::Key('i')],
-                          [Space::Key('e'), Space::Key('j'), Space::Key('f'), Space::Key('k')],
-                          [Space::Key('e'), Space::Key('l'), Space::Key('f'), Space::Key('k')],
-                          ]);
+        assert_eq!(
+            path,
+            [
+                [
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('a'),
+                    Space::Entrance,
+                    Space::Entrance,
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('a'),
+                    Space::Entrance,
+                    Space::Key('b'),
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('c'),
+                    Space::Entrance,
+                    Space::Key('b'),
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('c'),
+                    Space::Entrance,
+                    Space::Key('d'),
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Entrance,
+                    Space::Key('d'),
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Entrance,
+                    Space::Key('f'),
+                    Space::Entrance
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Entrance,
+                    Space::Key('f'),
+                    Space::Key('g')
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Key('h'),
+                    Space::Key('f'),
+                    Space::Key('g')
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Key('h'),
+                    Space::Key('f'),
+                    Space::Key('i')
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Key('j'),
+                    Space::Key('f'),
+                    Space::Key('i')
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Key('j'),
+                    Space::Key('f'),
+                    Space::Key('k')
+                ],
+                [
+                    Space::Key('e'),
+                    Space::Key('l'),
+                    Space::Key('f'),
+                    Space::Key('k')
+                ],
+            ]
+        );
 
         let input = "
 #############

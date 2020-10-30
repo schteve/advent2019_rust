@@ -72,17 +72,16 @@
 use std::iter;
 
 fn gen_base_pattern(element: i32) -> Vec<i32> {
-    let mut pattern: Vec<i32> = [0, 1, 0, -1].iter()
-                                            .flat_map(|&i| iter::repeat(i).take((element + 1) as usize)) // If user specifies element 0 then want a pattern with 1 of each value
-                                            .collect();
+    let mut pattern: Vec<i32> = [0, 1, 0, -1]
+        .iter()
+        .flat_map(|&i| iter::repeat(i).take((element + 1) as usize)) // If user specifies element 0 then want a pattern with 1 of each value
+        .collect();
     pattern.rotate_left(1);
     pattern
 }
 
 fn gen_pattern_table(elements: i32) -> Vec<Vec<i32>> {
-    (0..elements)
-        .map(gen_base_pattern)
-        .collect()
+    (0..elements).map(gen_base_pattern).collect()
 }
 
 fn ones_digit(input: i32) -> i32 {
@@ -91,18 +90,19 @@ fn ones_digit(input: i32) -> i32 {
 }
 
 fn mult_pattern(input: &[i32], pattern: &[i32]) -> i32 {
-    let sum: i32 = pattern.iter()
-                        .cycle()
-                        .zip(input.iter())
-                        .map(|(p, i)| i * p)
-                        .sum();
+    let sum: i32 = pattern
+        .iter()
+        .cycle()
+        .zip(input.iter())
+        .map(|(p, i)| i * p)
+        .sum();
     ones_digit(sum)
 }
 
 fn phase(input: &[i32], pattern_table: &[Vec<i32>]) -> Vec<i32> {
     let output: Vec<i32> = (0..input.len())
-                                .map(|i| mult_pattern(input, &pattern_table[i]))
-                                .collect();
+        .map(|i| mult_pattern(input, &pattern_table[i]))
+        .collect();
     output
 }
 
@@ -115,10 +115,11 @@ fn fft(input: Vec<i32>, phases: i32) -> Vec<i32> {
 }
 
 fn parse_string(s: &str) -> Vec<i32> {
-    let list: Vec<i32> = s.trim()
-                            .chars()
-                            .map(|c| c.to_digit(10).unwrap() as i32)
-                            .collect();
+    let list: Vec<i32> = s
+        .trim()
+        .chars()
+        .map(|c| c.to_digit(10).unwrap() as i32)
+        .collect();
     list
 }
 
@@ -126,9 +127,7 @@ fn parse_string(s: &str) -> Vec<i32> {
 pub fn solve(input: &str) -> String {
     let list = parse_string(&input);
     let fft_result = fft(list, 100);
-    let fft_result_str: String = fft_result[..8].iter()
-                                                .map(|i| i.to_string())
-                                                .collect();
+    let fft_result_str: String = fft_result[..8].iter().map(|i| i.to_string()).collect();
     println!("First 8 digits of FFT: {}", fft_result_str);
     fft_result_str
 }

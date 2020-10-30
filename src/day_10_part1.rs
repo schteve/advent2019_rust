@@ -106,11 +106,8 @@ struct AsteroidMap {
 
 impl AsteroidMap {
     fn from_string(input: &str) -> AsteroidMap {
-        let input_vec2d: Vec<Vec<char>> = input
-                                        .trim()
-                                        .lines()
-                                        .map(|s| s.chars().collect())
-                                        .collect();
+        let input_vec2d: Vec<Vec<char>> =
+            input.trim().lines().map(|s| s.chars().collect()).collect();
         AsteroidMap::from_vec2d(input_vec2d)
     }
 
@@ -124,9 +121,7 @@ impl AsteroidMap {
             }
         }
 
-        AsteroidMap {
-            data,
-        }
+        AsteroidMap { data }
     }
 
     fn is_visible(&self, point_a: (i32, i32), point_b: (i32, i32)) -> bool {
@@ -168,9 +163,11 @@ impl AsteroidMap {
     }
 
     fn best_station(&self) -> (i32, i32) {
-        let best_asteroid = *self.data.iter()
-                                    .max_by_key(|&&asteroid| self.count_visible(asteroid))
-                                    .unwrap();
+        let best_asteroid = *self
+            .data
+            .iter()
+            .max_by_key(|&&asteroid| self.count_visible(asteroid))
+            .unwrap();
         best_asteroid
     }
 }
@@ -182,7 +179,10 @@ pub fn solve(input: &str) -> usize {
 
     let best_station = asteroids.best_station();
     let best_visible = asteroids.count_visible(best_station);
-    println!("Best station: {:?} with {} visible", best_station, best_visible);
+    println!(
+        "Best station: {:?} with {} visible",
+        best_station, best_visible
+    );
     best_visible
 }
 
@@ -192,8 +192,7 @@ mod test {
 
     #[test]
     fn test_is_visible() {
-        let input_str =
-"
+        let input_str = "
 #.........
 ...#......
 ...#......
@@ -273,8 +272,7 @@ mod test {
 
     #[test]
     fn test_get_visible() {
-        let input_str =
-"
+        let input_str = "
 #.........
 ...#......
 ...#..#...
@@ -288,14 +286,15 @@ mod test {
 ";
         let asteroids = AsteroidMap::from_string(&input_str);
         let visible_list = asteroids.get_visible((0, 0));
-        let test_list = vec![(3, 1), // A
-                             (3, 2), // B
-                             (3, 3), // C
-                             (2, 3), // D
-                             (1, 3), // E
-                             (2, 4), // F
-                             (4, 3), // G
-                             ];
+        let test_list = vec![
+            (3, 1), // A
+            (3, 2), // B
+            (3, 3), // C
+            (2, 3), // D
+            (1, 3), // E
+            (2, 4), // F
+            (4, 3), // G
+        ];
         for item in &visible_list {
             assert!(test_list.contains(&item));
         }
@@ -306,8 +305,7 @@ mod test {
 
     #[test]
     fn test_count_visible() {
-        let input_str =
-"
+        let input_str = "
 .#..#
 .....
 #####
@@ -329,8 +327,7 @@ mod test {
 
     #[test]
     fn test_best_station() {
-        let input_str =
-"
+        let input_str = "
 .#..#
 .....
 #####
@@ -342,8 +339,7 @@ mod test {
         assert_eq!(best_station, (3, 4));
         assert_eq!(asteroids.count_visible(best_station), 8);
 
-        let input_str =
-"
+        let input_str = "
 ......#.#.
 #..#.#....
 ..#######.
@@ -360,8 +356,7 @@ mod test {
         assert_eq!(best_station, (5, 8));
         assert_eq!(asteroids.count_visible(best_station), 33);
 
-        let input_str =
-"
+        let input_str = "
 #.#...#.#.
 .###....#.
 .#....#...
@@ -378,8 +373,7 @@ mod test {
         assert_eq!(best_station, (1, 2));
         assert_eq!(asteroids.count_visible(best_station), 35);
 
-        let input_str =
-"
+        let input_str = "
 .#..#..###
 ####.###.#
 ....###.#.
@@ -396,8 +390,7 @@ mod test {
         assert_eq!(best_station, (6, 3));
         assert_eq!(asteroids.count_visible(best_station), 41);
 
-        let input_str =
-"
+        let input_str = "
 .#..##.###...#######
 ##.############..##.
 .#.######.########.#

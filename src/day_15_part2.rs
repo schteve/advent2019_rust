@@ -52,7 +52,7 @@ struct Program {
     mem: HashMap<usize, i64>,
     pc: usize,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     relative_base_offset: i64,
 
     input: Vec<i64>,
@@ -97,17 +97,17 @@ impl Program {
         let opcode = self.get_opcode_curr();
         // println!("Opcode: {}", opcode);
         match opcode {
-            1  => self.opcode_add(),
-            2  => self.opcode_mul(),
-            3  => self.opcode_in(),
-            4  => self.opcode_out(),
-            5  => self.opcode_jmp(),
-            6  => self.opcode_jmpn(),
-            7  => self.opcode_lt(),
-            8  => self.opcode_eq(),
-            9  => self.opcode_rel(),
+            1 => self.opcode_add(),
+            2 => self.opcode_mul(),
+            3 => self.opcode_in(),
+            4 => self.opcode_out(),
+            5 => self.opcode_jmp(),
+            6 => self.opcode_jmpn(),
+            7 => self.opcode_lt(),
+            8 => self.opcode_eq(),
+            9 => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 
@@ -133,7 +133,9 @@ impl Program {
         match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
-            2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
+            2 => {
+                (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize
+            }
             _ => panic!("Invalid param address mode: {}", mode),
         }
     }
@@ -141,15 +143,11 @@ impl Program {
     fn get_value(&self, addr: usize) -> i64 {
         let code_len = self.code.len();
         let value = match addr {
-            a if a < code_len => {
-                self.code[addr]
+            a if a < code_len => self.code[addr],
+            a if a >= code_len => match self.mem.get(&addr) {
+                Some(value) => *value,
+                None => 0i64,
             },
-            a if a >= code_len => {
-                match self.mem.get(&addr) {
-                    Some(value) => *value,
-                    None => 0i64,
-                }
-            }
             _ => panic!("Invalid address: {}", addr),
         };
         value
@@ -160,10 +158,10 @@ impl Program {
         match addr {
             a if a < code_len => {
                 self.code[addr] = value;
-            },
+            }
             a if a >= code_len => {
                 self.mem.insert(addr, value);
-            },
+            }
             _ => panic!("Invalid address: {}", addr),
         }
     }
@@ -358,8 +356,8 @@ impl Direction {
         match *self {
             Self::North => (from.0, from.1 - 1),
             Self::South => (from.0, from.1 + 1),
-            Self::West =>  (from.0 - 1, from.1),
-            Self::East =>  (from.0 + 1, from.1),
+            Self::West => (from.0 - 1, from.1),
+            Self::East => (from.0 + 1, from.1),
         }
     }
 
@@ -367,8 +365,8 @@ impl Direction {
         match *self {
             Self::North => Self::South,
             Self::South => Self::North,
-            Self::West =>  Self::East,
-            Self::East =>  Self::West,
+            Self::West => Self::East,
+            Self::East => Self::West,
         }
     }
 }
@@ -477,8 +475,8 @@ impl Drone {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if self.location == (x, y) {
                     print!("D");
                 } else if let Some(t) = self.area.get(&(x, y)) {
@@ -507,19 +505,19 @@ impl Drone {
                     let wall_position = direction.step_from(self.location);
                     self.area.insert(wall_position, Space::Wall);
                     return false;
-                },
+                }
                 Status::Moved => {
                     let drone_position = direction.step_from(self.location);
                     self.area.insert(drone_position, Space::Empty);
                     self.location = drone_position;
                     return true;
-                },
+                }
                 Status::Oxygen => {
                     let drone_position = direction.step_from(self.location);
                     self.area.insert(drone_position, Space::Oxygen);
                     self.location = drone_position;
                     return true;
-                },
+                }
             }
         } else {
             println!("No movement: program halted!");
@@ -534,10 +532,12 @@ impl Drone {
     fn search(&mut self) {
         // self.display_area();
 
-        let candidates = vec![Direction::North,
-                              Direction::South,
-                              Direction::West,
-                              Direction::East];
+        let candidates = vec![
+            Direction::North,
+            Direction::South,
+            Direction::West,
+            Direction::East,
+        ];
         for direction in candidates {
             let step_in_direction = direction.step_from(self.location);
             if self.area.get(&step_in_direction).is_none() && self.movement(direction) == true {
@@ -548,8 +548,11 @@ impl Drone {
     }
 
     fn fill_with_oxygen(&mut self) -> i32 {
-        let oxygen = self.area.iter().find(|(_k, v)| **v == Space::Oxygen)
-                            .expect("Could not find oxygen");
+        let oxygen = self
+            .area
+            .iter()
+            .find(|(_k, v)| **v == Space::Oxygen)
+            .expect("Could not find oxygen");
         let mut counter = 0;
         let mut frontier: Vec<(i32, i32)> = Vec::new();
         frontier.push(*oxygen.0);
@@ -557,10 +560,12 @@ impl Drone {
         loop {
             let mut empties = Vec::new();
             for location in frontier.drain(..) {
-                let candidates = vec![Direction::North,
-                                        Direction::South,
-                                        Direction::West,
-                                        Direction::East];
+                let candidates = vec![
+                    Direction::North,
+                    Direction::South,
+                    Direction::West,
+                    Direction::East,
+                ];
                 for direction in candidates {
                     let step_in_direction = direction.step_from(location);
                     if let Some(Space::Empty) = self.area.get(&step_in_direction) {
@@ -588,10 +593,10 @@ impl Drone {
 #[aoc(day15, part2)]
 pub fn solve(input: &str) -> i32 {
     let code: Vec<i64> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i64>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i64>().unwrap())
+        .collect();
     let program = Program::new(&code, &[]);
     let mut drone = Drone::new(program);
     drone.map_area();
@@ -611,17 +616,19 @@ mod test {
 
     #[test]
     fn test_program() {
-        let code = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99];
+        let code = [
+            109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+        ];
         let mut program = Program::new(&code, &[]);
         program.run();
         assert_eq!(program.output, code);
 
-        let code = [1102,34915192,34915192,7,4,7,99,0];
+        let code = [1102, 34915192, 34915192, 7, 4, 7, 99, 0];
         let mut program = Program::new(&code, &[]);
         program.run();
         assert_eq!(program.output, [1219070632396864]);
 
-        let code = [104,1125899906842624,99];
+        let code = [104, 1125899906842624, 99];
         let mut program = Program::new(&code, &[]);
         program.run();
         assert_eq!(program.output, [1125899906842624]);

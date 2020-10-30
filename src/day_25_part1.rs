@@ -33,7 +33,7 @@ struct Program {
     mem: HashMap<usize, i64>,
     pc: usize,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     relative_base_offset: i64,
 
     input: Vec<i64>,
@@ -78,17 +78,17 @@ impl Program {
         let opcode = self.get_opcode_curr();
         // println!("Opcode: {}", opcode);
         match opcode {
-            1  => self.opcode_add(),
-            2  => self.opcode_mul(),
-            3  => self.opcode_in(),
-            4  => self.opcode_out(),
-            5  => self.opcode_jmp(),
-            6  => self.opcode_jmpn(),
-            7  => self.opcode_lt(),
-            8  => self.opcode_eq(),
-            9  => self.opcode_rel(),
+            1 => self.opcode_add(),
+            2 => self.opcode_mul(),
+            3 => self.opcode_in(),
+            4 => self.opcode_out(),
+            5 => self.opcode_jmp(),
+            6 => self.opcode_jmpn(),
+            7 => self.opcode_lt(),
+            8 => self.opcode_eq(),
+            9 => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 
@@ -114,7 +114,9 @@ impl Program {
         match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
-            2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
+            2 => {
+                (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize
+            }
             _ => panic!("Invalid param address mode: {}", mode),
         }
     }
@@ -122,15 +124,11 @@ impl Program {
     fn get_value(&self, addr: usize) -> i64 {
         let code_len = self.code.len();
         let value = match addr {
-            a if a < code_len => {
-                self.code[addr]
+            a if a < code_len => self.code[addr],
+            a if a >= code_len => match self.mem.get(&addr) {
+                Some(value) => *value,
+                None => 0i64,
             },
-            a if a >= code_len => {
-                match self.mem.get(&addr) {
-                    Some(value) => *value,
-                    None => 0i64,
-                }
-            }
             _ => panic!("Invalid address: {}", addr),
         };
         value
@@ -141,10 +139,10 @@ impl Program {
         match addr {
             a if a < code_len => {
                 self.code[addr] = value;
-            },
+            }
             a if a >= code_len => {
                 self.mem.insert(addr, value);
-            },
+            }
             _ => panic!("Invalid address: {}", addr),
         }
     }
@@ -315,7 +313,7 @@ enum Command {
     Take(String),
     Drop(String),
     List,
-    Unknown
+    Unknown,
 }
 
 impl Command {
@@ -371,7 +369,8 @@ impl Droid {
 
     fn print_output(&mut self) {
         for i in self.program.output.drain(..) {
-            if i < 128 { // If it's ASCII, print it as a character
+            if i < 128 {
+                // If it's ASCII, print it as a character
                 print!("{}", (i as u8) as char);
             } else {
                 panic!("Non-ASCII character received");
@@ -408,30 +407,32 @@ impl Droid {
 #[aoc(day25, part1)]
 pub fn solve(input: &str) -> String {
     let code: Vec<i64> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i64>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i64>().unwrap())
+        .collect();
     let program = Program::new(&code, &[]);
     let mut droid = Droid::new(program);
 
     // I manually explored and experimented with the items. More fun that way :-)
-    let commands = vec![Command::North,
-                        Command::North,
-                        Command::Take(String::from("monolith")),
-                        Command::North,
-                        Command::Take(String::from("hypercube")),
-                        Command::South,
-                        Command::South,
-                        Command::East,
-                        Command::East,
-                        Command::Take(String::from("easter egg")),
-                        Command::East,
-                        Command::South,
-                        Command::Take(String::from("ornament")),
-                        Command::West,
-                        Command::South,
-                        Command::West];
+    let commands = vec![
+        Command::North,
+        Command::North,
+        Command::Take(String::from("monolith")),
+        Command::North,
+        Command::Take(String::from("hypercube")),
+        Command::South,
+        Command::South,
+        Command::East,
+        Command::East,
+        Command::Take(String::from("easter egg")),
+        Command::East,
+        Command::South,
+        Command::Take(String::from("ornament")),
+        Command::West,
+        Command::South,
+        Command::West,
+    ];
     droid.commands.extend(commands);
 
     droid.run();
@@ -444,7 +445,5 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_() {
-
-    }
+    fn test_() {}
 }

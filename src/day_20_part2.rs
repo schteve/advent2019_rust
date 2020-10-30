@@ -154,8 +154,8 @@ impl Cardinal {
         match *self {
             Self::North => Self::South,
             Self::South => Self::North,
-            Self::West =>  Self::East,
-            Self::East =>  Self::West,
+            Self::West => Self::East,
+            Self::East => Self::West,
         }
     }
 }
@@ -228,10 +228,7 @@ impl Map {
     fn from_string(input: &str) -> Map {
         let mut area = HashMap::new();
 
-        let mut p = Point {
-            x: 0,
-            y: 0,
-        };
+        let mut p = Point { x: 0, y: 0 };
         for line in input.lines() {
             for c in line.chars() {
                 let space = Space::from_value(c);
@@ -280,8 +277,8 @@ impl Map {
 
         let x_size = x_range.1 - x_range.0;
         let y_size = y_range.1 - y_range.0;
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(Space::PortalPiece(c0)) = self.area.get(&Point { x, y }) {
                     let portal_piece0 = *c0;
 
@@ -290,7 +287,9 @@ impl Map {
                     let portal_piece1;
                     if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x: x + 1, y }) {
                         portal_piece1 = *c1;
-                    } else if let Some(Space::PortalPiece(c1)) = self.area.get(&Point { x, y: y + 1 }) {
+                    } else if let Some(Space::PortalPiece(c1)) =
+                        self.area.get(&Point { x, y: y + 1 })
+                    {
                         portal_piece1 = *c1;
                     } else {
                         continue; // Not a valid portal
@@ -304,7 +303,9 @@ impl Map {
                     if let Some(Space::Empty) = self.area.get(&Point { x: x - 1, y }) {
                         portal_walkable = Point { x: x - 1, y };
 
-                        if (portal_piece0 == 'A' && portal_piece1 == 'A') || (portal_piece0 == 'Z' && portal_piece1 == 'Z') {
+                        if (portal_piece0 == 'A' && portal_piece1 == 'A')
+                            || (portal_piece0 == 'Z' && portal_piece1 == 'Z')
+                        {
                             portal_depth = 0; // Special case.
                         } else if x < x_size / 2 {
                             portal_depth = 1; // On left side of donut, and portal is to the right of the walkable space. Inward.
@@ -314,7 +315,9 @@ impl Map {
                     } else if let Some(Space::Empty) = self.area.get(&Point { x: x + 2, y }) {
                         portal_walkable = Point { x: x + 2, y };
 
-                        if (portal_piece0 == 'A' && portal_piece1 == 'A') || (portal_piece0 == 'Z' && portal_piece1 == 'Z') {
+                        if (portal_piece0 == 'A' && portal_piece1 == 'A')
+                            || (portal_piece0 == 'Z' && portal_piece1 == 'Z')
+                        {
                             portal_depth = 0; // Special case.
                         } else if x < x_size / 2 {
                             portal_depth = -1; // On left side of donut, and portal is to the left of the walkable space. Outward.
@@ -324,7 +327,9 @@ impl Map {
                     } else if let Some(Space::Empty) = self.area.get(&Point { x, y: y - 1 }) {
                         portal_walkable = Point { x, y: y - 1 };
 
-                        if (portal_piece0 == 'A' && portal_piece1 == 'A') || (portal_piece0 == 'Z' && portal_piece1 == 'Z') {
+                        if (portal_piece0 == 'A' && portal_piece1 == 'A')
+                            || (portal_piece0 == 'Z' && portal_piece1 == 'Z')
+                        {
                             portal_depth = 0; // Special case.
                         } else if y < y_size / 2 {
                             portal_depth = 1; // On upper side of donut, and portal is below the walkable space. Inward.
@@ -334,7 +339,9 @@ impl Map {
                     } else if let Some(Space::Empty) = self.area.get(&Point { x, y: y + 2 }) {
                         portal_walkable = Point { x, y: y + 2 };
 
-                        if (portal_piece0 == 'A' && portal_piece1 == 'A') || (portal_piece0 == 'Z' && portal_piece1 == 'Z') {
+                        if (portal_piece0 == 'A' && portal_piece1 == 'A')
+                            || (portal_piece0 == 'Z' && portal_piece1 == 'Z')
+                        {
                             portal_depth = 0; // Special case.
                         } else if y < y_size / 2 {
                             portal_depth = -1; // On upper side of donut, and portal is above the walkable space. Outward.
@@ -375,8 +382,8 @@ impl Map {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.area.get(&Point { x, y }) {
                     print!("{}", t.char());
                 } else {
@@ -416,10 +423,12 @@ impl Map {
         loop {
             steps += 1;
             for location in frontier.drain(..).collect::<Vec<Node>>() {
-                let candidates = [Cardinal::North,
-                                  Cardinal::South,
-                                  Cardinal::West,
-                                  Cardinal::East];
+                let candidates = [
+                    Cardinal::North,
+                    Cardinal::South,
+                    Cardinal::West,
+                    Cardinal::East,
+                ];
                 for direction in candidates.iter() {
                     let step_in_direction = direction.step_from(location.point);
                     //println!("Step: {:?}", step_in_direction);
@@ -455,7 +464,10 @@ impl Map {
                                 point: k,
                                 depth: portal_depth,
                             };
-                            if k != location.point && v.value == portal.value && walked.get(&portal_node) == None {
+                            if k != location.point
+                                && v.value == portal.value
+                                && walked.get(&portal_node) == None
+                            {
                                 frontier.push(portal_node);
                                 walked.insert(portal_node);
                             }
@@ -515,7 +527,7 @@ FG..#########.....#
         let steps = map.a_to_z();
         assert_eq!(steps, 26);
 
-let input = "
+        let input = "
              Z L X W       C
              Z P Q B       K
   ###########.#.#.#.#######.###############

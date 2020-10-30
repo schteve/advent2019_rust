@@ -43,19 +43,13 @@ impl Layer {
 
     fn display(&self) {
         for row in self.data.chunks(self.width as usize) {
-            println!("{}", row
-                            .iter()
-                            .map(|i| i.to_string())
-                            .collect::<String>());
+            println!("{}", row.iter().map(|i| i.to_string()).collect::<String>());
         }
         println!();
     }
 
     fn count_digits(&self, value: u32) -> u32 {
-        let count = self.data
-                        .iter()
-                        .filter(|&&d| d == value)
-                        .count();
+        let count = self.data.iter().filter(|&&d| d == value).count();
         count as u32
     }
 
@@ -75,9 +69,10 @@ struct Image {
 impl Image {
     fn from_slice(input_vec: &[u32], image_width: usize, image_height: usize) -> Image {
         let layer_size = image_width * image_height;
-        let layers: Vec<Layer> = input_vec.chunks(layer_size)
-                                        .map(|chunk| Layer::from_slice(chunk, image_width, image_height))
-                                        .collect();
+        let layers: Vec<Layer> = input_vec
+            .chunks(layer_size)
+            .map(|chunk| Layer::from_slice(chunk, image_width, image_height))
+            .collect();
         Image {
             layers,
             width: image_width,
@@ -90,18 +85,18 @@ impl Image {
     }
 
     fn display_all(&self) {
-         self.layers
-            .iter()
-            .for_each(|layer| layer.display());
+        self.layers.iter().for_each(|layer| layer.display());
     }
 }
 
 fn image_layer_with_fewest_zeros(image: &Image) -> usize {
-    let layer_id = image.layers.iter()
-                                .enumerate()
-                                .min_by_key(|&(_, layer)| layer.count_digits(0))
-                                .unwrap()
-                                .0;
+    let layer_id = image
+        .layers
+        .iter()
+        .enumerate()
+        .min_by_key(|&(_, layer)| layer.count_digits(0))
+        .unwrap()
+        .0;
     layer_id
 }
 
@@ -114,10 +109,10 @@ fn checksum_fewest_zeros(image: &Image, digit1: u32, digit2: u32) -> u32 {
 #[aoc(day8, part1)]
 pub fn solve(input: &str) -> u32 {
     let input_vec: Vec<u32> = input
-                            .trim()
-                            .chars()
-                            .map(|c| c.to_digit(10).unwrap())
-                            .collect();
+        .trim()
+        .chars()
+        .map(|c| c.to_digit(10).unwrap())
+        .collect();
     let image = Image::from_slice(&input_vec, 25, 6);
     // image.display_all();
 
@@ -132,7 +127,7 @@ mod test {
 
     #[test]
     fn test_image() {
-        let input_vec = [1,2,3,4,5,6,7,8,9,0,1,2];
+        let input_vec = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2];
         let image = Image::from_slice(&input_vec, 3, 2);
         assert_eq!(image.layers[0].data, vec![1, 2, 3, 4, 5, 6]);
         assert_eq!(image.layers[1].data, vec![7, 8, 9, 0, 1, 2]);

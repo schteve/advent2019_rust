@@ -40,7 +40,7 @@ struct Program {
     code: Vec<i32>,
     pc: u32,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     input: Vec<i32>,
     input_idx: u32,
     output: Vec<i32>,
@@ -68,16 +68,16 @@ impl Program {
 
             let opcode = self.get_opcode_curr();
             match opcode {
-                1  => self.opcode_add(),
-                2  => self.opcode_mul(),
-                3  => self.opcode_in(),
-                4  => self.opcode_out(),
-                5  => self.opcode_jmp(),
-                6  => self.opcode_jmpn(),
-                7  => self.opcode_lt(),
-                8  => self.opcode_eq(),
+                1 => self.opcode_add(),
+                2 => self.opcode_mul(),
+                3 => self.opcode_in(),
+                4 => self.opcode_out(),
+                5 => self.opcode_jmp(),
+                6 => self.opcode_jmpn(),
+                7 => self.opcode_lt(),
+                8 => self.opcode_eq(),
                 99 => self.opcode_halt(),
-                _  => panic!("Invalid opcode"),
+                _ => panic!("Invalid opcode"),
             }
         }
     }
@@ -257,9 +257,10 @@ impl Program {
 }
 
 fn check_signal(code: &[i32], phase: &[i32]) -> i32 {
-    let mut amp_programs: Vec<Program> = phase.iter()
-                                                .map(|&i| Program::new(&code, &[i])) // Set initial input to phase settings
-                                                .collect();
+    let mut amp_programs: Vec<Program> = phase
+        .iter()
+        .map(|&i| Program::new(&code, &[i])) // Set initial input to phase settings
+        .collect();
     let mut next_input = Some(0);
     let mut last_output = 0;
     while amp_programs.last().unwrap().halted == false {
@@ -285,9 +286,9 @@ fn generate_permutations(outputs: &mut Vec<Vec<i32>>, sequence: &mut [i32], seq_
         outputs.push(sequence.to_vec());
     } else {
         for i in seq_idx..sequence.len() {
-            sequence.swap(seq_idx, i);                                      // Swap elements
+            sequence.swap(seq_idx, i); // Swap elements
             generate_permutations(outputs, sequence, seq_idx + 1 as usize); // Descend
-            sequence.swap(seq_idx, i);                                      // Undo swapping
+            sequence.swap(seq_idx, i); // Undo swapping
         }
     }
 }
@@ -298,21 +299,21 @@ fn max_thruster_signal(code: &[i32], phases: &[i32]) -> u32 {
     generate_permutations(&mut phase_permutations, &mut phase_options, 0);
 
     let max_signal = phase_permutations
-                        .iter()
-                        .map(|p| check_signal(&code, &p))
-                        .fold(0, cmp::max);
+        .iter()
+        .map(|p| check_signal(&code, &p))
+        .fold(0, cmp::max);
     max_signal as u32
 }
 
 #[aoc(day7, part2)]
 pub fn solve(input: &str) -> u32 {
     let code: Vec<i32> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i32>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i32>().unwrap())
+        .collect();
 
-    let max_signal = max_thruster_signal(&code, &[5,6,7,8,9]);
+    let max_signal = max_thruster_signal(&code, &[5, 6, 7, 8, 9]);
     println!("Max signal: {}", max_signal);
     max_signal
 }
@@ -323,19 +324,33 @@ mod test {
 
     #[test]
     fn test_max_thruster_signal() {
-        let code = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5];
-        assert_eq!(max_thruster_signal(&code, &[5,6,7,8,9]), 139629729);
+        let code = [
+            3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1,
+            28, 1005, 28, 6, 99, 0, 0, 5,
+        ];
+        assert_eq!(max_thruster_signal(&code, &[5, 6, 7, 8, 9]), 139629729);
 
-        let code = [3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10];
-        assert_eq!(max_thruster_signal(&code, &[5,6,7,8,9]), 18216);
+        let code = [
+            3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
+            -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4,
+            53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10,
+        ];
+        assert_eq!(max_thruster_signal(&code, &[5, 6, 7, 8, 9]), 18216);
     }
 
     #[test]
     fn test_check_signal() {
-        let code = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5];
-        assert_eq!(check_signal(&code, &[9,8,7,6,5]), 139629729);
+        let code = [
+            3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1,
+            28, 1005, 28, 6, 99, 0, 0, 5,
+        ];
+        assert_eq!(check_signal(&code, &[9, 8, 7, 6, 5]), 139629729);
 
-        let code = [3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10];
-        assert_eq!(check_signal(&code, &[9,7,8,5,6]), 18216);
+        let code = [
+            3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
+            -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4,
+            53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10,
+        ];
+        assert_eq!(check_signal(&code, &[9, 7, 8, 5, 6]), 18216);
     }
 }

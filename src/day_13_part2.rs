@@ -12,8 +12,8 @@
     Beat the game by breaking all the blocks. What is your score after the last block is broken?
 */
 
-use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 //use std::io;
 //use std::time;
 //use std::thread;
@@ -23,7 +23,7 @@ struct Program {
     mem: HashMap<usize, i64>,
     pc: usize,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     relative_base_offset: i64,
 
     input: Vec<i64>,
@@ -67,17 +67,17 @@ impl Program {
 
         let opcode = self.get_opcode_curr();
         match opcode {
-            1  => self.opcode_add(),
-            2  => self.opcode_mul(),
-            3  => self.opcode_in(),
-            4  => self.opcode_out(),
-            5  => self.opcode_jmp(),
-            6  => self.opcode_jmpn(),
-            7  => self.opcode_lt(),
-            8  => self.opcode_eq(),
-            9  => self.opcode_rel(),
+            1 => self.opcode_add(),
+            2 => self.opcode_mul(),
+            3 => self.opcode_in(),
+            4 => self.opcode_out(),
+            5 => self.opcode_jmp(),
+            6 => self.opcode_jmpn(),
+            7 => self.opcode_lt(),
+            8 => self.opcode_eq(),
+            9 => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 
@@ -103,7 +103,9 @@ impl Program {
         match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
-            2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
+            2 => {
+                (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize
+            }
             _ => panic!("Invalid param address mode: {}", mode),
         }
     }
@@ -111,15 +113,11 @@ impl Program {
     fn get_value(&self, addr: usize) -> i64 {
         let code_len = self.code.len();
         let value = match addr {
-            a if a < code_len => {
-                self.code[addr]
+            a if a < code_len => self.code[addr],
+            a if a >= code_len => match self.mem.get(&addr) {
+                Some(value) => *value,
+                None => 0i64,
             },
-            a if a >= code_len => {
-                match self.mem.get(&addr) {
-                    Some(value) => *value,
-                    None => 0i64,
-                }
-            }
             _ => panic!("Invalid address: {}", addr),
         };
         value
@@ -130,10 +128,10 @@ impl Program {
         match addr {
             a if a < code_len => {
                 self.code[addr] = value;
-            },
+            }
             a if a >= code_len => {
                 self.mem.insert(addr, value);
-            },
+            }
             _ => panic!("Invalid address: {}", addr),
         }
     }
@@ -352,9 +350,7 @@ impl Game {
     }
 
     fn blocks_left(&self) -> usize {
-        let count = self.tiles.values()
-                                .filter(|&&v| v == Tile::Block)
-                                .count();
+        let count = self.tiles.values().filter(|&&v| v == Tile::Block).count();
         count
     }
 
@@ -379,8 +375,8 @@ impl Game {
         // println!("y_range: {:?}", y_range);
 
         println!("Score: {}", self.score);
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.tiles.get(&(x, y)) {
                     print!("{}", t.char());
                 } else {
@@ -408,17 +404,17 @@ impl Joystick {
     fn from_value(value: i64) -> Self {
         match value {
             -1 => Self::Left,
-            0  => Self::Neutral,
-            1  => Self::Right,
-            _  => panic!("Invalid Joystick value: {}", value),
+            0 => Self::Neutral,
+            1 => Self::Right,
+            _ => panic!("Invalid Joystick value: {}", value),
         }
     }
 
     fn value(&self) -> i64 {
         match *self {
-            Self::Left    => -1,
+            Self::Left => -1,
             Self::Neutral => 0,
-            Self::Right   => 1,
+            Self::Right => 1,
         }
     }
 }
@@ -483,10 +479,10 @@ fn run_program_with_game(program: &mut Program, game: &mut Game) {
 #[aoc(day13, part2)]
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i64>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i64>().unwrap())
+        .collect();
     let mut program = Program::new(&code, &[]);
     program.code[0] = 2; // Play for free
 
@@ -503,17 +499,19 @@ mod test {
 
     #[test]
     fn test_program() {
-        let code = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99];
+        let code = [
+            109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+        ];
         let mut program = Program::new(&code, &[]);
         program.run();
         assert_eq!(program.output, code);
 
-        let code = [1102,34915192,34915192,7,4,7,99,0];
+        let code = [1102, 34915192, 34915192, 7, 4, 7, 99, 0];
         let mut program = Program::new(&code, &[]);
         program.run();
         assert_eq!(program.output, [1219070632396864]);
 
-        let code = [104,1125899906842624,99];
+        let code = [104, 1125899906842624, 99];
         let mut program = Program::new(&code, &[]);
         program.run();
         assert_eq!(program.output, [1125899906842624]);

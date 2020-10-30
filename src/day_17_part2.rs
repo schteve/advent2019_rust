@@ -49,7 +49,7 @@ struct Program {
     mem: HashMap<usize, i64>,
     pc: usize,
     running: bool, // Should run or pause
-    halted: bool, // Hit a halt instruction; completely done.
+    halted: bool,  // Hit a halt instruction; completely done.
     relative_base_offset: i64,
 
     input: Vec<i64>,
@@ -94,17 +94,17 @@ impl Program {
         let opcode = self.get_opcode_curr();
         // println!("Opcode: {}", opcode);
         match opcode {
-            1  => self.opcode_add(),
-            2  => self.opcode_mul(),
-            3  => self.opcode_in(),
-            4  => self.opcode_out(),
-            5  => self.opcode_jmp(),
-            6  => self.opcode_jmpn(),
-            7  => self.opcode_lt(),
-            8  => self.opcode_eq(),
-            9  => self.opcode_rel(),
+            1 => self.opcode_add(),
+            2 => self.opcode_mul(),
+            3 => self.opcode_in(),
+            4 => self.opcode_out(),
+            5 => self.opcode_jmp(),
+            6 => self.opcode_jmpn(),
+            7 => self.opcode_lt(),
+            8 => self.opcode_eq(),
+            9 => self.opcode_rel(),
             99 => self.opcode_halt(),
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 
@@ -130,7 +130,9 @@ impl Program {
         match mode {
             0 => self.get_value(self.pc + param_idx as usize) as usize,
             1 => self.pc + param_idx as usize,
-            2 => (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize,
+            2 => {
+                (self.relative_base_offset + self.get_value(self.pc + param_idx as usize)) as usize
+            }
             _ => panic!("Invalid param address mode: {}", mode),
         }
     }
@@ -138,15 +140,11 @@ impl Program {
     fn get_value(&self, addr: usize) -> i64 {
         let code_len = self.code.len();
         let value = match addr {
-            a if a < code_len => {
-                self.code[addr]
+            a if a < code_len => self.code[addr],
+            a if a >= code_len => match self.mem.get(&addr) {
+                Some(value) => *value,
+                None => 0i64,
             },
-            a if a >= code_len => {
-                match self.mem.get(&addr) {
-                    Some(value) => *value,
-                    None => 0i64,
-                }
-            }
             _ => panic!("Invalid address: {}", addr),
         };
         value
@@ -157,10 +155,10 @@ impl Program {
         match addr {
             a if a < code_len => {
                 self.code[addr] = value;
-            },
+            }
             a if a >= code_len => {
                 self.mem.insert(addr, value);
-            },
+            }
             _ => panic!("Invalid address: {}", addr),
         }
     }
@@ -363,29 +361,25 @@ impl Cardinal {
         match *self {
             Self::North => Self::South,
             Self::South => Self::North,
-            Self::West =>  Self::East,
-            Self::East =>  Self::West,
+            Self::West => Self::East,
+            Self::East => Self::West,
         }
     }
 
     fn turn(&self, dir: Turn) -> Self {
         match dir {
-            Turn::Left => {
-                match *self {
-                    Self::North => Self::West,
-                    Self::West => Self::South,
-                    Self::South => Self::East,
-                    Self::East => Self::North,
-                }
+            Turn::Left => match *self {
+                Self::North => Self::West,
+                Self::West => Self::South,
+                Self::South => Self::East,
+                Self::East => Self::North,
             },
 
-            Turn::Right => {
-                match *self {
-                    Self::North => Self::East,
-                    Self::East => Self::South,
-                    Self::South => Self::West,
-                    Self::West => Self::North,
-                }
+            Turn::Right => match *self {
+                Self::North => Self::East,
+                Self::East => Self::South,
+                Self::South => Self::West,
+                Self::West => Self::North,
             },
         }
     }
@@ -448,7 +442,7 @@ struct Segment {
 
 struct Camera {
     program: Program,
-    area: HashMap<(i32, i32), Space>
+    area: HashMap<(i32, i32), Space>,
 }
 
 impl Camera {
@@ -498,8 +492,8 @@ impl Camera {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.area.get(&(x, y)) {
                     print!("{}", t.char());
                 } else {
@@ -581,14 +575,15 @@ impl Camera {
     }
 
     fn give_main_routine(&mut self, main_routine: &[usize]) {
-        let main_routine_str: String = main_routine.iter()
-                                        .map(|x| match x {
-                                                0 => 'A',
-                                                1 => 'B',
-                                                2 => 'C',
-                                                _ => 'X',
-                                            })
-                                        .collect();
+        let main_routine_str: String = main_routine
+            .iter()
+            .map(|x| match x {
+                0 => 'A',
+                1 => 'B',
+                2 => 'C',
+                _ => 'X',
+            })
+            .collect();
         //println!("Main routine: {}", main_routine_str);
 
         self.give_string(&main_routine_str);
@@ -638,7 +633,8 @@ impl Camera {
             self.program.run_with_pause();
 
             for i in self.program.output.drain(..) {
-                if i < 128 { // If it's ASCII, print it as a character
+                if i < 128 {
+                    // If it's ASCII, print it as a character
                     print!("{}", (i as u8) as char);
                 } else {
                     return i;
@@ -655,27 +651,29 @@ impl Camera {
 }
 
 fn segment_to_string(segment: &Segment, with_comma: bool) -> String {
-    let parts = [segment.turn.to_string(),
-                 segment.distance.to_string()];
+    let parts = [segment.turn.to_string(), segment.distance.to_string()];
     parts.join(if with_comma == true { "," } else { "" })
 }
 
 fn path_to_string(path: &[Segment], with_comma: bool) -> String {
-    let path_string = path.iter()
-                        .map(|seg| segment_to_string(seg, with_comma))
-                        .collect::<Vec<String>>()
-                        .join(if with_comma == true { "," } else { "" });
+    let path_string = path
+        .iter()
+        .map(|seg| segment_to_string(seg, with_comma))
+        .collect::<Vec<String>>()
+        .join(if with_comma == true { "," } else { "" });
     // println!("Path: {}", path_string);
     path_string
 }
 
 fn split_sub_routines(path: &[Segment]) -> Vec<String> {
     let mut histogram: HashMap<String, i32> = HashMap::new();
-    for size in 2..6 { // Impossible to have more than 5 segments in 20 characters ("X,N," * 5)
+    for size in 2..6 {
+        // Impossible to have more than 5 segments in 20 characters ("X,N," * 5)
         for i in 0..(path.len() - size) {
-            let sub_path = &path[i..(i+size)];
+            let sub_path = &path[i..(i + size)];
             let sub_path_str = path_to_string(sub_path, false);
-            if sub_path_str.len() <= 20 { // Each sub routine is limited on length
+            if sub_path_str.len() <= 20 {
+                // Each sub routine is limited on length
                 let entry = histogram.entry(sub_path_str).or_insert(0);
                 *entry += 1;
             }
@@ -684,19 +682,26 @@ fn split_sub_routines(path: &[Segment]) -> Vec<String> {
     // println!("Histogram: {:#?}", histogram);
 
     // Convert the hashmap to a vector
-    let mut histogram_vec = histogram.iter()
-                                    .map(|(k, v)| (k.clone(), *v))
-                                    .collect::<Vec<(String, i32)>>();
+    let mut histogram_vec = histogram
+        .iter()
+        .map(|(k, v)| (k.clone(), *v))
+        .collect::<Vec<(String, i32)>>();
     histogram_vec.sort_by(|a, b| a.1.cmp(&b.1).reverse());
     // println!("Histogram vec: {:#?}", histogram_vec);
-    let paths_vec = histogram_vec.iter()
-                                .map(|(string, _)| string.clone())
-                                .collect::<Vec<String>>();
+    let paths_vec = histogram_vec
+        .iter()
+        .map(|(string, _)| string.clone())
+        .collect::<Vec<String>>();
     // println!("Paths vec: {:#?}", paths_vec);
     paths_vec
 }
 
-fn match_path(path_str: &str, candidates: &[String], main_routine: &mut Vec<usize>, sub_routines: &mut Vec<String>) -> bool {
+fn match_path(
+    path_str: &str,
+    candidates: &[String],
+    main_routine: &mut Vec<usize>,
+    sub_routines: &mut Vec<String>,
+) -> bool {
     for c in candidates {
         if c.len() <= path_str.len() && c == &path_str[0..c.len()] {
             let mut routine_pushed = false;
@@ -751,10 +756,10 @@ fn find_3_sub_routines(path: &[Segment]) -> (Vec<usize>, Vec<String>) {
 #[aoc(day17, part2)]
 pub fn solve(input: &str) -> i64 {
     let code: Vec<i64> = input
-                            .trim()
-                            .split(',')
-                            .map(|s| s.parse::<i64>().unwrap())
-                            .collect();
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i64>().unwrap())
+        .collect();
     let program = Program::new(&code, &[]);
     let mut camera = Camera::new(program);
     camera.snap();
@@ -787,17 +792,20 @@ mod test {
             (Turn::Right, 4),
             (Turn::Right, 4),
             (Turn::Right, 8),
-            (Turn::Left,  6),
-            (Turn::Left,  2),
+            (Turn::Left, 6),
+            (Turn::Left, 2),
             (Turn::Right, 4),
             (Turn::Right, 4),
             (Turn::Right, 8),
             (Turn::Right, 8),
             (Turn::Right, 8),
-            (Turn::Left,  6),
-            (Turn::Left,  2),
+            (Turn::Left, 6),
+            (Turn::Left, 2),
         ];
-        let path_segments: Vec<Segment> = path.iter().map(|&(turn, distance)| Segment { turn, distance}).collect();
+        let path_segments: Vec<Segment> = path
+            .iter()
+            .map(|&(turn, distance)| Segment { turn, distance })
+            .collect();
         let (main_routine, sub_routines) = find_3_sub_routines(&path_segments);
         assert_eq!(main_routine, [0, 1, 2, 1, 0, 2]);
         assert_eq!(sub_routines[0], "R8R8");

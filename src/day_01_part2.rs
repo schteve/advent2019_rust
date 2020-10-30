@@ -33,9 +33,7 @@ fn calculate_total_fuel(mass: u32) -> u32 {
 pub fn solve(input: &str) -> u32 {
     let modules: Vec<u32> = input.lines().map(|s| s.parse::<u32>().unwrap()).collect();
 
-    let total = modules.iter()
-        .map(|&mass| calculate_total_fuel(mass))
-        .sum();
+    let total = modules.iter().map(|&mass| calculate_total_fuel(mass)).sum();
 
     println!("Actually total fuel: {}", total);
     total
@@ -53,7 +51,7 @@ mod test {
         assert_eq!(calculate_fuel(100756), 33583);
     }
 
-        #[test]
+    #[test]
     fn test_calculate_total_fuel() {
         assert_eq!(calculate_total_fuel(12), 2);
         assert_eq!(calculate_total_fuel(14), 2);

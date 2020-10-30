@@ -26,10 +26,7 @@ impl Chemical {
         let name = parts.next().unwrap();
         let id = name_map.get_id(name);
 
-        Self {
-            id,
-            num,
-        }
+        Self { id, num }
     }
 }
 
@@ -42,9 +39,10 @@ struct Reaction {
 impl Reaction {
     fn from_string(input: &str, name_map: &mut NameMap) -> Self {
         let pieces: Vec<&str> = input.split("=>").collect();
-        let from_chemicals: Vec<Chemical> = pieces[0].split(',')
-                                                    .map(|s| Chemical::from_string(s, name_map))
-                                                    .collect();
+        let from_chemicals: Vec<Chemical> = pieces[0]
+            .split(',')
+            .map(|s| Chemical::from_string(s, name_map))
+            .collect();
         let to_chemical = Chemical::from_string(pieces[1], name_map);
 
         Self {
@@ -102,12 +100,14 @@ struct RecipeBook {
 impl RecipeBook {
     fn from_string(input: &str) -> Self {
         let mut name_map = NameMap::new();
-        let reactions: HashMap<u32, Reaction> = input.trim().lines()
-                                                            .map(|line| {
-                                                                    let reaction = Reaction::from_string(line, &mut name_map);
-                                                                    (reaction.to.id, reaction)
-                                                                })
-                                                            .collect();
+        let reactions: HashMap<u32, Reaction> = input
+            .trim()
+            .lines()
+            .map(|line| {
+                let reaction = Reaction::from_string(line, &mut name_map);
+                (reaction.to.id, reaction)
+            })
+            .collect();
         Self {
             reactions,
             name_map,
@@ -132,31 +132,34 @@ impl RecipeBook {
         loop {
             // Get all elements in the supply with a negative number (chemical debt)
             let ore_id = self.name_map.get_id("ORE");
-            let chemical_debts: Vec<Chemical> = supply.iter()
-                                                    .filter(|&(&k, &v)| (v < 0) && (k != ore_id))
-                                                    .map(|(&k, &v)| Chemical {
-                                                            id: k,
-                                                            num: -v, // Negate to get the amount needed to produce
-                                                        })
-                                                    .collect();
+            let chemical_debts: Vec<Chemical> = supply
+                .iter()
+                .filter(|&(&k, &v)| (v < 0) && (k != ore_id))
+                .map(|(&k, &v)| Chemical {
+                    id: k,
+                    num: -v, // Negate to get the amount needed to produce
+                })
+                .collect();
             if chemical_debts.is_empty() == true {
                 // No more chemical debt, return
                 break;
             }
 
-            chemical_debts.iter().for_each(|chemical| self.produce_chemical(supply, chemical));
+            chemical_debts
+                .iter()
+                .for_each(|chemical| self.produce_chemical(supply, chemical));
         }
     }
 
     fn calculate_ore_for_fuel(&mut self, num_fuel: i64) -> i64 {
-        let mut supply: HashMap::<u32, i64> = HashMap::new();
+        let mut supply: HashMap<u32, i64> = HashMap::new();
 
         let ore_id = self.name_map.get_id("ORE");
         let fuel_id = self.name_map.get_id("FUEL");
 
         let fuel = Chemical {
             id: fuel_id,
-            num: num_fuel
+            num: num_fuel,
         };
         self.produce_chemical(&mut supply, &fuel);
         self.resolve_debt(&mut supply);
@@ -189,7 +192,8 @@ impl RecipeBook {
         // Now that the upper bound is known, binary search to find the answer
         let mut lower = last_good;
         let mut upper = attempt;
-        while lower + 1 != upper { // Calculation ends with lower == upper - 1 since lower is always a good attempt and upper is always a bad one
+        while lower + 1 != upper {
+            // Calculation ends with lower == upper - 1 since lower is always a good attempt and upper is always a bad one
             let middle = (lower + upper) / 2;
             let ore = self.calculate_ore_for_fuel(middle);
             //println!("{} ore makes {} fuel", ore, attempt);

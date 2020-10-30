@@ -84,9 +84,7 @@ impl BugSim {
             }
         }
 
-        Self {
-            state
-        }
+        Self { state }
     }
 
     fn get_tile(&self, row: i32, col: i32) -> bool {
@@ -161,7 +159,8 @@ impl BugSim {
 
     fn run_until_repeat(&mut self) {
         let mut state_set: HashSet<i32> = HashSet::new();
-        while state_set.insert(self.state) == true { // If the set already had the value, we have found a repeat, the end condition.
+        while state_set.insert(self.state) == true {
+            // If the set already had the value, we have found a repeat, the end condition.
             self.step();
         }
     }

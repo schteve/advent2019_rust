@@ -52,13 +52,13 @@ fn run_program(program: &mut [u32]) {
         // println!("Program: {:?}", program);
         let opcode = program[pc as usize];
         match opcode {
-            1  => opcode_add(program, &mut pc),
-            2  => opcode_mul(program, &mut pc),
+            1 => opcode_add(program, &mut pc),
+            2 => opcode_mul(program, &mut pc),
             99 => {
                 // println!("Program complete!");
                 break;
             }
-            _  => panic!("Invalid opcode"),
+            _ => panic!("Invalid opcode"),
         }
     }
 }
@@ -77,7 +77,7 @@ fn opcode_add(program: &mut [u32], pc: &mut u32) {
     program[target_addr as usize] = param1 + param2;
 }
 
-fn opcode_mul(program: &mut [u32], pc: &mut u32)  {
+fn opcode_mul(program: &mut [u32], pc: &mut u32) {
     let param1_addr = program[(*pc + 1) as usize];
     let param2_addr = program[(*pc + 2) as usize];
     let target_addr = program[(*pc + 3) as usize];
@@ -93,7 +93,11 @@ fn opcode_mul(program: &mut [u32], pc: &mut u32)  {
 
 #[aoc(day2, part1)]
 pub fn solve(input: &str) -> u32 {
-    let mut program: Vec<u32> = input.trim().split(',').map(|s| s.parse::<u32>().unwrap()).collect();
+    let mut program: Vec<u32> = input
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<u32>().unwrap())
+        .collect();
     // Position 1 changed to 12 and position 2 changed to 2 per instructions
     program[1] = 12;
     program[2] = 2;
@@ -110,20 +114,20 @@ mod test {
 
     #[test]
     fn test_program() {
-        let mut program1 = [1,0,0,0,99];
+        let mut program1 = [1, 0, 0, 0, 99];
         run_program(&mut program1);
-        assert_eq!(program1, [2,0,0,0,99]);
+        assert_eq!(program1, [2, 0, 0, 0, 99]);
 
-        let mut program2 = [2,3,0,3,99];
+        let mut program2 = [2, 3, 0, 3, 99];
         run_program(&mut program2);
-        assert_eq!(program2, [2,3,0,6,99]);
+        assert_eq!(program2, [2, 3, 0, 6, 99]);
 
-        let mut program3 = [2,4,4,5,99,0];
+        let mut program3 = [2, 4, 4, 5, 99, 0];
         run_program(&mut program3);
-        assert_eq!(program3, [2,4,4,5,99,9801]);
+        assert_eq!(program3, [2, 4, 4, 5, 99, 9801]);
 
-        let mut program4 = [1,1,1,4,99,5,6,0,99];
+        let mut program4 = [1, 1, 1, 4, 99, 5, 6, 0, 99];
         run_program(&mut program4);
-        assert_eq!(program4, [30,1,1,4,2,5,6,0,99]);
+        assert_eq!(program4, [30, 1, 1, 4, 2, 5, 6, 0, 99]);
     }
 }

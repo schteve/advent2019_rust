@@ -123,8 +123,8 @@ impl Cardinal {
         match *self {
             Self::North => Self::South,
             Self::South => Self::North,
-            Self::West =>  Self::East,
-            Self::East =>  Self::West,
+            Self::West => Self::East,
+            Self::East => Self::West,
         }
     }
 }
@@ -190,10 +190,7 @@ impl Map {
     fn from_string(input: &str) -> Map {
         let mut area = HashMap::new();
 
-        let mut p = Point {
-            x: 0,
-            y: 0,
-        };
+        let mut p = Point { x: 0, y: 0 };
         for line in input.lines() {
             for c in line.chars() {
                 let space = Space::from_value(c);
@@ -208,9 +205,7 @@ impl Map {
             p.y += 1;
         }
 
-        Map {
-            area,
-        }
+        Map { area }
     }
 
     fn display(&self) {
@@ -233,8 +228,8 @@ impl Map {
         // println!("x_range: {:?}", x_range);
         // println!("y_range: {:?}", y_range);
 
-        for y in y_range.0 ..= y_range.1 {
-            for x in x_range.0 ..= x_range.1 {
+        for y in y_range.0..=y_range.1 {
+            for x in x_range.0..=x_range.1 {
                 if let Some(t) = self.area.get(&Point { x, y }) {
                     print!("{}", t.char());
                 } else {
@@ -269,10 +264,12 @@ impl Map {
         loop {
             counter += 1;
             for location in frontier.drain(..).collect::<Vec<Point>>() {
-                let candidates = [Cardinal::North,
-                                  Cardinal::South,
-                                  Cardinal::West,
-                                  Cardinal::East];
+                let candidates = [
+                    Cardinal::North,
+                    Cardinal::South,
+                    Cardinal::West,
+                    Cardinal::East,
+                ];
                 for direction in candidates.iter() {
                     let step_in_direction = direction.step_from(location);
                     //println!("Step: {:?}", step_in_direction);
@@ -281,7 +278,7 @@ impl Map {
                             Some(Space::Empty) | Some(Space::Entrance) => {
                                 frontier.push(step_in_direction);
                                 walked.insert(step_in_direction);
-                            },
+                            }
                             Some(Space::Key(c)) => {
                                 if start_node.has_key(*c) == false {
                                     //println!("Key: {}", c);
@@ -296,7 +293,7 @@ impl Map {
                                     frontier.push(step_in_direction);
                                     walked.insert(step_in_direction);
                                 }
-                            },
+                            }
                             Some(Space::Door(c)) => {
                                 if start_node.has_key(*c) == true {
                                     //println!("Door: {}", c);
@@ -580,9 +577,7 @@ mod test {
         graph.dijkstra(0);
         let (distance, path) = graph.get_shortest_path();
         assert_eq!(distance, 8);
-        assert_eq!(path, [Space::Entrance,
-                          Space::Key('a'),
-                          Space::Key('b')]);
+        assert_eq!(path, [Space::Entrance, Space::Key('a'), Space::Key('b')]);
 
         let input = "
 ########################
@@ -596,13 +591,18 @@ mod test {
         graph.dijkstra(0);
         let (distance, path) = graph.get_shortest_path();
         assert_eq!(distance, 86);
-        assert_eq!(path, [Space::Entrance,
-                        Space::Key('a'),
-                        Space::Key('b'),
-                        Space::Key('c'),
-                        Space::Key('d'),
-                        Space::Key('e'),
-                        Space::Key('f')]);
+        assert_eq!(
+            path,
+            [
+                Space::Entrance,
+                Space::Key('a'),
+                Space::Key('b'),
+                Space::Key('c'),
+                Space::Key('d'),
+                Space::Key('e'),
+                Space::Key('f')
+            ]
+        );
 
         let input = "
 ########################
@@ -616,14 +616,19 @@ mod test {
         graph.dijkstra(0);
         let (distance, path) = graph.get_shortest_path();
         assert_eq!(distance, 132);
-        assert_eq!(path, [Space::Entrance,
-                          Space::Key('b'),
-                          Space::Key('a'),
-                          Space::Key('c'),
-                          Space::Key('d'),
-                          Space::Key('f'),
-                          Space::Key('e'),
-                          Space::Key('g')]);
+        assert_eq!(
+            path,
+            [
+                Space::Entrance,
+                Space::Key('b'),
+                Space::Key('a'),
+                Space::Key('c'),
+                Space::Key('d'),
+                Space::Key('f'),
+                Space::Key('e'),
+                Space::Key('g')
+            ]
+        );
 
         let input = "
 #################
@@ -643,7 +648,7 @@ mod test {
         assert_eq!(distance, 136);
         // There are multiple possible paths, don't verify
 
-let input = "
+        let input = "
 ########################
 #@..............ac.GI.b#
 ###d#e#f################

@@ -63,19 +63,19 @@ impl Program {
 
             let opcode = self.get_opcode_curr();
             match opcode {
-                1  => self.opcode_add(),
-                2  => self.opcode_mul(),
-                3  => self.opcode_in(),
-                4  => self.opcode_out(),
-                5  => self.opcode_jmp(),
-                6  => self.opcode_jmpn(),
-                7  => self.opcode_lt(),
-                8  => self.opcode_eq(),
+                1 => self.opcode_add(),
+                2 => self.opcode_mul(),
+                3 => self.opcode_in(),
+                4 => self.opcode_out(),
+                5 => self.opcode_jmp(),
+                6 => self.opcode_jmpn(),
+                7 => self.opcode_lt(),
+                8 => self.opcode_eq(),
                 99 => {
                     // println!("Program complete!");
                     break;
                 }
-                _  => panic!("Invalid opcode"),
+                _ => panic!("Invalid opcode"),
             }
         }
     }
@@ -246,7 +246,11 @@ impl Program {
 
 #[aoc(day5, part2)]
 pub fn solve(input: &str) -> i32 {
-    let code: Vec<i32> = input.trim().split(',').map(|s| s.parse::<i32>().unwrap()).collect();
+    let code: Vec<i32> = input
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i32>().unwrap())
+        .collect();
     let input = [5];
 
     let mut program = Program::new(&code, &input);
@@ -263,121 +267,139 @@ mod test {
     #[test]
     fn test_program() {
         // Add
-        let mut program = Program::new(&[1,0,0,0,99], &[]);
+        let mut program = Program::new(&[1, 0, 0, 0, 99], &[]);
         program.run();
-        assert_eq!(program.code, [2,0,0,0,99]);
+        assert_eq!(program.code, [2, 0, 0, 0, 99]);
         assert_eq!(program.output, []);
 
         // Mul
-        let mut program = Program::new(&[2,3,0,3,99], &[]);
+        let mut program = Program::new(&[2, 3, 0, 3, 99], &[]);
         program.run();
-        assert_eq!(program.code, [2,3,0,6,99]);
+        assert_eq!(program.code, [2, 3, 0, 6, 99]);
         assert_eq!(program.output, []);
 
         // Mul
-        let mut program = Program::new(&[2,4,4,5,99,0], &[]);
+        let mut program = Program::new(&[2, 4, 4, 5, 99, 0], &[]);
         program.run();
-        assert_eq!(program.code, [2,4,4,5,99,9801]);
+        assert_eq!(program.code, [2, 4, 4, 5, 99, 9801]);
         assert_eq!(program.output, []);
 
         // Add / Mul
-        let mut program = Program::new(&[1,1,1,4,99,5,6,0,99], &[]);
+        let mut program = Program::new(&[1, 1, 1, 4, 99, 5, 6, 0, 99], &[]);
         program.run();
-        assert_eq!(program.code, [30,1,1,4,2,5,6,0,99]);
+        assert_eq!(program.code, [30, 1, 1, 4, 2, 5, 6, 0, 99]);
         assert_eq!(program.output, []);
 
         // Mode
-        let mut program = Program::new(&[1002,4,3,4,33], &[]);
+        let mut program = Program::new(&[1002, 4, 3, 4, 33], &[]);
         program.run();
-        assert_eq!(program.code, [1002,4,3,4,99]);
+        assert_eq!(program.code, [1002, 4, 3, 4, 99]);
         assert_eq!(program.output, []);
 
         // Input / Output
-        let mut program = Program::new(&[3,0,4,0,99], &[1]);
+        let mut program = Program::new(&[3, 0, 4, 0, 99], &[1]);
         program.run();
-        assert_eq!(program.code, [1,0,4,0,99]);
+        assert_eq!(program.code, [1, 0, 4, 0, 99]);
         assert_eq!(program.output, [1]);
 
         // Negative
-        let mut program = Program::new(&[1101,100,-1,4,0], &[]);
+        let mut program = Program::new(&[1101, 100, -1, 4, 0], &[]);
         program.run();
-        assert_eq!(program.code, [1101,100,-1,4,99]);
+        assert_eq!(program.code, [1101, 100, -1, 4, 99]);
         assert_eq!(program.output, []);
 
         // EQ, position mode
-        let mut program = Program::new(&[3,9,8,9,10,9,4,9,99,-1,8], &[5]);
+        let mut program = Program::new(&[3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], &[5]);
         program.run();
         assert_eq!(program.output, [0]);
 
         // EQ, position mode
-        let mut program = Program::new(&[3,9,8,9,10,9,4,9,99,-1,8], &[8]);
+        let mut program = Program::new(&[3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], &[8]);
         program.run();
         assert_eq!(program.output, [1]);
 
         // LT, position mode
-        let mut program = Program::new(&[3,9,7,9,10,9,4,9,99,-1,8], &[5]);
+        let mut program = Program::new(&[3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8], &[5]);
         program.run();
         assert_eq!(program.output, [1]);
 
         // LT, position mode
-        let mut program = Program::new(&[3,9,7,9,10,9,4,9,99,-1,8], &[8]);
+        let mut program = Program::new(&[3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8], &[8]);
         program.run();
         assert_eq!(program.output, [0]);
 
         // EQ, immediate mode
-        let mut program = Program::new(&[3,3,1108,-1,8,3,4,3,99], &[5]);
+        let mut program = Program::new(&[3, 3, 1108, -1, 8, 3, 4, 3, 99], &[5]);
         program.run();
         assert_eq!(program.output, [0]);
 
         // EQ, immediate mode
-        let mut program = Program::new(&[3,3,1108,-1,8,3,4,3,99], &[8]);
+        let mut program = Program::new(&[3, 3, 1108, -1, 8, 3, 4, 3, 99], &[8]);
         program.run();
         assert_eq!(program.output, [1]);
 
         // LT, immediate mode
-        let mut program = Program::new(&[3,3,1107,-1,8,3,4,3,99], &[5]);
+        let mut program = Program::new(&[3, 3, 1107, -1, 8, 3, 4, 3, 99], &[5]);
         program.run();
         assert_eq!(program.output, [1]);
 
         // LT, immediate mode
-        let mut program = Program::new(&[3,3,1107,-1,8,3,4,3,99], &[8]);
+        let mut program = Program::new(&[3, 3, 1107, -1, 8, 3, 4, 3, 99], &[8]);
         program.run();
         assert_eq!(program.output, [0]);
 
         // Jmp, position mode
-        let mut program = Program::new(&[3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9], &[0]);
+        let mut program = Program::new(
+            &[3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9],
+            &[0],
+        );
         program.run();
         assert_eq!(program.output, [0]);
 
         // Jmp, position mode
-        let mut program = Program::new(&[3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9], &[1]);
+        let mut program = Program::new(
+            &[3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9],
+            &[1],
+        );
         program.run();
         assert_eq!(program.output, [1]);
 
         // Jmp, immediate mode
-        let mut program = Program::new(&[3,3,1105,-1,9,1101,0,0,12,4,12,99,1], &[0]);
+        let mut program = Program::new(&[3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], &[0]);
         program.run();
         assert_eq!(program.output, [0]);
 
         // Jmp, immediate mode
-        let mut program = Program::new(&[3,3,1105,-1,9,1101,0,0,12,4,12,99,1], &[1]);
+        let mut program = Program::new(&[3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], &[1]);
         program.run();
         assert_eq!(program.output, [1]);
 
         // Everything
-        let code = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99];
+        let code = [
+            3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0,
+            0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
+            20, 1105, 1, 46, 98, 99,
+        ];
         let mut program = Program::new(&code, &[2]);
         program.run();
         assert_eq!(program.output, [999]);
 
         // Everything
-        let code = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99];
+        let code = [
+            3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0,
+            0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
+            20, 1105, 1, 46, 98, 99,
+        ];
         let mut program = Program::new(&code, &[8]);
         program.run();
         assert_eq!(program.output, [1000]);
 
         // Everything
-        let code = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99];
+        let code = [
+            3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0,
+            0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
+            20, 1105, 1, 46, 98, 99,
+        ];
         let mut program = Program::new(&code, &[10]);
         program.run();
         assert_eq!(program.output, [1001]);

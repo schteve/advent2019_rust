@@ -21,10 +21,14 @@ fn ones_digit(input: i32) -> i32 {
 
 fn phase(input: &[i32]) -> Vec<i32> {
     let mut sum = 0;
-    let mut output: Vec<i32> = input.iter()
-                                    .rev()
-                                    .map(|i| { sum = ones_digit(sum + i); sum })
-                                    .collect();
+    let mut output: Vec<i32> = input
+        .iter()
+        .rev()
+        .map(|i| {
+            sum = ones_digit(sum + i);
+            sum
+        })
+        .collect();
     output.reverse(); // Note: the same cannot be achieved by using rev() twice on the iterator (it reverses the iterator back to its starting order, even if there is a map() between)
     output
 }
@@ -36,29 +40,32 @@ fn fft(input: Vec<i32>, phases: i32) -> Vec<i32> {
 }
 
 fn parse_string(s: &str) -> Vec<i32> {
-    let list: Vec<i32> = s.trim()
-                            .chars()
-                            .map(|c| c.to_digit(10).unwrap() as i32)
-                            .collect();
+    let list: Vec<i32> = s
+        .trim()
+        .chars()
+        .map(|c| c.to_digit(10).unwrap() as i32)
+        .collect();
     list
 }
 
 fn parse_string_x1000(s: &str) -> Vec<i32> {
     let clean_s = s.trim();
-    let list: Vec<i32> = clean_s.chars()
-                                .map(|c| c.to_digit(10).unwrap() as i32)
-                                .cycle()
-                                .take(clean_s.len() * 10000)
-                                .collect();
+    let list: Vec<i32> = clean_s
+        .chars()
+        .map(|c| c.to_digit(10).unwrap() as i32)
+        .cycle()
+        .take(clean_s.len() * 10000)
+        .collect();
     list
 }
 
 fn get_offset(list: &[i32]) -> i32 {
-    let offset = list[0..7].iter()
-                        .rev()
-                        .enumerate()
-                        .map(|(i, item)| 10i32.pow(i as u32) * item)
-                        .sum();
+    let offset = list[0..7]
+        .iter()
+        .rev()
+        .enumerate()
+        .map(|(i, item)| 10i32.pow(i as u32) * item)
+        .sum();
     //println!("Offset: {}", offset);
     offset
 }
@@ -69,12 +76,11 @@ pub fn solve(input: &str) -> String {
     let offset = get_offset(&list);
 
     list.drain(0..(offset as usize)); // Don't care about anything before the offset
+
     //println!("Size: {}", list.len());
 
     let fft_result = fft(list, 100);
-    let fft_result_str: String = fft_result[0..8].iter()
-                                                .map(|i| i.to_string())
-                                                .collect();
+    let fft_result_str: String = fft_result[0..8].iter().map(|i| i.to_string()).collect();
     println!("FFT x10000: {}", fft_result_str);
     fft_result_str
 }

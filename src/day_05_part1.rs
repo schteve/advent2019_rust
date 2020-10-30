@@ -74,15 +74,15 @@ impl Program {
 
             let opcode = self.get_opcode_curr();
             match opcode {
-                1  => self.opcode_add(),
-                2  => self.opcode_mul(),
-                3  => self.opcode_in(),
-                4  => self.opcode_out(),
+                1 => self.opcode_add(),
+                2 => self.opcode_mul(),
+                3 => self.opcode_in(),
+                4 => self.opcode_out(),
                 99 => {
                     // println!("Program complete!");
                     break;
                 }
-                _  => panic!("Invalid opcode"),
+                _ => panic!("Invalid opcode"),
             }
         }
     }
@@ -179,7 +179,11 @@ impl Program {
 
 #[aoc(day5, part1)]
 pub fn solve(input: &str) -> i32 {
-    let code: Vec<i32> = input.trim().split(',').map(|s| s.parse::<i32>().unwrap()).collect();
+    let code: Vec<i32> = input
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<i32>().unwrap())
+        .collect();
     let input = [1];
 
     let mut program = Program::new(&code, &input);
@@ -196,45 +200,45 @@ mod test {
     #[test]
     fn test_program() {
         // Add
-        let mut program = Program::new(&[1,0,0,0,99], &[]);
+        let mut program = Program::new(&[1, 0, 0, 0, 99], &[]);
         program.run();
-        assert_eq!(program.code, [2,0,0,0,99]);
+        assert_eq!(program.code, [2, 0, 0, 0, 99]);
         assert_eq!(program.output, []);
 
         // Mul
-        let mut program = Program::new(&[2,3,0,3,99], &[]);
+        let mut program = Program::new(&[2, 3, 0, 3, 99], &[]);
         program.run();
-        assert_eq!(program.code, [2,3,0,6,99]);
+        assert_eq!(program.code, [2, 3, 0, 6, 99]);
         assert_eq!(program.output, []);
 
         // Mul
-        let mut program = Program::new(&[2,4,4,5,99,0], &[]);
+        let mut program = Program::new(&[2, 4, 4, 5, 99, 0], &[]);
         program.run();
-        assert_eq!(program.code, [2,4,4,5,99,9801]);
+        assert_eq!(program.code, [2, 4, 4, 5, 99, 9801]);
         assert_eq!(program.output, []);
 
         // Add / Mul
-        let mut program = Program::new(&[1,1,1,4,99,5,6,0,99], &[]);
+        let mut program = Program::new(&[1, 1, 1, 4, 99, 5, 6, 0, 99], &[]);
         program.run();
-        assert_eq!(program.code, [30,1,1,4,2,5,6,0,99]);
+        assert_eq!(program.code, [30, 1, 1, 4, 2, 5, 6, 0, 99]);
         assert_eq!(program.output, []);
 
         // Mode
-        let mut program = Program::new(&[1002,4,3,4,33], &[]);
+        let mut program = Program::new(&[1002, 4, 3, 4, 33], &[]);
         program.run();
-        assert_eq!(program.code, [1002,4,3,4,99]);
+        assert_eq!(program.code, [1002, 4, 3, 4, 99]);
         assert_eq!(program.output, []);
 
         // Input / Output
-        let mut program = Program::new(&[3,0,4,0,99], &[1]);
+        let mut program = Program::new(&[3, 0, 4, 0, 99], &[1]);
         program.run();
-        assert_eq!(program.code, [1,0,4,0,99]);
+        assert_eq!(program.code, [1, 0, 4, 0, 99]);
         assert_eq!(program.output, [1]);
 
         // Negative
-        let mut program = Program::new(&[1101,100,-1,4,0], &[]);
+        let mut program = Program::new(&[1101, 100, -1, 4, 0], &[]);
         program.run();
-        assert_eq!(program.code, [1101,100,-1,4,99]);
+        assert_eq!(program.code, [1101, 100, -1, 4, 99]);
         assert_eq!(program.output, []);
     }
 }
