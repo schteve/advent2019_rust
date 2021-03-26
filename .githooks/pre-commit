@@ -3,5 +3,5 @@ if [ "$BRANCH_NAME" != '(no branch)' ]
 then
     cargo fmt -- --check
     cargo test
-    cargo clean -p advent2019_rust; cargo clippy -- -Dwarnings -A clippy::bool_comparison -A clippy::needless_return -A clippy::needless_bool -A clippy::many_single_char_names -A clippy::if_same_then_else
+    cargo clean -p advent_of_code_2019; cargo clippy -- -Dwarnings -A clippy::bool_comparison -A clippy::needless_return -A clippy::needless_bool -A clippy::many_single_char_names -A clippy::if_same_then_else
 fi
