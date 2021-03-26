@@ -88,7 +88,7 @@ impl BugSim {
     }
 
     fn get_tile(&self, row: i32, col: i32) -> bool {
-        if row < 0 || row >= 5 || col < 0 || col >= 5 {
+        if (0..5).contains(&row) == false || (0..5).contains(&col) == false {
             return false; // Invalid tiles may result from looking beyond the grid boundaries, these should always count as empty
         }
         let idx = row * 5 + col;

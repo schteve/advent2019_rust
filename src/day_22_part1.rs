@@ -166,14 +166,14 @@ impl Technique {
             return Self::DealNewStack;
         } else if s.starts_with("deal with increment ") == true {
             for sub in s.split("deal with increment ") {
-                if sub != "" {
+                if sub.is_empty() == false {
                     let value = sub.parse::<i64>().unwrap();
                     return Self::DealWithIncrement(value);
                 }
             }
         } else if s.starts_with("cut ") == true {
             for sub in s.split("cut ") {
-                if sub != "" {
+                if sub.is_empty() == false {
                     let value = sub.parse::<i64>().unwrap();
                     return Self::Cut(value);
                 }

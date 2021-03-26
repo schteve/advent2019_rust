@@ -287,7 +287,7 @@ fn generate_permutations(outputs: &mut Vec<Vec<i32>>, sequence: &mut [i32], seq_
     } else {
         for i in seq_idx..sequence.len() {
             sequence.swap(seq_idx, i); // Swap elements
-            generate_permutations(outputs, sequence, seq_idx + 1 as usize); // Descend
+            generate_permutations(outputs, sequence, seq_idx + 1_usize); // Descend
             sequence.swap(seq_idx, i); // Undo swapping
         }
     }

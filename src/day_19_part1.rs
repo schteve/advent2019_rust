@@ -352,7 +352,7 @@ impl TractorBeam {
     fn check_point(&mut self, point: Point) -> Space {
         if let Some(&space) = self.area.get(&point) {
             // The value is already cached
-            return space;
+            space
         } else {
             // We need to ask the oracle what the value is
             let mut oracle_program = self.program.clone(); // This is needed because the program only runs once and then exits
@@ -368,7 +368,7 @@ impl TractorBeam {
                 // Cache the value for later
                 self.area.insert(point, space);
 
-                return space;
+                space
             } else {
                 panic!("Something went wrong when trying a point");
             }

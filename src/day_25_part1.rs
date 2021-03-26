@@ -364,7 +364,7 @@ impl Droid {
         for c in command.to_string().bytes() {
             self.program.input.push(c as i64);
         }
-        self.program.input.push(0x0A as i64); // Always end with newline
+        self.program.input.push(0x0A_i64); // Always end with newline
     }
 
     fn print_output(&mut self) {

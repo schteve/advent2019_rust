@@ -349,10 +349,10 @@ impl Computer {
             // Full packet received, return it
             let output_data = self.program.output.drain(0..3).collect::<Vec<i64>>();
             let packet = Packet::from_slice(output_data);
-            return Some(packet);
+            Some(packet)
         } else {
             // Nothing of interest happened (maybe received part of the packet)
-            return None;
+            None
         }
     }
 

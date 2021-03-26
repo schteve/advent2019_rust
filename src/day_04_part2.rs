@@ -42,18 +42,17 @@ fn is_password_valid(password: u32) -> bool {
         last_value = this_value;
     }
 
-    // print!("{} - ", password);
+    /*print!("{} - ", password);
     if digits_repeat_twice == false && digits_repeat_count != 2 {
-        // Check run count here to catch the final run
-        // println!("no, digits don't repeat exactly 2 times");
-        return false;
+        println!("no, digits don't repeat exactly 2 times");
     } else if digits_never_decrease == false {
-        // println!("no, digits decrease");
-        return false;
+        println!("no, digits decrease");
     } else {
-        // println!("yes!");
-        return true;
-    }
+        println!("yes!");
+    }*/
+
+    // Check run count here to catch the final run
+    (digits_repeat_twice == true || digits_repeat_count == 2) && digits_never_decrease == true
 }
 
 fn count_passwords(start: u32, end: u32) -> u32 {

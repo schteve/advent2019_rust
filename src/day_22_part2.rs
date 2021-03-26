@@ -59,6 +59,7 @@ fn modulo_div(x: i64, n: i64, modulus: i64) -> i64 {
     modulo_mult(inv_x, n, modulus)
 }
 
+#[allow(clippy::many_single_char_names)]
 fn gcd_extended(a: i64, b: i64) -> i64 {
     let mut s = 0;
     let mut old_s = 1;
@@ -103,14 +104,14 @@ impl Technique {
             return Self::DealNewStack;
         } else if s.starts_with("deal with increment ") == true {
             for sub in s.split("deal with increment ") {
-                if sub != "" {
+                if sub.is_empty() == false {
                     let value = sub.parse::<i64>().unwrap();
                     return Self::DealWithIncrement(value);
                 }
             }
         } else if s.starts_with("cut ") == true {
             for sub in s.split("cut ") {
-                if sub != "" {
+                if sub.is_empty() == false {
                     let value = sub.parse::<i64>().unwrap();
                     return Self::Cut(value);
                 }

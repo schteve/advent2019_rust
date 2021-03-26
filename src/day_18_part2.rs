@@ -424,8 +424,7 @@ impl Map {
         };
         graph.vertices.push(starting_vertex);
 
-        let mut frontier: Vec<usize> = Vec::new();
-        frontier.push(0); // Visit the starting vertex first
+        let mut frontier: Vec<usize> = vec![0]; // Visit the starting vertex first
 
         loop {
             for frontier_id in frontier.drain(..).collect::<Vec<usize>>() {

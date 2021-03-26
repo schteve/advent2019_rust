@@ -193,7 +193,10 @@ impl BugSim {
     }
 
     fn get_tile(&self, depth: i32, row: i32, col: i32) -> Option<bool> {
-        if row < 0 || row >= 5 || col < 0 || col >= 5 || (row == 2 && col == 2) {
+        if (0..5).contains(&row) == false
+            || (0..5).contains(&col) == false
+            || (row == 2 && col == 2)
+        {
             return None; // Invalid tiles may result from looking beyond the grid boundaries, or from the recursive tile
         }
 

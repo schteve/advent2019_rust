@@ -36,17 +36,16 @@ fn is_password_valid(password: u32) -> bool {
         last_value = this_value;
     }
 
-    // print!("{} - ", password);
+    /*print!("{} - ", password);
     if digits_repeat == false {
-        // println!("no, digits don't repeat");
-        return false;
+        println!("no, digits don't repeat");
     } else if digits_never_decrease == false {
-        // println!("no, digits decrease");
-        return false;
+        println!("no, digits decrease");
     } else {
-        // println!("yes!");
-        return true;
-    }
+        println!("yes!");
+    }*/
+
+    digits_repeat == true && digits_never_decrease == true
 }
 
 fn count_passwords(start: u32, end: u32) -> u32 {

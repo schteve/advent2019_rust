@@ -527,24 +527,24 @@ impl Drone {
                 Status::Wall => {
                     let wall_position = direction.step_from(self.location);
                     self.area.insert(wall_position, Space::Wall);
-                    return false;
+                    false
                 }
                 Status::Moved => {
                     let drone_position = direction.step_from(self.location);
                     self.area.insert(drone_position, Space::Empty);
                     self.location = drone_position;
-                    return true;
+                    true
                 }
                 Status::Oxygen => {
                     let drone_position = direction.step_from(self.location);
                     self.area.insert(drone_position, Space::Oxygen);
                     self.location = drone_position;
-                    return true;
+                    true
                 }
             }
         } else {
             println!("No movement: program halted!");
-            return false;
+            false
         }
     }
 
