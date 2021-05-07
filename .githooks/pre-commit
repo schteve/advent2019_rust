@@ -3,5 +3,5 @@ if [ "$BRANCH_NAME" != '(no branch)' ]
 then
     cargo fmt -- --check
     cargo test
-    cargo clean -p advent_of_code_2019; cargo clippy -- -Dwarnings
+    cargo clippy -- -Dwarnings
 fi
